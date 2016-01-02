@@ -1,3 +1,3 @@
-Simple `Cdecl`
+Simple cdecl
 ---------------
-From `Expert C Programming Deep C Secrets`
+From `<Expert C Programming Deep C Secrets>`
