@@ -1,0 +1,15 @@
+git config --global alias.s 'status'
+
+git config --global alias.p 'push'
+
+git config --global alias.c 'commit'
+
+git config --global alias.l 'log --pretty=format:'%h : $s' --graph'
+
+git config --global alias.aa 'add .'
+
+git config --global alias.ca 'commit -a'
+
+git config --global core.editor vim
+
+git config --global push.default current
