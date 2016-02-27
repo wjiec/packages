@@ -1,0 +1,5 @@
+```shell
+make
+./server &
+./client
+```

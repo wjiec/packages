@@ -13,12 +13,12 @@ struct token {
     char string[64];
 };
 
-int SP = -1;
+int index = -1;
 struct token stack[64]; // 4KB
 struct token current = { 0 };
 
-#define push(t) stack[++SP] = (t)
-#define pop stack[SP--]
+#define push(t) stack[++index] = (t)
+#define pop stack[index--]
 
 static enum token_type classifyString(void);
 static void readToFirstIdentifier(void);
@@ -32,7 +32,6 @@ static void dealWithPointers(void);
 int main(int argc, char *argv[]) {
     readToFirstIdentifier();
     DealWithDeclarator();
-    getchar(); getchar(); getchar(); getchar();
     return 0;
 }
 
@@ -96,14 +95,14 @@ static void nextToken(void) {
 
 static void DealWithDeclarator(void) {
     nextToken();
-    switch (current.type) {
+    switch ((char)current.type) {
         case '[': dealWithArrays(); break;
         case '(': dealWithFunctionArgs(); break;
     }
     dealWithPointers();
 
-    while (SP > -1) {
-        if (stack[SP].type == '(') {
+    while (index > -1) {
+        if (stack[index].type == '(') {
             pop;
             nextToken();
             DealWithDeclarator();
@@ -135,7 +134,7 @@ static void dealWithFunctionArgs(void) {
 }
 
 static void dealWithPointers(void) {
-    while (stack[SP].type == '(') {
+    while (stack[index].type == '(') {
         printf("%s ", pop.string);
     }
 }
