@@ -15,6 +15,7 @@ void printPolynomial(Poly *list);
 void addPolynomial(const Poly *poly1, const Poly *poly2, Poly *sum);
 void multPolynomial(const Poly *poly1, const Poly *poly2, Poly *sum);
 void collectPolynomial(Poly *poly);
+void sortPolynomial(Poly *poly);
 void deleteNode(Poly *list, Poly item);
 void destory(Poly *poly);
 
@@ -121,6 +122,7 @@ void multPolynomial(const Poly *poly1, const Poly *poly2, Poly *sum) {
         }
     }
     collectPolynomial(sum);
+    sortPolynomial(sum);
 }
 
 void collectPolynomial(Poly *poly) {
@@ -132,6 +134,28 @@ void collectPolynomial(Poly *poly) {
             } else {
                 child = child->next;
             }
+        }
+    }
+}
+
+void sortPolynomial(Poly *poly) {
+    for (Poly index = *poly; index != NULL; index = index->next) {
+        Poly min  = index;
+
+        for (Poly item = index; item != NULL; item = item->next) {
+            if (min->exponent > item->exponent) {
+                min = item;
+            }
+        }
+        
+        if (min != index) {
+            int temp = index->coeffcient;
+            index->coeffcient = min->coeffcient;
+            min->coeffcient = temp;
+
+            temp = index->exponent;
+            index->exponent = min->exponent;
+            min->exponent = temp;
         }
     }
 }
