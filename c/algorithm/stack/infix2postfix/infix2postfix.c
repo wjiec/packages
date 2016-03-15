@@ -20,60 +20,61 @@ int main(int argc, char *argv[]) {
 }
 
 void transition(char *infix) {
-    for (int index = 0; infix[index] != '\0'; ++index) {
-        char op = infix[index];
+    for (char *current = infix; *current != '\0'; ++current) {
+        char op = *current;
+        char tp = top();
 
         if (isdigit(op) || isalpha(op)) {
-            putchar(op);
-        } else if (op == '+' || op == '-' || op == '*' || op == '/' || op == '(' || op == ')') {
-            char topSymbol = top();
-            if (topSymbol == '\0') {
-                push(infix[index]);
-                continue;
-            }
-
-            switch (op) {
-                case '*':
-                case '/':
-                    if (topSymbol == '+' || topSymbol == '-') {
-                        push(op);
-                        continue;
-                    } else if (topSymbol == '*' || topSymbol == '/') {
-                        putchar(pop());
-                        push(op);
-                        break;
-                    }
-                case '+':
-                case '-':
-                    if (topSymbol == '*' || topSymbol == '/') {
-                        while (top() != '(' || top() != '\0') {
-                            printf("%c ", pop());
-                        }
-                        break;
-                    } else if (topSymbol == '+' || topSymbol == '-') {
-                        putchar(pop());
-                        push(op);
-                        break;
-                    }
-                case '(':
-                    push(op); continue;
-                case ')':
-                    while (top() != '(') {
-                        printf("%c ", pop());
-                    }
-                    pop(); // pop (
-                    continue;
-                default:
-                    fprintf(stderr, "FATAL ERROR!\n");
-                    exit(1);
-            }
-        } else if (op == ' ') {
+            printf("%c ", op);
             continue;
         }
 
-        putchar(' ');
-    }
+        if (op != '+' && op != '-' && op != '*' && op != '/' && op != '(' && op != ')' && op != ' ') {
+            fprintf(stderr, "`%c` cannot defined.\n", op);
+            exit(1);
+        }
+        if (op == ' ') {
+            continue;
+        }
+        if (tp == '\0') {
+            push(op);
+            continue;
+        }
 
+        switch(op) {
+            case '(':
+                push(op);
+                break;
+            case '*':
+            case '/':
+                if (tp == '*' || tp == '/') {
+                    do {
+                        printf("%c ", pop());
+                        tp = top();
+                    } while (tp == '*' || tp == '/');
+                }
+                push(op);
+                break;
+            case '+':
+            case '-':
+                while (tp != '(' && tp != '\0') {
+                    printf("%c ", pop());
+                    tp = top();
+                }
+                push(op);
+                break;
+            case ')':
+                while (tp != '(' && tp != '\0') {
+                    printf("%c ", pop());
+                    tp = top();
+                }
+                pop(); // pop (
+                break;
+            default:
+                fprintf(stderr, "FATAL ERROR.\n");
+                exit(1);
+        }
+    }
     while (top() != '\0') {
         printf("%c ", pop());
     }
