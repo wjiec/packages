@@ -1,4 +1,4 @@
-# -*- coding: UTF-8 -*-
+#-*- coding: UTF-8 -*-
 '''
 Created on 2015年12月24日
 
@@ -14,11 +14,11 @@ class Spider(object):
         self.htmlParser = SpiderHTMLParser.Parser()
         self.htmlProcesser = SpiderProcesser.Processer()
     
-    def craw(self, seed, count, depth = -1):
+    def craw(self, seed, count = 50, depth = -1):
         self.urlManager.addUrl(seed)
         
         cnt = 0
-        while self.urlManager.hasUrl():
+        while self.urlManager.hasUrl() and cnt < count:
             try:
                 url = self.urlManager.getUrl()
                 content = self.htmlDownloader.download(url)
@@ -35,4 +35,4 @@ class Spider(object):
     
 if __name__ == "__main__":
     spider = Spider()
-    spider.craw('http://baike.baidu.com/view/21087.htm', 1000)
+    spider.craw('http://baike.baidu.com/view/21087.htm', count = 20)
