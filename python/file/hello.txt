@@ -1,0 +1,7 @@
+python say hello
+nice to meet you
+what's up
+let's go
+why
+what
+who
