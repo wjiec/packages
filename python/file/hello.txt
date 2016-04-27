@@ -5,3 +5,4 @@ let's go
 why
 what
 who
+append to this file by flush.sh
