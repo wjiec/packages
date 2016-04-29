@@ -5,4 +5,5 @@ let's go
 why
 what
 who
-append to this file by flush.sh
+append to this file by flush.shappend to this file by write.pyappend to this file by writelines.py
+hello, nice to meet you**** cc
