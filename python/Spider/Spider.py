@@ -18,18 +18,25 @@ class Spider(object):
         self.urlManager.addUrl(seed)
         
         cnt = 0
-        while self.urlManager.hasUrl() and cnt < count:
-            try:
-                url = self.urlManager.getUrl()
-                content = self.htmlDownloader.download(url)
-                urls, data = self.htmlParser.parse(url, content)
-                self.urlManager.addUrls(urls)
-                self.htmlProcesser.collect(data)
-                print 'Craw %d `%s` Done' %(cnt, data['title'])
-                cnt = cnt + 1
-            except:
-                print 'Craw Failed'
-        
+        try:
+            while self.urlManager.hasUrl() and cnt < count:
+                try:
+                    url = self.urlManager.getUrl()
+                    content = self.htmlDownloader.download(url)
+                    urls, data = self.htmlParser.parse(url, content)
+                    self.urlManager.addUrls(urls)
+                    self.htmlProcesser.collect(data)
+                    print 'Craw %d `%s` Done' %(cnt, data['title'])
+                    cnt = cnt + 1
+                except Exception, e:
+                    print 'Craw Error. => ', e
+        except KeyboardInterrupt:
+            print("\nKeyboardInterrupt Exit.")
+            exit()
+        except:
+            print('FALAL ERROR')
+
+
         self.htmlProcesser.output()
     
     
