@@ -10,3 +10,5 @@ record programming, and live.
 - c
 - cpp
 - front-dev
+- qt
+- and more...
