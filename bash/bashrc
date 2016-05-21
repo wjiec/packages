@@ -1,1 +1,7 @@
+#######################################
+# @author   ShadowMan
+# @version  0.1
+# @licesne  MIT License
+#######################################
+
 PS1='${debian_chroot:+($debian_chroot)}\[\e[31;1m\][\A]\[\e[33;1m\]\u\[\e[0m\]@\[\e[32;1m\]\h\[\e[0m\]:\[\e[36;1m\]\w\[\e[0m\]$ '
