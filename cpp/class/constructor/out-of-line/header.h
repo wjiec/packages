@@ -10,7 +10,7 @@ class Test {
 	public:
 		Test() = default;
 		Test(int apple) : appleCnt{apple} {} // {} or ()
-		Test(int apple, char bg) : appleCnt(apple), background(bg) {}
+		Test(int apple, char bg);
 
 	std::ostream &printAll(std::ostream &o) const {
 		o << appleCnt << " " << background;
