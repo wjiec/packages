@@ -12,10 +12,10 @@ class RunDialog : public QDialog {
     public:
         explicit RunDialog(QWidget *parent = 0);
 
-    signals:
-        void runCommand(const QString &str, Qt::CaseSensitivity cs);
-        void cancel(const QString &str, Qt::CaseSensitivity cs);
-        void browser(const QString &str, Qt::CaseSensitivity cs);
+    signals: // unuseful?
+//        void runCommand(const QString &str, Qt::CaseSensitivity cs);
+//        void cancel(const QString &str, Qt::CaseSensitivity cs);
+//        void browser(const QString &str, Qt::CaseSensitivity cs);
     public slots:
         void enableCommandButton(const QString &text);
         void runCommandClicked();
@@ -26,7 +26,7 @@ class RunDialog : public QDialog {
         QLabel *openLabel;
         QLabel *adminTips;
 
-        QLineEdit *command;
+        QLineEdit *commandLineEdit;
 
         QPushButton *runButton;
         QPushButton *cancelButton;
