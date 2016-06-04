@@ -12,7 +12,6 @@ class Spider(object):
         self.urlManager = SpiderURLManager.Manager()
         self.htmlDownloader = SpiderHTMLDownloader.Downloader()
         self.htmlParser = SpiderHTMLParser.Parser()
-        self.htmlProcesser = SpiderProcesser.Processer()
     
     def craw(self, seed, count = 50, depth = -1):
         self.urlManager.addUrl(seed)
