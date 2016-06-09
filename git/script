@@ -10,6 +10,9 @@ git config --global alias.aa 'add .'
 
 git config --global alias.ca 'commit -a'
 
+git config --global alias.pu 'pull'
+
 git config --global core.editor vim
 
 git config --global push.default current
+
