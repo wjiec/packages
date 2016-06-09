@@ -1,6 +1,7 @@
 include ../env.make
 
-BINS = const_member_function friend type_member
+BINS = const_member_function friend type_member \
+	   member_initialize
 
 all: $(BINS)
 .PHONY: all
@@ -14,6 +15,10 @@ friend: friend.cpp
 	$(CC) $(FLAGS) -o $@ $^
 
 type_member: type_member.cpp
+	$(ECHO) Compile $@
+	$(CC) $(FLAGS) -o $@ $^
+
+member_initialize: member_initialize.cpp
 	$(ECHO) Compile $@
 	$(CC) $(FLAGS) -o $@ $^
 
