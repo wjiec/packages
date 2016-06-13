@@ -1,7 +1,8 @@
 include ../env.make
 
 BINS = const_member_function friend type_member \
-	   member_initialize
+	   member_initialize mutable_data_member \
+	   forward_declaration
 
 all: $(BINS)
 .PHONY: all
@@ -19,6 +20,14 @@ type_member: type_member.cpp
 	$(CC) $(FLAGS) -o $@ $^
 
 member_initialize: member_initialize.cpp
+	$(ECHO) Compile $@
+	$(CC) $(FLAGS) -o $@ $^
+
+mutable_data_member: mutable_data_member.cpp
+	$(ECHO) Compile $@
+	$(CC) $(FLAGS) -o $@ $^
+
+forward_declaration: forward_declaration.cpp
 	$(ECHO) Compile $@
 	$(CC) $(FLAGS) -o $@ $^
 
