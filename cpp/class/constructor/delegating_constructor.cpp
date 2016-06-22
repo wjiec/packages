@@ -2,9 +2,9 @@
 
 class Apple {
 	public:
-		Apple(int cnt, char bg) : count(cnt), background(bg) {}
-		Apple(int cnt) : Apple(cnt, '*') {}
-		Apple(char bg) : Apple(0, bg) {}
+		Apple(int cnt, char bg) : count(cnt), background(bg) { std::cout << "2 argvments" << std::endl; }
+		Apple(int cnt) : Apple(cnt, '*') { std::cout << "1 argument for int" << std::endl; }
+		Apple(char bg) : Apple(0, bg) { std::cout << "1 argument for char" << std::endl; }
 	private:
 		int count;
 		char background;
