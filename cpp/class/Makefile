@@ -2,7 +2,8 @@ include ../env.make
 
 BINS = const_member_function friend type_member \
 	   member_initialize mutable_data_member \
-	   forward_declaration member_require_initialize
+	   forward_declaration member_require_initialize \
+	   scope
 
 all: $(BINS)
 .PHONY: all
@@ -34,6 +35,10 @@ forward_declaration: forward_declaration.cpp
 member_require_initialize: member_require_initialize.cpp
 	$(ECHO) Compile $@
 	$(CC) $(FLAGS) -o $@ $^
+
+scope: scope.cpp
+	$(ECHO) Compile $@
+	$(CC) $(FLAGS) -Wno-unused-variable -o $@ $^
 
 .PHONY: clean
 clean:
