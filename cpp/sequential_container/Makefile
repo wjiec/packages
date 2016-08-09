@@ -1,7 +1,7 @@
 include ../env.make
 
 BINS = type_alias swap array \
-	   push_back push_front
+	   push_back push_front insert
 
 all: $(BINS)
 .PHONY: all
@@ -26,6 +26,9 @@ push_front: push_front.cpp
 	$(ECHO) Compile $@ ...
 	$(CC) $(FLAGS) -o $@ $^
 
+insert: insert.cpp
+	$(ECHO) Compile $@ ...
+	$(CC) $(FLAGS) -o $@ $^
 
 
 .PHONY: clean
