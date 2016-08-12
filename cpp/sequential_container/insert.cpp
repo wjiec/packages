@@ -21,6 +21,11 @@ int main(void) {
 	}
 	std::cout << std::endl;
 
+	apple.insert(apple.begin(), 6, -1);
+	for (auto index : apple) {
+		std::cout << index << std::ends;
+	}
+
 	return 0;
 }
 
