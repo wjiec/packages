@@ -28,8 +28,8 @@ int main(void) {
 	apple2.emplace_front(3);
 	apple2.emplace_front(4, "banana");
 
-//	apple1.emplace(apple1.begin(), 10, 1, "pear");
-//	apple2.emplace(apple.end(), 3, 9, "tomato");
+	apple1.emplace(apple1.begin(), 1, "pear");
+	apple2.emplace(apple2.end(), 9, "tomato");
 
 	std::cout << "apple1:" << std::endl;
 	for (auto element : apple1) {

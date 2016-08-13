@@ -2,7 +2,7 @@ include ../env.make
 
 BINS = type_alias swap array \
 	   push_back push_front insert \
-	   emplace
+	   emplace access erase
 
 all: $(BINS)
 .PHONY: all
@@ -34,6 +34,15 @@ insert: insert.cpp
 emplace: emplace.cpp
 	$(ECHO) Compile $@ ...
 	$(CC) $(FLAGS) -o $@ $^
+
+access: access.cpp
+	$(ECHO) Compile $@ ...
+	$(CC) $(FLAGS) -o $@ $^
+
+erase: erase.cpp
+	$(ECHO) Compile $@ ...
+	$(CC) $(FLAGS) -o $@ $^
+
 
 
 .PHONY: clean
