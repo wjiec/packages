@@ -3,7 +3,7 @@
 import pickle
 
 class Apple(object):
-	pass
+    pass
 
 d = dict(a = 1, b = 2, c = 3, d = Apple())
 p = pickle.dumps(d, 2)
