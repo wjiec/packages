@@ -13,7 +13,8 @@ def consumer():
         response = '{CONSUMER OK}'
 
 def product(consumer):
-    consumer.send(None) # next() first, start generator
+    r = consumer.send(None)# next() first, start generator
+    assert(r == '', 'never')
 
     for require in range(1, 9):
         print('[PRODUCT]  Product <%s>...' % (require))
