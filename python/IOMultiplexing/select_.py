@@ -6,7 +6,7 @@ response = b'HTTP/1.1 200 OK\r\nConnection: close\r\n\r\nHello World!'
 
 serv = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 serv.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-serv.bind(('localhost', 9000))
+serv.bind(('0.0.0.0', 9000))
 serv.listen(16)
 serv.setblocking(0)
 
