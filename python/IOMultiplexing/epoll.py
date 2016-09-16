@@ -14,25 +14,30 @@ epoll = select.epoll()
 epoll.register(serv.fileno(), select.EPOLLIN)
 
 clients = {}
-while True:
-    events = epoll.poll()
-    for fd, event in events:
-        if fd == serv.fileno():
-            client, address = serv.accept()
-            client.setblocking(0)
-            print('[SERVER] Client %s:%s Connected' % address)
-            clients[fd] = client
-        elif event == select.EPOLLIN:
-            client = clients[fd]
-            data = client.recv(1024)
-            poll.modify(fd, select.EPOLLOUT)
-        elif event == select.EPOLLOUT:
-            client = clients[fd]
-            client.send(response)
-        elif event == select.EPOLLHUP:
-            epll.unregister(fd)
-            client.close()
-            del clients[fd]
+try:
+    while True:
+        events = epoll.poll()
+        for fd, event in events:
+            if fd == serv.fileno():
+                client, address = serv.accept()
+                client.setblocking(0)
+                print('[SERVER] Client %s:%s Connected' % address)
+                clients[fd] = client
+            elif event == select.EPOLLIN:
+                client = clients[fd]
+                data = client.recv(1024)
+                poll.modify(fd, select.EPOLLOUT)
+            elif event == select.EPOLLOUT:
+                client = clients[fd]
+                client.send(response)
+            elif event == select.EPOLLHUP:
+                epll.unregister(fd)
+                client.close()
+                del clients[fd]
 
-serv.close()
+    serv.close()
+except KeyboardInterrupt:
+    serv.close()
+    for client in clisnts:
+        clients.close()
 

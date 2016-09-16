@@ -14,9 +14,9 @@ poll = select.poll()
 poll.register(serv.fileno(), select.POLLIN)
 
 clients = {}
-while True:
-    for fd, event in poll.poll():
-        try:
+try:
+    while True:
+        for fd, event in poll.poll():
             if event == select.POLLIN:
                 if fd == serv.fileno():
                     client, address = serv.accept()
@@ -33,8 +33,8 @@ while True:
                 client.send(response)
                 poll.unregister(fd)
                 del clients[fd]
-        except KeyboardInterrupt:
-            serv.close()
-            for client in clisnts:
-                clients.close()
+except KeyboardInterrupt:
+    serv.close()
+    for client in clisnts:
+        clients.close()
 

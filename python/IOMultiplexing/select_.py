@@ -11,18 +11,23 @@ serv.listen(16)
 serv.setblocking(0)
 
 rlist = [ serv ]
+try:
+    while True:
+        rl, wl, el = select.select(rlist, [], [])
 
-while True:
-    rl, wl, el = select.select(rlist, [], [])
+        for sock in rl:
+            if sock == serv:
+                client, address = serv.accept()
+                rlist.append(client)
+                print('[SERVER] Client Connected %s:%s' % address )
+            else:
+                data = sock.recv(1024)
+                if data:
+                    sock.send(response)
+                    rlist.remove(sock)
+                    sock.close()
+except KeyboardInterrupt:
+    serv.close()
+    for client in clisnts:
+        clients.close()
 
-    for sock in rl:
-        if sock == serv:
-            client, address = serv.accept()
-            rlist.append(client)
-            print('[SERVER] Client Connected %s:%s' % address )
-        else:
-            data = sock.recv(1024)
-            if data:
-                sock.send(response)
-                rlist.remove(sock)
-                sock.close()
