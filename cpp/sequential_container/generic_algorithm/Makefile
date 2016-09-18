@@ -1,6 +1,7 @@
 include ../../env.make
 
-BINS = accumulate fill_n back_inserter lambda
+BINS = accumulate fill_n back_inserter lambda \
+	   elim
 
 all: $(BINS)
 .PHONY: all
@@ -18,6 +19,10 @@ back_inserter: back_inserter.cpp
 	$(CC) $(FLAGS) -o $@ $^
 
 lambda: lambda.cpp
+	$(ECHO) Compile $@ ...
+	$(CC) $(FLAGS) -o $@ $^
+
+elim: elim.cpp
 	$(ECHO) Compile $@ ...
 	$(CC) $(FLAGS) -o $@ $^
 
