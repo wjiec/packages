@@ -9,15 +9,12 @@ import socket, time, random
 def handleClient(client, address):
     print('>>> client connect[%s:%s]' % address)
     while True:
-        yield WaitRead(client)
-        data = client.recv(1024)
+        data = yield sockRecv(client, 1024)
         if not data:
             break
-        yield WaitWrite(client)
-        client.send(data)
+        print('---', data)
+        yield sockSend(client, b'HTTP/1.1 200 OK\r\nConnection: close\r\n\r\nHello World!')
     client.close()
-    print('>>> client closed[%s:%s]' % address)
-    yield
 
 
 def server(address, port):
@@ -27,17 +24,11 @@ def server(address, port):
     serv.listen(8)
     print('server start in %s:%s' % (address, port))
     while True:
-        yield WaitRead(serv)
-        client, address = serv.accept()
+        client, address = sockAccept(serv)
         yield CreateTask(handleClient(client, address))
 
-def alive():
-    while True:
-        print('alive')
-        yield
-
 def Client(address, port):
-    s = random.randint(1, 9)
+    s = random.randint(1, 5)
     print('[Client Thread = %s]' % (threading.currentThread().name), 'sleep %ss' % ( s ))
     time.sleep(s)
     serv = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -52,5 +43,4 @@ if __name__ == '__main__':
 
     scheduler = scheduler.Scheduler()
     scheduler.new(server('localhost', 9000))
-    # scheduler.new(alive())
     scheduler.mainLoop()

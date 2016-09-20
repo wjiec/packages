@@ -72,3 +72,17 @@ class WaitWrite(SystemCall):
     def handler(self):
         fd = self.fd.fileno()
         self.sched.waitForWrite(fd, self.task)
+
+def sockAccept(sock):
+    yield WaitRead(sock)
+    yield sock.accept()
+
+def sockRecv(sock, n):
+    yield WaitRead(sock)
+    yield sock.recv(n)
+
+def sockWrite(sock, buffer):
+    while buffer:
+        yield WaitWrite(sock)
+        length = sock.write(buffer)
+        buffer = buffer[length:]

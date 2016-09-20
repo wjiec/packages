@@ -1,6 +1,8 @@
 '''Operating System Task
 
 '''
+import types
+from systemCall import *
 
 class Task(object):
     taskId = 0
@@ -11,9 +13,29 @@ class Task(object):
         self.target  = target
         self.sendVal = None
         self.name    = target.__name__
+        self.stack   = []
 
     def run(self):
-        return self.target.send(self.sendVal)
+        while True:
+            try:
+                result = self.target.send(self.sendVal)
+                if isinstance(result, SystemCall):
+                    return result
+                if isinstance(result, types.GeneratorType):
+                    self.stack.append(self.target)
+                    self.sendVal = None
+                    self.target = result
+                else:
+                    print(self.stack)
+                    if not self.stack:
+                        return
+                    self.sendVal = result
+                    self.target  = self.stack.pop()
+            except StopIteration:
+                if not self.stack:
+                    raise
+                self.sendVal = None
+                self.target  = self.stack.pop()
 
     def terminate(self):
         return self.target.close()
