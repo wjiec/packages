@@ -51,37 +51,34 @@ Dict *createDict(const char *key, const char *value) {
     return dict;
 }
 
-HttpHeader *createHttpHeader(HttpStatus *status, char *contents) {
+HttpHeader *createHttpHeader(HttpStatus status, char *contents) {
     HttpHeader *header = (HttpHeader*)malloc(sizeof(HttpHeader));
 
     bzero(header, sizeof(HttpHeader));
-    header->status = status;
+    header->status = malloc(sizeof(HttpStatus));
+    *(header->status) = status;
 
+    HttpParams **params = (&header->params);
     size_t length = strlen(contents);
-    size_t readCnt = 0;
     char *contentsEnd = contents + length;
-    char buffer[512] = { 0 };
-    HttpParams *params = header->params;
+    char buffer[128] = { 0 };
+
     do {
-        readCnt = sscanf(contents, "%s", buffer);
-        contents += readCnt;
+        char *line = strstr(contents, "\r\n");
+        strncpy(buffer, contents, line - contents);
 
         char *colon = strchr(buffer, ':');
-        if (colon != NULL) {
-            char *key = buffer;
-            char *val = colon + 1;
-            *colon = '\0';
+        char *key = buffer;
+        char *val = *(colon + 1) == ' ' ? (colon + 2) : (colon + 1);
+        *colon = '\0';
 
-            params->kv = createDict(key, val);
-            params->next = NULL;
-        } else {
-            // header ending
-            if (strcmp(buffer, "\r\n\r\n") == 0) {
-                break;
-            }
-        }
-    } while (contents <= contentsEnd);
-    size_t size = 0;
+        *params = (HttpParams*)malloc(sizeof(HttpParams));
+        (*params)->kv = createDict(key, val);
+        (*params)->next = NULL;
+        params = &((*params)->next);
+
+        contents = line + 2;
+    } while (contents <= contentsEnd && strcmp(contents, "\r\n") != 0);
 
     return header;
 }
@@ -144,16 +141,17 @@ void accpetClient(const int httpd) {
 
 #ifdef _WIN32
 static DWORD clientHandle(void *params) {
-    ThreadParams *tuples = params;
-    HttpHeader request = { NULL, NULL };
-    char buffer[512] = { 0 };
+    ThreadArgs *tuple = (ThreadArgs*)params;
 
     // request header
-    while (readLine(tuples->fd, buffer, sizeof(buffer))) {
+    char *requestHeader = NULL;
+    readHttpRequestHeader(tuple->fd, requestHeader);
+    printf("[SHTTP] Request Method[%s], Resource[%s], Protocol[%s]");
 
-    }
+    // http params
+    HttpParams *params = NULL;
+    readHttpParams(tuple->fd, &params)
 
-    return 0;
 }
 #else
 static void clientHandle(void *params) {
@@ -162,7 +160,7 @@ static void clientHandle(void *params) {
 #endif
 
 static void createThread(int fd, struct sockaddr_in *name) {
-    ThreadParams params = { fd, name };
+    ThreadArgs params = { fd, name };
 #ifdef _WIN32
     HANDLE handle = CreateThread(NULL, 0, clientHandle, &params, 0, NULL);
     WaitForSingleObject(handle, 0);
@@ -184,6 +182,22 @@ void closeHttpd(const int httpd) {
 #endif;
 }
 
-size_t readLine(int fd, char *buffer, size_t size) {
-    return 0;
+size_t readLine(int fd, char *buffer) {
+
+}
+
+size_t readHeader(int fd, char *buffer) {
+    recv(fd, buffer, size, MSG_PEEK);
+}
+
+size_t readHttpParams(int fd, HttpParams **params) {
+
+}
+
+size_t readHttpRequestHeader(int fd, char *buffer) {
+
+}
+
+size_t makeResponseHeader(const HttpHeader *header, char *buffer) {
+
 }
