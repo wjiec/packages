@@ -149,9 +149,8 @@ static DWORD clientHandle(void *params) {
     printf("[SHTTP] Request Method[%s], Resource[%s], Protocol[%s]");
 
     // http params
-    HttpParams *params = NULL;
-    readHttpParams(tuple->fd, &params)
-
+    char *buffer;
+    readHttpRequestHeader(tuple->fd, buffer);
 }
 #else
 static void clientHandle(void *params) {
@@ -183,19 +182,49 @@ void closeHttpd(const int httpd) {
 }
 
 size_t readLine(int fd, char *buffer) {
+    char *tmp = NULL;
+    int readCnt = 0;
 
+    tmp = (char*)malloc(READ_LINE_MAX_SIZE);
+    bzero(tmp, READ_LINE_MAX_SIZE);
+    while (readCnt = recv(fd, tmp, READ_LINE_MAX_SIZE, MSG_PEEK)) {
+        if (readCnt == 0 || strstr(tmp, "\r\n") == 0) {
+            break;
+        } else {
+            tmp = (char*)realloc(tmp, READ_LINE_MAX_SIZE * 2);
+        }
+    }
+
+    char *end = strstr(tmp, "\r\n");
+    *end = "\0";
+    buffer = (char*)malloc(strlen(tmp) * sizeof(char) + 1);
+    strncpy(buffer, tmp, strlen(tmp) + 1);
+    free(tmp);
+
+    return strlen(buffer);
 }
 
 size_t readHeader(int fd, char *buffer) {
-    recv(fd, buffer, size, MSG_PEEK);
+//    recv(fd, buffer, size, MSG_PEEK);
 }
 
 size_t readHttpParams(int fd, HttpParams **params) {
-
+    char *buffer = NULL;
+    readLine(fd, buffer);
+    if (buffer == NULL) {
+        fprintf(stderr, "[SHTTPD] Read HttpParams");
+    }
 }
 
 size_t readHttpRequestHeader(int fd, char *buffer) {
+    readLine(fd, buffer);
+    if (buffer == NULL) {
+        fprintf(stderr, "[SHTTPD] Read HTTP request header failure.");
+        exit(-1);
+    }
+    printf(buffer);
 
+    return strlen(buffer);
 }
 
 size_t makeResponseHeader(const HttpHeader *header, char *buffer) {

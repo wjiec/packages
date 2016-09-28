@@ -80,8 +80,9 @@ void notFound(const int fd, HttpParams *header); // 404 Not Found
 void badRequest(const int fd, HttpParams *header); //400 Bad Request
 void serverError(const int fd, HttpParams *header); // 500 Server Error
 
-
 // util functions
+#define READ_LINE_MAX_SIZE 64
+
 void bzero(void *dst, size_t size);
 size_t readHeader(int fd, char *buffer);
 size_t readLine(int fd, char *buffer);
