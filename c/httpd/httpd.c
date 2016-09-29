@@ -139,29 +139,15 @@ void accpetClient(const int httpd) {
     createThread(client, &remote);
 }
 
-#ifdef _WIN32
-static DWORD clientHandle(void *params) {
-    ThreadArgs *tuple = (ThreadArgs*)params;
-
-    // request header
-    char *requestHeader = NULL;
-    readHttpRequestHeader(tuple->fd, requestHeader);
-    printf("[SHTTP] Request Method[%s], Resource[%s], Protocol[%s]");
-
-    // http params
-    char *buffer;
-    readHttpRequestHeader(tuple->fd, buffer);
-}
-#else
-static void clientHandle(void *params) {
-
-}
-#endif
-
 static void createThread(int fd, struct sockaddr_in *name) {
-    ThreadArgs params = { fd, name };
+    ThreadArgs *params = NULL;
+
+    params = (ThreadArgs*)malloc(sizeof(ThreadArgs));
+    params->fd = fd;
+    params->name = name;
+
 #ifdef _WIN32
-    HANDLE handle = CreateThread(NULL, 0, clientHandle, &params, 0, NULL);
+    HANDLE handle = CreateThread(NULL, 0, clientHandle, params, 0, NULL);
     WaitForSingleObject(handle, 0);
 #else
     pthread_t thread;
@@ -173,6 +159,36 @@ static void createThread(int fd, struct sockaddr_in *name) {
 #endif
 }
 
+#ifdef _WIN32
+static DWORD clientHandle(void *params) {
+    ThreadArgs *tuple = (ThreadArgs*)params;
+
+    // request header
+    RequestHeader requestHeader;
+    readHttpRequestHeader(tuple->fd, &requestHeader);
+    printf("    [SHTTPD] Request Method[%s], Resource[%s], Protocol[%s]\n",
+        requestHeader.method == HTTP_METHOD_GET ? "GET" : "POST",
+        requestHeader.resource,
+        requestHeader.version == HTTP_VERSION_1_0 ? "HTTP/1.0" : "HTTP/1.1"
+    );
+
+//    HttpParams httpParams;
+//    readHttpParams(fd, &httpParams);
+//    printf("[SHTTPD] Request Params:\n");
+//    for (HttpParams *entry = httpParams; entry != NULL; entry = entry->next) {
+//        printf("%s -> %s\n", entry->kv->key, entry->kv->value);
+//    }
+
+    closeHttpd(tuple->fd);
+
+    return 0;
+}
+#else
+static void clientHandle(void *params) {
+
+}
+#endif
+
 void closeHttpd(const int httpd) {
 #ifdef _WIN32
     closesocket(httpd);
@@ -181,52 +197,75 @@ void closeHttpd(const int httpd) {
 #endif;
 }
 
-size_t readLine(int fd, char *buffer) {
-    char *tmp = NULL;
-    int readCnt = 0;
+size_t readHttpParams(int fd, HttpParams *params) {
 
-    tmp = (char*)malloc(READ_LINE_MAX_SIZE);
-    bzero(tmp, READ_LINE_MAX_SIZE);
-    while (readCnt = recv(fd, tmp, READ_LINE_MAX_SIZE, MSG_PEEK)) {
-        if (readCnt == 0 || strstr(tmp, "\r\n") == 0) {
-            break;
+    return 0;
+}
+
+size_t readLine(int fd, char *buffer, size_t size, bool peek) {
+    int length = 0;
+
+    if (peek == false) {
+        recv(fd, buffer, (int)size, MSG_PEEK);
+        char *endl = strstr(buffer, "\r\n");
+
+        if (endl == NULL) {
+            return -1;
         } else {
-            tmp = (char*)realloc(tmp, READ_LINE_MAX_SIZE * 2);
+            length = endl - buffer + 2; // \r\n -> 2 bytes
+            bzero(buffer, size);
         }
     }
 
-    char *end = strstr(tmp, "\r\n");
-    *end = "\0";
-    buffer = (char*)malloc(strlen(tmp) * sizeof(char) + 1);
-    strncpy(buffer, tmp, strlen(tmp) + 1);
-    free(tmp);
+    size_t readCnt = (size_t)recv(fd, buffer, (length != 0) ? length : size, (peek) ? MSG_PEEK : 0);
+    char *endl = strstr(buffer, "\r\n");
 
-    return strlen(buffer);
-}
-
-size_t readHeader(int fd, char *buffer) {
-//    recv(fd, buffer, size, MSG_PEEK);
-}
-
-size_t readHttpParams(int fd, HttpParams **params) {
-    char *buffer = NULL;
-    readLine(fd, buffer);
-    if (buffer == NULL) {
-        fprintf(stderr, "[SHTTPD] Read HttpParams");
+    if (endl == NULL) {
+        bzero(buffer, size);
+        return -1;
     }
+
+    return readCnt;
 }
 
-size_t readHttpRequestHeader(int fd, char *buffer) {
-    readLine(fd, buffer);
-    if (buffer == NULL) {
-        fprintf(stderr, "[SHTTPD] Read HTTP request header failure.");
-        exit(-1);
+
+bool readHttpRequestHeader(int fd, RequestHeader* requestHeader) {
+    bzero(requestHeader, sizeof(RequestHeader));
+
+    char buffer[256] = { 0 };
+    readLine(fd, buffer, sizeof(buffer), false);
+
+    char *method = buffer;
+    char *resource = strchr(buffer, ' ') + 1;
+    char *version = strrchr(buffer, ' ') + 1;
+    char *endl = strchr(buffer, '\r');
+
+    *(resource - 1) = '\0';
+    *(version - 1) = '\0';
+    *endl = '\0';
+
+    // http method
+    if (strcmp(method, "GET") == 0 || strcmp(method, "get") == 0) {
+        requestHeader->method = HTTP_METHOD_GET;
+    } else if (strcmp(method, "POST") == 0 || strcmp(method, "post") == 0) {
+        requestHeader->method = HTTP_METHOD_POST;
     }
-    printf(buffer);
 
-    return strlen(buffer);
+    // http version
+    if (strcmp(version, "HTTP/1.0") == 0) {
+        requestHeader->version = HTTP_VERSION_1_0;
+    } else if (strcmp(version, "HTTP/1.1") == 0) {
+        requestHeader->version = HTTP_VERSION_1_1;
+    }
+
+    //http resource
+    requestHeader->resource = (char*)malloc(sizeof(char) * strlen(resource) + 1);
+    bzero(requestHeader->resource, sizeof(char) * strlen(resource) + 1);
+    strncpy(requestHeader->resource, resource, strlen(resource));
+
+    return true;
 }
 
-size_t makeResponseHeader(const HttpHeader *header, char *buffer) {
-
+size_t makeResponseHeader(const HttpHeader *header, char *buffer, size_t size) {
+    return 0;
 }

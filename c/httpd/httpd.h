@@ -2,7 +2,7 @@
 #define HTTPD_H
 
 #ifdef _WIN32
-#define _CRT_SECURE_NO_WARNINGS
+#define _CRT_SECURE_NO_WARNINGS 1
 #endif
 
 #define SERVER_NAME "Server: shttpd/1.0\r\n"
@@ -39,7 +39,13 @@ typedef struct thread_args_t {
 
 // Type: Request Header
 typedef struct request_header_t {
-    char *method;
+    enum {
+        HTTP_METHOD_GET    = 0x1,
+        HTTP_METHOD_POST   = 0x2,
+        HTTP_METHOD_HEAD   = 0x4,
+        HTTP_METHOD_UPDATE = 0x8,
+        HTTP_METHOD_DELETE = 0x10
+    } method;
     char *resource;
     enum {
         HTTP_1_0 = 0x1,
@@ -65,6 +71,15 @@ void closeHttpd(const int httpd);
 #define HTTP_VERSION_1_0 0x1
 #define HTTP_VERSION_1_1 0x2
 
+// http method
+#define HTTP_METHOD_GET    0x1
+#define HTTP_METHOD_POST   0x2
+//#define HTTP_METHOD_HEAD   0x4
+//#define HTTP_METHOD_UPDATE 0x8
+//#define HTTP_METHOD_DELETE 0x10
+
+
+
 // http status
 #define HTTP_STATUS_WAIT_RESPONSE    { 000, "Wait" };
 #define HTTP_STATUS_200_OK           { 200, "OK" };
@@ -84,11 +99,11 @@ void serverError(const int fd, HttpParams *header); // 500 Server Error
 #define READ_LINE_MAX_SIZE 64
 
 void bzero(void *dst, size_t size);
-size_t readHeader(int fd, char *buffer);
-size_t readLine(int fd, char *buffer);
-size_t readHttpParams(int fd, HttpParams **params);
-size_t readHttpRequestHeader(int fd, char *buffer);
-size_t makeResponseHeader(const HttpHeader *header, char *buffer);
+size_t readHeader(int fd, char *buffer, size_t size);
+size_t readLine(int fd, char *buffer, size_t size, bool peek);
+size_t readHttpParams(int fd, HttpParams *params);
+bool readHttpRequestHeader(int fd, RequestHeader *requestHeader);
+size_t makeResponseHeader(const HttpHeader *header, char *buffer, size_t size);
 
 
 #endif // HTTPD_H
