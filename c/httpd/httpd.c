@@ -133,7 +133,8 @@ void accpetClient(const int httpd) {
         fprintf(stderr, "[SHTTPD] Accept client error occurs.\n");
         exit(-1);
     }
-    printf("[SHTTPD] Client connected. socket(%s:%d)\n",
+    printf("[SHTTPD] Client connected. socket(%d -> %s:%d)\n",
+           client,
            inet_ntop(AF_INET, &remote.sin_addr, (PSTR)&buffer, 16),
            ntohs(remote.sin_port));
     createThread(client, &remote);
@@ -165,7 +166,9 @@ static DWORD clientHandle(void *params) {
 
     // request header
     RequestHeader requestHeader;
-    readHttpRequestHeader(tuple->fd, &requestHeader);
+    if (readHttpRequestHeader(tuple->fd, &requestHeader) == false) {
+        return -1;
+    }
     printf("    [SHTTPD] Request Method[%s], Resource[%s], Protocol[%s]\n",
         requestHeader.method == HTTP_METHOD_GET ? "GET" : "POST",
         requestHeader.resource,
@@ -239,6 +242,12 @@ bool readHttpRequestHeader(int fd, RequestHeader* requestHeader) {
     char *resource = strchr(buffer, ' ') + 1;
     char *version = strrchr(buffer, ' ') + 1;
     char *endl = strchr(buffer, '\r');
+
+    if (!method || !resource || !version || !endl) {
+        fprintf(stderr, "[SHTTPD] Bad Request from socket(fd = %d)\n", fd);
+        closeHttpd(fd);
+        return false;
+    }
 
     *(resource - 1) = '\0';
     *(version - 1) = '\0';
