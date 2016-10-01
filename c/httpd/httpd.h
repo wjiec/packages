@@ -7,6 +7,10 @@
 
 #define SERVER_NAME "Server: shttpd/1.0\r\n"
 
+#define MAX_BUFFER_LENGTH 512
+#define MAX_CONTENTS_LENGTH 1024
+#define MAX_RESPONSE_LENGTH 4096
+
 // Type: Dict
 typedef struct key_value_t {
     char *key;
@@ -29,6 +33,7 @@ typedef struct http_params_t {
 typedef struct http_header_t {
     HttpStatus *status;
     HttpParams *params;
+    char *contents;
 } HttpHeader;
 
 // Type: Thread Args
@@ -60,7 +65,7 @@ void popDict(HttpHeader *header);
 void dictDestroy(Dict * dict);
 
 // Header Operator
-HttpHeader *createHttpHeader(HttpStatus status, char *contents);
+HttpHeader *createHttpHeader(HttpStatus *status, HttpParams *params, char *contents);
 
 // shttpd functions
 int startup(const int port);
@@ -89,21 +94,17 @@ void closeHttpd(const int httpd);
 
 #define HTTP_RESPONSE_FORMAT "HTTP/1.1 %d %s\r\n%s\r\n\r\n%s"
 
-// httpd response
-void ok(const int fd, HttpParams *header); // 200 OK
-void notFound(const int fd, HttpParams *header); // 404 Not Found
-void badRequest(const int fd, HttpParams *header); //400 Bad Request
-void serverError(const int fd, HttpParams *header); // 500 Server Error
-
 // util functions
 #define READ_LINE_MAX_SIZE 64
+#define bzero(dst, size) memset((dst), 0, (size))
 
-void bzero(void *dst, size_t size);
+bool createHttpParams(HttpParams *params, ...);
 size_t readHeader(int fd, char *buffer, size_t size);
 size_t readLine(int fd, char *buffer, size_t size, bool peek);
-size_t readHttpParams(int fd, HttpParams *params);
+bool readHttpParams(int fd, HttpParams *params);
 bool readHttpRequestHeader(int fd, RequestHeader *requestHeader);
-size_t makeResponseHeader(const HttpHeader *header, char *buffer, size_t size);
+bool makeResponse(const HttpHeader *header, char *buffer, size_t size);
+bool httpResponse(int fd, char *response);
 
 
 #endif // HTTPD_H
