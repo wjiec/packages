@@ -154,23 +154,28 @@ static DWORD clientHandle(void *params) {
     HttpParams httpParams;
     readHttpParams(tuple->fd, &httpParams);
     printf("    [SHTTPD] Request Params:\n");
-    for (HttpParams *entry = &httpParams; (entry != NULL) && (entry->kv != NULL); entry = entry->next) {
+    for (HttpParams *entry = &httpParams; entry != NULL; entry = entry->next) {
         printf("        %s -> %s\n", entry->kv->key, entry->kv->value);
     }
 
     printf("    [SHTTPD] Request Contents:\n\n");
-    for (char contents[MAX_CONTENTS_LENGTH] = { 0 }; recv(tuple->fd, contents, MAX_CONTENTS_LENGTH, 0); ) {
-        puts(contents);
-    }
-    printf("\n");
+    char contents[MAX_CONTENTS_LENGTH] = { 0 };
+    recv(tuple->fd, contents, MAX_CONTENTS_LENGTH, 0);
+    printf("%s\n", contents);
 
     HttpStatus status = HTTP_STATUS_200_OK;
     HttpParams responseParams;
 
-    createHttpParams(&responseParams, "Connection: close", "Content-Type: text/html; charset = utf-8");
+    createHttpParams(&responseParams, "Connection: close", "Content-Type: text/html; charset = utf-8", "Cache-Control: no-store, no-cache, must-revalidate, max-age=0");
 
     char text[MAX_RESPONSE_LENGTH] = { 0 };
-    HttpHeader *response = createHttpHeader(&status, &responseParams, "<h1>Hello World<h1>");
+    char body[MAX_BUFFER_LENGTH] = { 0 };
+    sprintf(body, "<h1>Hello World</h1><br/>Request Method[%s], Resource[%s], Protocol[%s]",
+        requestHeader.method == HTTP_METHOD_GET ? "GET" : "POST",
+        requestHeader.resource,
+        requestHeader.version == HTTP_VERSION_1_0 ? "HTTP/1.0" : "HTTP/1.1"
+    );
+    HttpHeader *response = createHttpHeader(&status, &responseParams, body);
     makeResponse(response, text, MAX_RESPONSE_LENGTH);
     httpResponse(tuple->fd, text);
 
@@ -201,7 +206,8 @@ bool readHttpParams(int fd, HttpParams *params) {
     bzero(params, sizeof(HttpParams));
 
     char buffer[MAX_BUFFER_LENGTH] = { 0 };
-    for (HttpParams **entry = &params; readLine(fd, buffer, MAX_BUFFER_LENGTH, 0); entry = &((*entry)->next)) {
+    HttpParams **entry = &params;
+    for ( ; readLine(fd, buffer, MAX_BUFFER_LENGTH, 0); entry = &((*entry)->next)) {
         char *key = buffer;
         char *val = strchr(buffer, ':');
 
@@ -222,6 +228,8 @@ bool readHttpParams(int fd, HttpParams *params) {
             break;
         }
     }
+    free(*entry);
+    *entry = NULL;
 
     return true;
 }
@@ -304,32 +312,58 @@ bool createHttpParams(HttpParams *params, ...) {
     va_list args;
     va_start(args, params);
 
+    HttpParams **current = &params;
     char buffer[MAX_BUFFER_LENGTH] = { 0 };
-    for (char *kv; kv = va_arg(args, char*); ) {
+    for (char *kv; kv = va_arg(args, char*); current = &((*current)->next)) {
         strncpy(buffer, kv, strlen(kv) + 1);
 
         char *key = buffer;
         char *val = strchr(buffer, ':');
 
-        *(val) = '\0';
-        while (*val == ' ' || *val == '\0') {
-            val += 1;
+        // trim space character
+        if (val == NULL) {
+            break;
+        } else {
+            *(val) = '\0';
+            while (*val == ' ' || *val == '\0') {
+                val += 1;
+            }
         }
-        char *endl = strchr(val, '\r');
 
-        params->kv = createDict(key, val);
-        params->next = (HttpParams*)malloc(sizeof(HttpParams));
-        bzero(params->next, sizeof(HttpParams));
-        params = params->next;
+        (*current)->kv = createDict(key, val);
+        (*current)->next = (HttpParams*)malloc(sizeof(HttpParams));
+        bzero((*current)->next, sizeof(HttpParams));
     }
-    free(params);
+    free(*current);
+    *current = NULL;
+
     return true;
 }
 
 bool makeResponse(const HttpHeader *header, char *buffer, size_t size) {
+    char *test = buffer;
+    int writeCounter = 0;
 
+    // http status
+    writeCounter = sprintf(buffer, "HTTP/1.1 %d %s\r\n", header->status->code, header->status->description);
+    buffer += writeCounter;
+
+    // http Params
+    for (HttpParams *current = header->params; current != NULL; current = current->next) {
+        writeCounter = sprintf(buffer, "%s: %s\r\n", current->kv->key, current->kv->value);
+        buffer += writeCounter;
+    }
+
+    // http endl
+    writeCounter = sprintf(buffer, "\r\n");
+    buffer += writeCounter;
+
+    // http response body
+    sprintf(buffer, "%s", header->contents);
+
+    return true;
 }
 
 bool httpResponse(int fd, char *response) {
-
+    return send(fd, response, strlen(response) * sizeof(char), 0);
 }
