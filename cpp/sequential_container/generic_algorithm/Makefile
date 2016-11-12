@@ -1,7 +1,7 @@
 include ../../env.make
 
 BINS = accumulate fill_n back_inserter lambda \
-	   elim find_if lambda_capture
+	   elim find_if lambda_capture lambda equal
 
 all: $(BINS)
 .PHONY: all
@@ -34,7 +34,9 @@ lambda_capture: lambda_capture.cpp
 	$(ECHO) Compile $@ ...
 	$(CC) $(FLAGS) -o $@ $^
 
-
+equal: equal.cpp
+	$(ECHO) Compile $@ ...
+	$(CC) $(FLAGS) -o $@ $^
 
 
 .PHONY: clean

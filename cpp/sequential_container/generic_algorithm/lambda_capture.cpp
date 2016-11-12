@@ -5,8 +5,8 @@ int main(void) {
 
     auto lambda_capture_value = [apple] () { return apple; };
     auto lambda_capture_reference = [&apple] () { return apple; };
-    auto lambda_auto_capture_value = [=] () { return apple; }
-    auto lambda_auto_capture_reference = [&] () { return apple; }
+    auto lambda_auto_capture_value = [=] () { return apple; };
+    auto lambda_auto_capture_reference = [&] () { return apple; };
     apple = 0;
 
     std::cout << "apple = " << apple
