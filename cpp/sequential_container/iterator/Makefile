@@ -22,6 +22,14 @@ stream_iterator_example: stream_iterator_example.cpp
 	$(ECHO) Compile $@ ...
 	$(CC) $(FLAGS) -o $@ $^
 
+stream_iterator_example_1: stream_iterator_example_1.cpp
+	$(ECHO) Compile $@ ...
+	$(CC) $(FLAGS) -o $@ $^
+
+reverse_iterator: reverse_iterator.cpp
+	$(ECHO) Compile $@ ...
+	$(CC) $(FLAGS) -o $@ $^
+
 .PHONY: clean
 clean:
 	@-rm -v $(BINS)
