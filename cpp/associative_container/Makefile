@@ -1,6 +1,7 @@
 include ../env.make
 
-BINS  = map set multi_set custom_set
+BINS  = map set multi_set custom_set pair \
+		multi_access copy insert
 
 all: $(BINS)
 .PHONY: all
@@ -18,6 +19,22 @@ multi_set: multi_set.cpp
 	$(CC) $(FLAGS) -Wno-unused-variable -o $@ $^
 
 custom_set: custom_set.cpp
+	$(ECHO) Compile $@ ...
+	$(CC) $(FLAGS) -Wno-unused-variable -o $@ $^
+
+pair: pair.cpp
+	$(ECHO) Compile $@ ...
+	$(CC) $(FLAGS) -Wno-unused-variable -o $@ $^
+
+multi_access: multi_access.cpp
+	$(ECHO) Compile $@ ...
+	$(CC) $(FLAGS) -Wno-unused-variable -o $@ $^
+
+copy: copy.cpp
+	$(ECHO) Compile $@ ...
+	$(CC) $(FLAGS) -Wno-unused-variable -o $@ $^
+
+insert: insert.cpp
 	$(ECHO) Compile $@ ...
 	$(CC) $(FLAGS) -Wno-unused-variable -o $@ $^
 
