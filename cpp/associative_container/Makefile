@@ -2,7 +2,7 @@ include ../env.make
 
 BINS  = map set multi_set custom_set pair \
 		multi_access copy insert insert_return \
-		find_access
+		find_access is_exists word_transform
 
 all: $(BINS)
 .PHONY: all
@@ -44,6 +44,14 @@ insert_return: insert_return.cpp
 	$(CC) $(FLAGS) -Wno-unused-variable -o $@ $^
 
 find_access: find_access.cpp
+	$(ECHO) Compile $@ ...
+	$(CC) $(FLAGS) -Wno-unused-variable -o $@ $^
+
+is_exists: is_exists.cpp
+	$(ECHO) Compile $@ ...
+	$(CC) $(FLAGS) -Wno-unused-variable -o $@ $^
+
+word_transform: word_transform.cpp
 	$(ECHO) Compile $@ ...
 	$(CC) $(FLAGS) -Wno-unused-variable -o $@ $^
 
