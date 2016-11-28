@@ -20,10 +20,10 @@ class GridPosition(Frame):
 
         self.__widget_button()
 
-        self.pack(fill = BOTH, expand = True)
+        self.pack()
 
     def __init_window_style(self):
-        # self.style.theme_use('default')
+        self.style.theme_use('alt')
         self.style.configure("TButton", padding = (0, 5, 0, 5), font = 'Courier 10')
 
     def __init_window_position(self, width = None, height = None):
