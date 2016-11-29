@@ -10,30 +10,32 @@ class CenteringWindow(Frame):
         self.__init_window_ui()
 
     def __init_window_ui(self):
-        self.master.title('Widget Scale')
+        self.master.title('Menubar')
         self.pack(fill = BOTH, expand = True)
 
-        self.__init_window_position(300, 300)
-        self.__init_listbox()
+        self.__init_window_position(640, 480)
+        self.__init_menubar()
 
-    def __init_listbox(self):
-        langs = [ 'C', 'C++', 'Python', 'Ruby', 'PHP' ]
+    def __init_menubar(self):
+        self.menubar = Menu(self.master)
 
-        listbox = Listbox(self)
-        for lang in langs:
-            listbox.insert(END, lang)
-        listbox.bind('<<ListboxSelect>>', self.on_select)
-        listbox.pack(pady = 10)
+        self.master.config(menu = self.menubar)
 
-        self.listbox_var = StringVar()
-        label = Label(self, text = 'None', textvariable = self.listbox_var)
+        file_menu = Menu(self.menubar)
+
+        file_open_menu = Menu(file_menu)
+        file_open_menu.add_command(label = 'Last Open File', command = self.__last_open_file)
+        file_menu.add_cascade(label = 'Open', menu = file_open_menu)
+
+        file_menu.add_command(label = 'Close')
+        file_menu.add_separator()
+        file_menu.add_command(label = 'Exit', command = self.quit, underline = 0) # 0 is a position of underline
+
+        self.menubar.add_cascade(label = 'File', menu = file_menu)
+
+    def __last_open_file(self):
+        label = Label(self, text = 'Last Open File')
         label.pack()
-
-    def on_select(self, event):
-        sender = event.widget
-        current_select = sender.curselection()
-
-        self.listbox_var.set(sender.get(current_select))
 
 
     def __init_window_position(self, width = None, height = None):

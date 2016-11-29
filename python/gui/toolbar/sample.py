@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 from tkinter import *
 from tkinter.ttk import *
+from PIL import Image, ImageTk
 
 class CenteringWindow(Frame):
 
@@ -13,28 +14,27 @@ class CenteringWindow(Frame):
         self.master.title('Widget Scale')
         self.pack(fill = BOTH, expand = True)
 
-        self.__init_window_position(300, 300)
-        self.__init_listbox()
+        self.__init_window_position(640, 480)
+        self.__init_toolbar()
 
-    def __init_listbox(self):
-        langs = [ 'C', 'C++', 'Python', 'Ruby', 'PHP' ]
+    def __init_toolbar(self):
+        self.menubar = Menu(self.master)
+        self.master.config(menu = self.menubar)
 
-        listbox = Listbox(self)
-        for lang in langs:
-            listbox.insert(END, lang)
-        listbox.bind('<<ListboxSelect>>', self.on_select)
-        listbox.pack(pady = 10)
+        file_menu = Menu(self.menubar, tearoff = False)
+        file_menu.add_command(label = 'Exit', underline = 0, command = self.quit)
 
-        self.listbox_var = StringVar()
-        label = Label(self, text = 'None', textvariable = self.listbox_var)
-        label.pack()
+        self.menubar.add_cascade(label = 'File', menu = file_menu)
 
-    def on_select(self, event):
-        sender = event.widget
-        current_select = sender.curselection()
+        toolbar = Frame(self, relief = RAISED)
 
-        self.listbox_var.set(sender.get(current_select))
+        image = Image.open('quit.png')
+        image_tk = ImageTk.PhotoImage(image)
+        btn_exit = Button(toolbar, image = image_tk, command = self.quit)
+        btn_exit.image = image_tk
+        btn_exit.pack(side = LEFT, padx = 2, pady = 3)
 
+        toolbar.pack(side = TOP, fill = X)
 
     def __init_window_position(self, width = None, height = None):
         screen_width = self.master.winfo_screenwidth()

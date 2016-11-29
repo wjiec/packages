@@ -13,27 +13,18 @@ class CenteringWindow(Frame):
         self.master.title('Widget Scale')
         self.pack(fill = BOTH, expand = True)
 
-        self.__init_window_position(300, 300)
-        self.__init_listbox()
+        self.__init_window_position(640, 480)
+        self.__init_menubar()
 
-    def __init_listbox(self):
-        langs = [ 'C', 'C++', 'Python', 'Ruby', 'PHP' ]
+    def __init_menubar(self):
+        self.menubar = Menu(self.master)
 
-        listbox = Listbox(self)
-        for lang in langs:
-            listbox.insert(END, lang)
-        listbox.bind('<<ListboxSelect>>', self.on_select)
-        listbox.pack(pady = 10)
+        self.master.config(menu = self.menubar)
 
-        self.listbox_var = StringVar()
-        label = Label(self, text = 'None', textvariable = self.listbox_var)
-        label.pack()
+        file_menu = Menu(self.menubar)
+        file_menu.add_command(label = 'Exit', command = self.quit)
 
-    def on_select(self, event):
-        sender = event.widget
-        current_select = sender.curselection()
-
-        self.listbox_var.set(sender.get(current_select))
+        self.menubar.add_cascade(label = 'File', menu = file_menu)
 
 
     def __init_window_position(self, width = None, height = None):
