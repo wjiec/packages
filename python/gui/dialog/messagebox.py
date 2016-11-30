@@ -18,6 +18,11 @@ class DialogApp(Frame):
         self.__init_dailog()
 
     def __init_dailog(self):
+        self.columnconfigure(0, weight = True)
+        self.columnconfigure(1, weight = True)
+        self.columnconfigure(2, weight = True)
+        self.columnconfigure(3, weight = True)
+
         btn_error = Button(self, text = 'Show Error', command = self.show_error)
         btn_error.grid(padx = 5, pady = 5)
 
@@ -25,10 +30,10 @@ class DialogApp(Frame):
         btn_warning.grid(row = 0, column = 1, padx = 5, pady = 5)
 
         btn_question = Button(self, text = 'Show Question', command = self.show_question)
-        btn_question.grid(row = 0, column = 3, padx = 5, pady = 5)
+        btn_question.grid(row = 0, column = 2, padx = 5, pady = 5)
 
         btn_information = Button(self, text = 'Show Information', command = self.show_information)
-        btn_information.grid(row = 0, column = 4, padx = 5, pady = 5)
+        btn_information.grid(row = 0, column = 3, padx = 5, pady = 5)
 
     def show_error(self):
         MB.showerror('Error', 'This is a error dialog')
