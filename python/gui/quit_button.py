@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 from tkinter import *
 
-class CenteringWindow(Frame):
+class QuitButton(Frame):
 
     def __init__(self, parent):
         Frame.__init__(self, parent)
@@ -12,7 +12,7 @@ class CenteringWindow(Frame):
     def __init_window_ui(self):
         self.pack(fill = BOTH, expand = 1)
 
-        self.parent.title('Centering Window')
+        self.parent.title('Quit Button')
 
         self.__init_window_position(1366, 768)
         self.__widget_quit_button()
@@ -37,6 +37,6 @@ class CenteringWindow(Frame):
 
 if __name__ == '__main__':
     root = Tk()
-    main_frame = CenteringWindow(root)
+    main_frame = QuitButton(root)
 
     root.mainloop()

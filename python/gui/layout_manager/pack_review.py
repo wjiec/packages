@@ -3,7 +3,7 @@ from tkinter import *
 from tkinter.ttk import *
 from PIL import Image, ImageTk
 
-class AbsolutePlace(Frame):
+class PackReview(Frame):
 
     def __init__(self, parent):
         Frame.__init__(self, parent)
@@ -83,5 +83,5 @@ class AbsolutePlace(Frame):
 
 if __name__ == '__main__':
     root = Tk()
-    main_frame = AbsolutePlace(root)
+    main_frame = PackReview(root)
     root.mainloop()

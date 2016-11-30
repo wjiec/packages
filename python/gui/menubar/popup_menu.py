@@ -2,7 +2,7 @@
 from tkinter import *
 from tkinter.ttk import *
 
-class CenteringWindow(Frame):
+class PopupMenu(Frame):
 
     def __init__(self, parent):
         Frame.__init__(self, parent)
@@ -10,7 +10,7 @@ class CenteringWindow(Frame):
         self.__init_window_ui()
 
     def __init_window_ui(self):
-        self.master.title('Menubar')
+        self.master.title('PopupMenu')
         self.pack(fill = BOTH, expand = True)
 
         self.__init_window_position(640, 480)
@@ -55,6 +55,6 @@ class CenteringWindow(Frame):
 
 if __name__ == '__main__':
     root = Tk()
-    main_frame = CenteringWindow(root)
+    main_frame = PopupMenu(root)
 
     root.mainloop()

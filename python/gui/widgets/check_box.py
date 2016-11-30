@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 from tkinter import *
 
-class CenteringWindow(Frame):
+class CheckBox(Frame):
 
     def __init__(self, parent):
         Frame.__init__(self, parent)
@@ -44,6 +44,6 @@ class CenteringWindow(Frame):
 
 if __name__ == '__main__':
     root = Tk()
-    main_frame = CenteringWindow(root)
+    main_frame = CheckBox(root)
 
     root.mainloop()

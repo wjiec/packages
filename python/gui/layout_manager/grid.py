@@ -13,7 +13,7 @@ class GridPosition(Frame):
         self.__init_window_ui()
 
     def __init_window_ui(self):
-        self.parent.title('Calculator')
+        self.parent.title('Grid Manager')
 
         self.__init_window_style()
         # self.__init_window_position(640, 480)

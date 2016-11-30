@@ -2,7 +2,7 @@
 from tkinter import *
 from PIL import Image, ImageTk
 
-class CenteringWindow(Frame):
+class WidgetLabel(Frame):
 
     def __init__(self, parent):
         Frame.__init__(self, parent)
@@ -49,6 +49,6 @@ class CenteringWindow(Frame):
 
 if __name__ == '__main__':
     root = Tk()
-    main_frame = CenteringWindow(root)
+    main_frame = WidgetLabel(root)
 
     root.mainloop()

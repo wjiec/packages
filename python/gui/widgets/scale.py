@@ -2,7 +2,7 @@
 from tkinter import *
 from tkinter.ttk import *
 
-class CenteringWindow(Frame):
+class WidgetScale(Frame):
 
     def __init__(self, parent):
         Frame.__init__(self, parent)
@@ -45,6 +45,6 @@ class CenteringWindow(Frame):
 
 if __name__ == '__main__':
     root = Tk()
-    main_frame = CenteringWindow(root)
+    main_frame = WidgetScale(root)
 
     root.mainloop()

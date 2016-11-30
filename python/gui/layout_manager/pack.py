@@ -3,7 +3,7 @@ from tkinter import *
 from tkinter.ttk import *
 from PIL import Image, ImageTk
 
-class AbsolutePlace(Frame):
+class PackManager(Frame):
 
     def __init__(self, parent):
         Frame.__init__(self, parent)
@@ -14,7 +14,7 @@ class AbsolutePlace(Frame):
         self.__init_window_ui()
 
     def __init_window_ui(self):
-        self.parent.title('Absolute Positioning')
+        self.parent.title('PackManager')
         self.pack(fill = BOTH, expand = True)
 
         self.__init_window_style()
@@ -58,5 +58,5 @@ class AbsolutePlace(Frame):
 
 if __name__ == '__main__':
     root = Tk()
-    main_frame = AbsolutePlace(root)
+    main_frame = PackManager(root)
     root.mainloop()

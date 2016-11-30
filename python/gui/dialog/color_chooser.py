@@ -11,7 +11,7 @@ class DialogApp(Frame):
         self.__init_window_ui()
 
     def __init_window_ui(self):
-        self.master.title('Dialog')
+        self.master.title('color chooser')
         self.pack(fill = BOTH, expand = True)
 
         self.__init_window_position(640, 480)

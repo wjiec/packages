@@ -3,7 +3,7 @@ from tkinter import *
 from tkinter.ttk import *
 from PIL import Image, ImageTk
 
-class CenteringWindow(Frame):
+class Toolbar(Frame):
 
     def __init__(self, parent):
         Frame.__init__(self, parent)
@@ -11,7 +11,7 @@ class CenteringWindow(Frame):
         self.__init_window_ui()
 
     def __init_window_ui(self):
-        self.master.title('Widget Scale')
+        self.master.title('Widget Toolbar')
         self.pack(fill = BOTH, expand = True)
 
         self.__init_window_position(640, 480)
@@ -52,6 +52,6 @@ class CenteringWindow(Frame):
 
 if __name__ == '__main__':
     root = Tk()
-    main_frame = CenteringWindow(root)
+    main_frame = Toolbar(root)
 
     root.mainloop()
