@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 import tkinter as tk
 import tkinter.ttk as ttk
+from PIL import Image, ImageTk
 
 class CanvasDraw(tk.Frame):
 
@@ -10,7 +11,7 @@ class CanvasDraw(tk.Frame):
         self.__init_window_ui()
 
     def __init_window_ui(self):
-        self.master.title('Canvas Draw Colours')
+        self.master.title('Canvas Draw Image')
         self.pack(fill = tk.BOTH, expand = True)
         self.style = ttk.Style()
 
@@ -20,11 +21,13 @@ class CanvasDraw(tk.Frame):
         self.__init_canvas()
 
     def __init_canvas(self):
-        canvas = tk.Canvas(self)
-        
-        canvas.create_rectangle(30, 10, 120, 80, outline="#fb0", fill="#fb0")
-        canvas.create_rectangle(150, 10, 240, 80, outline="#f50", fill="#f50")
-        canvas.create_rectangle(270, 10, 370, 80, outline="#05f", fill="#05f")
+        self.image = Image.open('1.png')
+        self.image_tk = ImageTk.PhotoImage(self.image)
+
+        canvas = tk.Canvas(self, width = self.image.size[0] + 20, height = self.image.size[1] + 20)
+
+        canvas.create_rectangle(2, 2, self.image.size[0] + 20, self.image.size[1] + 20)
+        canvas.create_image(10, 10, anchor = tk.NW, image = self.image_tk)
 
         canvas.pack(fill = tk.BOTH, expand = True)
 

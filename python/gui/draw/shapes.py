@@ -16,15 +16,28 @@ class CanvasDraw(tk.Frame):
 
         self.style.configure("TFrame", background = '#333')
 
-        # self.__init_window_size(640, 480)
+        self.__init_window_size(640, 480)
         self.__init_canvas()
 
     def __init_canvas(self):
         canvas = tk.Canvas(self)
         
-        canvas.create_rectangle(30, 10, 120, 80, outline="#fb0", fill="#fb0")
-        canvas.create_rectangle(150, 10, 240, 80, outline="#f50", fill="#f50")
-        canvas.create_rectangle(270, 10, 370, 80, outline="#05f", fill="#05f")
+        canvas.create_oval(10, 10, 80, 80, outline = 'red', fill = 'green', width = 2)
+        canvas.create_oval(110, 10, 210, 80, outline = 'red', fill = 'green', width = 2)
+        canvas.create_rectangle(230, 10, 290, 60, outline = 'red', fill = 'green', width = 2)
+        canvas.create_arc(30, 200, 90, 100, start = 0, extent = 210, outline = 'red', fill = 'green', width = 2)
+
+        canvas.create_rectangle(300, 300, 400, 400)
+        canvas.create_oval(300, 300, 400, 400, outline = 'blue')
+
+        canvas.create_rectangle(500, 200, 600, 450)
+        canvas.create_oval(500, 200, 600, 450, outline = 'blue')
+
+        canvas.create_rectangle(30, 400, 90, 300)
+        canvas.create_arc(30, 400, 90, 300, start = 0, extent = 90, fill = 'red') # 0 - 90 degress
+
+        points = [150, 100, 200, 120, 240, 180, 210, 200, 150, 150, 100, 200]
+        canvas.create_polygon(points, outline = 'red', fill = 'green', width = 2)
 
         canvas.pack(fill = tk.BOTH, expand = True)
 
