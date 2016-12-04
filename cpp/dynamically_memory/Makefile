@@ -1,11 +1,11 @@
 include ../env.make
 
-BINS = 
+BINS = new
 
 all: $(BINS)
 .PHONY: all
 
-: .cpp
+new: new.cpp
 	$(ECHO) Compile $@ ...
 	$(CC) $(FLAGS) -o $@ $^
 
