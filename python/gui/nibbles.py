@@ -127,11 +127,10 @@ class Board(tk.Canvas):
         self.__draw_circle(x, y, 'snake_body', 'blue')
 
     def __draw_new_apple(self, x = None, y = None):
-        if not isinstance(x, int) or not isinstance(y, int):
+        self.apple_coordinate = self.__random_apple_coordinate()
+        while not self.__check_apple_coordinate(*self.apple_coordinate):
             self.apple_coordinate = self.__random_apple_coordinate()
-            self.__draw_circle(*self.apple_coordinate, 'apple', 'green')
-        else:
-            self.__draw_circle(x, y, 'apple', 'green')
+        self.__draw_circle(*self.apple_coordinate, 'apple', 'green')
 
     def __draw_circle(self, x, y, tag, fill):
         if fill is None:
@@ -147,6 +146,10 @@ class Board(tk.Canvas):
         if (x, y) in snake_head_coordinate:
             return False
         if (x, y) in snake_body_coordinate:
+            return False
+        if x == 0 or x == self.x_max_coordinate - 1:
+            return False
+        if y == 0 or y == self.y_max_coordinate - 1:
             return False
         return True
 
