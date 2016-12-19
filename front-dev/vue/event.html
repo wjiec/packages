@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Vue - Test</title>
+    <script src="https://unpkg.com/vue/dist/vue.js"></script>
+</head>
+<body>
+    
+    <div id="counter-event-example">
+        <p>{{ total }}</p>
+        <button-counter v-on:increment="increment_total"></button-counter>
+        <button-counter v-on:increment="increment_total"></button-counter>
+
+        <currenty-input v-model="price"></currenty-input>
+    </div>
+
+    <script>
+        Vue.config.devtools = true
+        Vue.component('button-counter', {
+            data: function() {
+                return {
+                    counter: 0
+                }
+            },
+            template: '<button @click="increment_counter">{{ counter }}</button>',
+            methods: {
+                increment_counter: function(event) {
+                    this.counter++
+                    this.$emit('increment')
+                }
+            }
+        })
+
+        Vue.component('currency-input', {
+
+        })
+
+        var app = new Vue({
+            el: '#counter-event-example',
+            data: {
+                total: 0
+            },
+            methods: {
+                increment_total: function(event) {
+                    this.total++;
+                }
+            }
+        })
+
+    </script>
+</body>
+</html>
