@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Vue - Test</title>
+    <script src="https://unpkg.com/vue/dist/vue.js"></script>
+</head>
+<body>
+    
+    <div id="app">
+        <currenty-input></currenty-input>
+    </div>
+
+    <script>
+        Vue.component('currenty-input', {
+            template: '\
+                $\
+                <input ref="input" type="text" v-bind:value="value" v-on:input="update_value"/>\
+            ',
+            data: function() {
+                return {
+                    value: '0.0'
+                }
+            },
+            methods: {
+                update_value: function(event) {
+                    value = event.target.value.trim()
+                    var formattedValue = value.slice(0, value.indexOf('.') + 3)
+                    
+                    if (formattedValue !== value) {
+                        this.$refs.input.value = formattedValue
+                    }
+                    this.$emit('input', Number(formattedValue))
+                }
+            }
+        })
+
+        var app = new Vue({
+            el: '#app'
+        })
+
+    </script>
+</body>
+</html>
