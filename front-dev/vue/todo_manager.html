@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Vue - Test</title>
+    <script src="./vue.js"></script>
+</head>
+<body>
+    
+    <div id="app">
+        <input type="text" v-model="todo_text" placeholder="add a todo item" v-on:keyup.enter="push_todo_item">
+
+        <ul>
+            <todo-item v-for="(todo, index) in todos" :title="todo" v-on:remove="remove_todo_item(index)"></todo-item>
+        </ul>
+    </div>
+
+    <script>
+        Vue.component('todo-item', {
+            template: '\
+                <li>{{ title.text }}<button @click="$emit(\'remove\')">X</button></li>\
+            ',
+            props: {
+                title: {
+                    type: Object
+                }
+            }
+        })
+
+        var app = new Vue({
+            el: '#app',
+            data: {
+                todo_text: '',
+                todos: [
+                    { text: 'hello javascript' },
+                    { text: 'hello vuejs' }
+                ]
+            },
+            methods: {
+                push_todo_item: function() {
+                    if (this.todo_text.length > 0) {
+                        this.todos.push({ text: this.todo_text })
+                        this.todo_text = ''
+                    }
+                },
+                remove_todo_item: function(index) {
+                    this.todos.splice(index, 1)
+                }
+            }
+        })
+
+    </script>
+</body>
+</html>
