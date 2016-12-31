@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0" />
+    <!-- <link rel="stylesheet" href="://shellboot.com/static/css/style.css"> -->
+    <link rel="stylesheet" href="static/css/style.css">
+    <!-- <script src="://shellboot.com/lib/vue.js"></script> -->
+    <script src="lib/vue.js"></script>
+
+    <script src="https://unpkg.com/axios@0.12.0/dist/axios.min.js"></script>
+    <script src="https://unpkg.com/lodash@4.13.1/lodash.min.js"></script>
+
+    <!-- <script src="://shellboot.com/static/js/component.js"></script> -->
+    <!-- <script src="://shellboot.com/static/js/app.js"></script> -->
+    <script src="static/js/component.js"></script>
+    <script src="static/js/app.js"></script>
+    <title>ShadowMan Here</title>
+</head>
+<body>
+    <div id="app">
+        <form>
+            message: <input type="text" name="message" v-model="message"><br/>
+            text: <textarea name="text" v-model="text"></textarea><br/>
+            checkbox: <input type="checkbox" name="check_box" v-model="is_check"><br/>
+            multi checkbox: <input type="checkbox" name="check_box" value="jack" v-model="names">
+            <input type="checkbox" name="check_box" value="john" v-model="names">
+            <input type="checkbox" name="check_box" value="lili" v-model="names"><br/>
+            radio: <input type="radio" name="sex" value="man" v-model="sex">
+            <input type="radio" name="sex" value="woman" v-model="sex"><br/>
+            single select: <select v-model="words">
+                <option>A</option>
+                <option>B</option>
+                <option>C</option>
+            </select><br/>
+            multi select: <select v-model="multi_words" multiple>
+                <option>A</option>
+                <option>B</option>
+                <option>C</option>
+            </select><br/>
+        </form>
+        <div>
+            <p>input:text v-model="message" => {{ message }}</p>
+            <p>textarea v-model="text" => {{ text }}</p>
+            <p>input:checkbox v-model="is_check" => {{ is_check }}</p>
+            <p>input:checkbox v-model="names" => {{ names }}</p>
+            <p>input:radio v-model="sex" => {{ sex }}</p>
+            <p>select:single v-model="words" => {{ words }}</p>
+            <p>select:multiple v-model="multi_words" => {{ multi_words }}</p>
+        </div>
+    </div>
+    <script>
+        var vm = new Vue({
+            el: '#app',
+            data: {
+                message: '',
+                text: '',
+                is_check: false,
+                names: [],
+                sex: '',
+                words: '',
+                multi_words: [],
+            }
+        })
+    </script>
+</body>
+</html>
