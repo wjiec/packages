@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0" />
+    <link rel="stylesheet" href="static/css/style.css">
+    <script src="https://unpkg.com/vue/dist/vue.js"></script>
+</head>
+<body>
+    <div id="app">
+        <p>Count: {{ count }}</p>
+        <my-input @inc="inc_count"></my-input>
+        <my-input @inc="inc_count"></my-input>
+    </div>
+    <script>
+        Vue.component('my-input', {
+            template: '<button @click="emit_inc">INC {{ current_count }}</button>',
+            data: () => {
+                return {
+                    current_count: 0
+                }
+            },
+            methods: {
+                emit_inc: function() {
+                    this.current_count += 1
+                    this.$emit('inc')
+                }
+            }
+        })
+
+        var vm = new Vue({
+            el: '#app',
+            data: {
+                count: 0
+            },
+            methods: {
+                inc_count: function() {
+                    this.count += 1
+                }
+            }
+        })
+    </script>
+</body>
+</html>
