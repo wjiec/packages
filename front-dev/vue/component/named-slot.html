@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0" />
+    <link rel="stylesheet" href="static/css/style.css">
+    <script src="https://unpkg.com/vue/dist/vue.js"></script>
+</head>
+<body>
+    <div id="app">
+        <h1>parent-component title</h1>
+        <my-layout>
+            <h1 slot="header">This is a header</h1>
+            <p>content1</p>
+            <p>content1</p>
+            <p>content1</p>
+            <p>content1</p>
+        </my-layout>
+    </div>
+    <script>
+        Vue.component('my-layout', {
+            template: '\
+            <div>\
+                <header>\
+                    <slot name="header"><h1>This is layout default header</h1></slot>\
+                </header>\
+                <slot><p>child-component default conetents</p></slot>\
+                <footer>\
+                    <slot name="footer"><h1>This is layout default footer</h1></slot>\
+                </footer>\
+            </div>'
+        })
+
+        var vm = new Vue({
+            el: '#app'
+        })
+    </script>
+</body>
+</html>

@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0" />
+    <link rel="stylesheet" href="static/css/style.css">
+    <script src="https://unpkg.com/vue/dist/vue.js"></script>
+</head>
+<body>
+    <div id="app">
+        <h1>parent-component title</h1>
+        <my-list :items="items">
+            <template slot="item" scope="props">
+                <li class="parent-item-class">parent definition item template -> {{ props.text }}</li>
+            </template>
+        </my-list>
+    </div>
+    <script>
+        Vue.component('my-list', {
+            template: '\
+            <ul>\
+                <slot name="item" v-for="item in items" :text="item.text">\
+                    <li class="child-item-class">child definition item -> template {{ item.text }}</li>\
+                </slot>\
+            </ul>',
+            props: ['items']
+        })
+
+        var vm = new Vue({
+            el: '#app',
+            data: {
+                items: [ { text: 'list item 1' }, { text: 'list item 2' }, { text: 'list item 3' } ]
+            }
+        })
+    </script>
+</body>
+</html>

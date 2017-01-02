@@ -1,6 +1,6 @@
 include ../../env.make
 
-BINS = sample scope StrBlob
+BINS = sample scope StrBlob process deleter
 
 all: $(BINS)
 .PHONY: all
@@ -14,6 +14,14 @@ scope: scope.cpp
 	$(CC) $(FLAGS) -o $@ $^
 
 StrBlob: StrBlob.cpp
+	$(ECHO) Compile $@ ...
+	$(CC) $(FLAGS) -o $@ $^
+
+process: process.cpp
+	$(ECHO) Compile $@ ...
+	$(CC) $(FLAGS) -o $@ $^
+
+deleter: deleter.cpp
 	$(ECHO) Compile $@ ...
 	$(CC) $(FLAGS) -o $@ $^
 

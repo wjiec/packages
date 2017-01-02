@@ -23,7 +23,7 @@ class StrBlob {
         string &front(void) const;
         string &back(void) const;
 
-        //iterator
+        // iterator
         vector<string>::iterator begin() const { return data->begin(); }
         vector<string>::iterator end() const { return data->end(); }
 

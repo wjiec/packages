@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0" />
+    <link rel="stylesheet" href="static/css/style.css">
+    <script src="https://unpkg.com/vue/dist/vue.js"></script>
+</head>
+<body>
+    <div id="app">
+        <my-sender label="Sender"></my-sender>
+        <my-receiver label="Receiver"></my-receiver>
+    </div>
+    <script>
+        Vue.component('my-receiver', {
+            template: '<div><span>{{ label }}</span><input type="text" :value="message" readonly/></div>',
+            props: ['label'],
+            data: () => {
+                return {
+                    message: ''
+                }
+            },
+            created: function() {
+                this.$root.event_bus.$on('message', (msg_from_other_component) => {
+                    this.message = msg_from_other_component
+                })
+            }
+        })
+
+        Vue.component('my-sender', {
+            template: '<div><span>{{ label }}</span><input type="text" v-model="message" @keyup.enter="send_message"/></div>',
+            props: ['label'],
+            data: () => {
+                return {
+                    message: ''
+                }
+            },
+            methods: {
+                send_message: function(event) {
+                    this.$root.event_bus.$emit('message', this.message)
+                }
+            }
+        })
+
+        var vm = new Vue({
+            el: '#app',
+            data: {
+                event_bus: new Vue()
+            }
+        })
+    </script>
+</body>
+</html>
