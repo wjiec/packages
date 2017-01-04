@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0" />
+    <link rel="stylesheet" href="static/css/style.css">
+    <script src="https://unpkg.com/vue/dist/vue.js"></script>
+</head>
+<body>
+    <div id="app">
+        <button @click="toggle_view">Toggle View</button>
+        <keep-alive>
+            <component :is="current_view"></component>
+        </keep-alive>
+    </div>
+    <script>
+        Vue.component('component-a', {
+            template: '<div>this is a component a</div>'
+        })
+
+        Vue.component('component-b', {
+            template: '<div>this is a component b</div>'
+        })
+
+        Vue.component('component-c', {
+            template: '<div>this is a component c</div>'
+        })
+
+        var vm = new Vue({
+            el: '#app',
+            data: {
+                current_view_index: 0,
+                current_view: 'component-a'
+            },
+            methods: {
+                toggle_view: function() {
+                    this.current_view_index += 1
+                    this.current_view = [ 'component-a', 'component-b', 'component-c'][this.current_view_index % 3]
+                }
+            }
+        })
+    </script>
+</body>
+</html>
