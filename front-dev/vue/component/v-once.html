@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0" />
+    <link rel="stylesheet" href="static/css/style.css">
+    <script src="https://unpkg.com/vue/dist/vue.js"></script>
+    <style>
+        .directory {
+            color: #00f;
+        }
+        .file {
+            color: #0f0;
+        }
+
+    </style>
+</head>
+<body>
+    <div id="app">
+        <once-html></once-html>
+    </div>
+    <script>
+        Vue.component('once-html', {
+            template: '\
+            <div v-once>\
+                <p v-for="i in 100">Hello World, This is a line</p>\
+            </div>',
+        })
+
+        var vm = new Vue({
+            el: '#app',
+            data: {
+            }
+        })
+    </script>
+</body>
+</html>

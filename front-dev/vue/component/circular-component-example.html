@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0" />
+    <link rel="stylesheet" href="static/css/style.css">
+    <script src="https://unpkg.com/vue/dist/vue.js"></script>
+    <style>
+        .directory {
+            color: #00f;
+        }
+        .file {
+            color: #0f0;
+        }
+
+    </style>
+</head>
+<body>
+    <div id="app">
+        <file-tree v-for="(children, item) in directory" :item="item" :children="children"></file-tree>
+    </div>
+    <script>
+        Vue.component('file-tree', {
+            template: '\
+            <div>\
+                <p :class="children == null ? \'file\' : \'directory\' ">{{ item }}</p>\
+                <ul v-if="children">\
+                    <li v-for="(children, item) in children" v-if="item">\
+                        <file-tree :item="item" :children="children"></file-tree>\
+                    </li>\
+                <ul>\
+            </div>',
+            props: [ 'item', 'children' ]
+        })
+
+        var vm = new Vue({
+            el: '#app',
+            data: {
+                directory: {
+                    'root': {
+                        'etc': {
+                            'shadow': null,
+                            'passwd': null,
+                            'conf': {
+                                'httpd.conf': null
+                            }
+                        },
+                        'opt': {
+                            'www': {
+                                'index.html': null
+                            }
+                        },
+                        'usr': {
+                            'local': {
+                                'python': {
+                                    'python': null
+                                }
+                            }
+                        },
+                        'tmp': {
+                            'tmp.txt': null
+                        }
+                    }
+                }
+            }
+        })
+    </script>
+</body>
+</html>
