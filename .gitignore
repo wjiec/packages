@@ -1,2 +1,6 @@
+# Python Compiler
 *.pyc
 *.exe
+
+# Sass
+.sass-cache
