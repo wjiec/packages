@@ -7,13 +7,21 @@
     <link rel="stylesheet" href="static/css/style.css">
     <script src="https://unpkg.com/vue/dist/vue.js"></script>
     <style>
-        .fade-enter-active, .fade-leave-active {
-            transition: all .3s ease-in-out;
+        div {
+            overflow: hidden;
+        }
+        .fade-enter-active {
+            transition: all 1s ease-in-out;
+        }
+        .fade-leave-active {
+            transition: all .5s cubic-bezier(1.0, 0.5, 0.8, 1.0);
         }
         .fade-enter, .fade-leave-to {
+            transform: translateX(10rem);
             opacity: 0;
         }
         .fade-leave, .fade-enter-to {
+            transform: translateX(0);
             opacity: 1;
         }
     </style>
@@ -21,14 +29,14 @@
     <div id="app">
         <button @click="show = !show">Toggle</button>
         <transition name="fade">
-            <p v-if="show">This is contents</p>
+            <div v-if="show">This is a contents</div>
         </transition>
     </div>
     <script>
         var vm = new Vue({
             el: '#app',
             data: {
-                show: true
+                show: true,
             }
         })
     </script>
