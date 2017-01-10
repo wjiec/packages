@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0" />
+    <link rel="stylesheet" href="static/css/style.css">
+    <script src="https://unpkg.com/vue/dist/vue.js"></script>
+    <style>
+        div {
+            overflow: hidden;
+        }
+        .cust-in-animation {
+            animation: animation-in 1s;
+        }
+        .cust-out-animation {
+            animation: animation-out 1s;
+        }
+        @keyframes animation-in {
+            0% {
+                opacity: 0;
+                transform: translateX(-5rem);
+            } 50% {
+                opacity: .5;
+                transform: translateX(5rem);
+            } 100% {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+        @keyframes animation-out {
+            0% {
+                opacity: 1;
+                transform: translateX(0rem);
+            } 50% {
+                opacity: .5;
+                transform: translateX(-5rem);
+            } 100% {
+                opacity: 0;
+                transform: translateX(5rem);
+            }
+        } 
+    </style>
+<body>
+    <div id="app">
+        <button @click="show = !show">Toggle</button>
+        <transition
+            enter-active-class="cust-in-animation"
+            leave-active-class="cust-out-animation">
+            <div v-if="show">This is a contents</div>
+        </transition>
+    </div>
+    <script>
+        var vm = new Vue({
+            el: '#app',
+            data: {
+                show: true,
+            }
+        })
+    </script>
+</body>
+</html>

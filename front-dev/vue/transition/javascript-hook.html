@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0" />
+    <link rel="stylesheet" href="static/css/style.css">
+    <script src="https://unpkg.com/vue/dist/vue.js"></script>
+    <style>
+        div {
+            overflow: hidden;
+        }
+    </style>
+<body>
+    <div id="app">
+        <button @click="show = !show">Toggle</button>
+        <transition
+            @before-enter="before_enter"
+            @enter="enter"
+            @after-enter="after_enter"
+            @enter_canelled="cancelled_enter"
+
+            @before-leave="before_leave"
+            @leave="leave"
+            @after-leave="after_leave"
+            @leave-cancelled="cancelled_leave"
+        >
+            <div v-if="show">This is a contents</div>
+        </transition>
+    </div>
+    <script>
+        var vm = new Vue({
+            el: '#app',
+            data: {
+                show: true,
+            },
+            methods: {
+                before_enter: function(el) {
+                    console.log('before_enter callback', el)
+                },
+                enter: function(el, done) {
+                    console.log('enter callback', el, done)
+
+                    done()
+                },
+                after_enter: function(el) {
+                    console.log('after_enter callback', el)
+                },
+                cancelled_enter: function(el) {
+                    console.log('cancelled_enter callback', el)
+                },
+                before_leave: function(el) {
+                    console.log('before_leave callback', el)
+                },
+                leave: function(el, done) {
+                    console.log('leave callback', el, done)
+
+                    done()
+                },
+                after_leave: function(el) {
+                    console.log('after_leave callback', el)
+                },
+                cancelled_leave: function(el) {
+                    console.log('cancelled_leave callback', el)
+                }
+            }
+        })
+    </script>
+</body>
+</html>
