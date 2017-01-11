@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0" />
+    <link rel="stylesheet" href="static/css/style.css">
+    <script src="https://unpkg.com/vue/dist/vue.js"></script>
+    <style>
+        div {
+            overflow: hidden;
+        }
+    </style>
+<body>
+    <div id="app">
+        <button :key="doc_state">{{ button_text }}</button>
+        <transition>
+                <textarea cols="80" rows="20" @focus="doc_state = 'editing'" @blur="blur_event"></textarea>
+        </transition>
+    </div>
+    <script>
+        var vm = new Vue({
+            el: '#app',
+            data: {
+                doc_state: null,
+            },
+            computed: {
+                button_text: function() {
+                    switch (this.doc_state) {
+                        case 'etit': return 'Edit'
+                        case 'edited': return 'Eedited'
+                        case 'editing': return 'Editing'
+                        default: return 'Waiting'
+                    }
+                }
+            },
+            methods: {
+                blur_event: function(event) {
+                    if (event.target.value.length) {
+                        this.doc_state = 'edited'
+                    } else {
+                        this.doc_state = 'waiting'
+                    }
+                }
+            }
+        })
+    </script>
+</body>
+</html>
