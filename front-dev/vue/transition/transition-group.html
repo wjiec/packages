@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0" />
+    <link rel="stylesheet" href="static/css/style.css">
+    <script src="https://unpkg.com/vue/dist/vue.js"></script>
+    <style>
+        .fade-enter-active, .fade-leave-active {
+            transition: all .8s ease-in-out;
+        }
+        .fade-enter, .fade-leave-to {
+            transform: translateY(30px);
+            opacity: 0;
+        }
+        .fade-leave, .fade-enter-to {
+            transform: translateY(0);
+            opacity: 1;
+        }
+    </style>
+<body>
+    <div id="app">
+        <button @click="add_item">Add</button>
+        <button @click="remove_item">Remove</button>
+        <transition-group name="fade" mode="out-in">
+            <span v-for="item in items" :key="item" style="margin: 1rem;">{{ item }}</span>
+        </transition-group>
+    </div>
+    <script>
+        var vm = new Vue({
+            el: '#app',
+            data: {
+                items: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
+            },
+            methods: {
+                random_index: function() {
+                    return Math.floor(Math.random() * this.items.length)
+                },
+                add_item: function() {
+                    this.items.splice(this.random_index(), 0, this.items.length)
+                },
+                remove_item: function() {
+                    this.items.splice(this.random_index(), 1)
+                }
+            }
+        })
+    </script>
+</body>
+</html>
