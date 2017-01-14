@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0" />
+    <link rel="stylesheet" href="static/css/style.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/lodash.js/4.14.1/lodash.min.js"></script>
+    <script src="https://unpkg.com/vue/dist/vue.js"></script>
+    <style>
+        .item-class {
+            margin-right: 1rem;
+            display: inline-block;
+        }
+        .fade-enter-active, .fade-leave-active {
+            transition: all .8s ease-in-out;
+        }
+        .fade-leave-active {
+            position: absolute;
+        }
+        .fade-enter, .fade-leave-to {
+            opacity: 0;
+            transform: translateY(30px);
+        }
+        .fade-move {
+            transition: all 1s;
+        }
+    </style>
+<body>
+    <div id="app">
+        <button @click="add_item">Add</button>
+        <button @click="remove_item">Remove</button>
+        <button @click="shuffle_item">Shuffle</button>
+        <transition-group name="fade" tag="p">
+            <span v-for="item in items" :key="item" class="item-class">{{ item }}</span>
+        </transition-group>
+    </div>
+    <script>
+        var vm = new Vue({
+            el: '#app',
+            data: {
+                items: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9],
+                current_index: 10
+            },
+            methods: {
+                random_index: function() {
+                    return Math.floor(Math.random() * this.items.length)
+                },
+                add_item: function() {
+                    this.items.splice(this.random_index(), 0, this.current_index++)
+                },
+                remove_item: function() {
+                    this.items.splice(this.random_index(), 1)
+                },
+                shuffle_item: function() {
+                    this.items = _.shuffle(this.items)
+                }
+            }
+        })
+    </script>
+</body>
+</html>
