@@ -1,6 +1,6 @@
 include ../../env.make
 
-BINS = copy_constructor assign_operator
+BINS = copy_constructor assign_operator destructor
 
 all: $(BINS)
 .PHONY: all
@@ -10,6 +10,10 @@ copy_constructor: copy_constructor.cpp
 	$(CC) $(FLAGS) -o $@ $^
 
 assign_operator: assign_operator.cpp
+	$(ECHO) Compile $@
+	$(CC) $(FLAGS) -o $@ $^
+
+destructor: destructor.cpp
 	$(ECHO) Compile $@
 	$(CC) $(FLAGS) -o $@ $^
 
