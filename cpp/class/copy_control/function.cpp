@@ -8,7 +8,8 @@ class Apple {
     public:
         Apple() : name(new string) { cout << "default constructor" << endl; }
         Apple(const Apple &copy_instance) : name(new string(*copy_instance.name)) { cout << "copy constructor" << endl; }
-        Apple &operator=(const Apple &op) { name = make_shared<string>(*op.name); cout << "operator=" << endl; return *this; }
+        Apple &operator=(const Apple &op);
+        ~Apple();
     private:
         shared_ptr<string> name;
 };
@@ -27,7 +28,22 @@ int main(void) {
     r_func(_1);
     p_func(&_1);
 
+    cout << "test assign operator" << endl;
+    _3 = _1;
+
     return 0;
+}
+
+Apple &Apple::operator=(const Apple &op) {
+    name.reset(new string(*op.name));
+    cout << "operator=" << endl;
+
+    return *this;
+}
+
+Apple::~Apple() {
+    name.reset();
+    cout << "destructor" << endl;
 }
 
 void func(Apple app) {
@@ -41,3 +57,4 @@ void r_func(Apple &app) {
 void p_func(Apple *app) {
     cout << "p_func" << endl;
 }
+
