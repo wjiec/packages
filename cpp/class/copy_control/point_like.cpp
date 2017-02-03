@@ -25,15 +25,16 @@ int main(void) {
     sp1.check();
 
     SmartPoint sp2(sp1);
-    cout << "copy one-time reference-count = " << endl;
+    cout << "copy one-time reference-count" << endl;
     sp2.check();
 
 
     SmartPoint sp3("sp3");
-    cout << "new instance reference-count = " << endl;
+    cout << "new instance reference-count" << endl;
     sp3.check();
 
     sp3 = sp1;
+    sp3.check();
 
     return 0;
 }
@@ -52,6 +53,8 @@ SmartPoint &SmartPoint::operator=(const SmartPoint &sp) {
     // if left-value reference-count == 0
     // that execute destructor
     while (--(*use_count) == 0) {
+        cout << "\t" << *data << " enter destructor" << endl;
+
         delete data;
         delete use_count;
     }
