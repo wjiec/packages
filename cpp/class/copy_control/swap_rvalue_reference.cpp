@@ -9,7 +9,8 @@ class Apple {
     public:
         Apple(string s = string()) : name(new string(s)), age(0) {}
         Apple(const Apple &copy);
-        Apple &operator=(Apple right_value);
+        Apple(Apple &&move_instance) noexcept;
+        Apple &operator=(Apple right_value) noexcept;
         ~Apple();
     private:
         string *name;
@@ -25,6 +26,11 @@ int main(void) {
 
     a1 = a2;
 
+    Apple a3(std::move(a1));
+
+    Apple &&rr = std::move(a3);
+    Apple rra(rr);
+
     return 0;
 }
 
@@ -32,17 +38,26 @@ inline Apple::Apple(const Apple &copy)
     : name(new string(*(copy.name))), age(copy.age) {
 
     // copy-constructor
+    cout << "copy-constructor" << endl;
+}
+
+Apple::Apple(Apple &&move_instance) noexcept
+    : name(move_instance.name), age(move_instance.age) {
+
+    cout << "move-constructor" << endl;
+    move_instance.name = nullptr;
+    move_instance.age = -1;
 }
 
 // using swap
-inline Apple &Apple::operator=(Apple right_value) {
+inline Apple &Apple::operator=(Apple right_value) noexcept {
     swap(*this, right_value);
 
     return *this;
 }
 
 inline Apple::~Apple() {
-    cout << *name << " enter the destructor" << endl;
+    cout << (name == nullptr ? "nullptr" : *name) << " enter the destructor" << endl;
 
     delete name;
     age = -1;
@@ -51,6 +66,8 @@ inline Apple::~Apple() {
 // only swap pointer
 void swap(Apple &lv, Apple &rv) {
     using std::swap;
+
+    cout << "Apple::swap function" << endl;
 
     swap(lv.name, rv.name);
     swap(lv.age, rv.age);
