@@ -54,6 +54,9 @@ class Derived1 : public Base {
         // error: 'void Derived1::print() const' marked 'override', but does not override
         void print(void) const;
 
+    protected:
+        void protected_func(void) const;
+
     public:
         string name;
 
@@ -62,6 +65,23 @@ class Derived1 : public Base {
 
     private:
         bool is_man = true;
+};
+
+class Derived11 : public Derived1 {
+    public:
+        // default-constructor
+        Derived11() { cout << "Derived11::Derived11() constructor" << endl; };
+        // copy-constructor
+        Derived11(const Derived11 &) = default;
+        // move-constructor
+        Derived11(Derived11 &&) = default;
+        // copy-assign operator
+        Derived11 &operator=(const Derived11 &) = default;
+        // move-assign operator
+        Derived11 &operator=(Derived11 &&) = default;
+
+    public:
+        void debug(void) const override;
 };
 
 void func1(Base &instance);
@@ -82,6 +102,16 @@ int main(void) {
 
     func1(d1);
     cout << endl;
+
+    Derived11 d11;
+    // 'void Derived1::protected_func() const' is protected
+    // d11.protected_func();
+    func1(d11);
+    cout << endl;
+
+    Derived1 &dr = d1;
+    dr.print();
+    dr.Base::print();
 
     return 0;
 }
@@ -124,7 +154,18 @@ void Derived1::print(void) const {
     cout << "Derived1::print()" << endl;
 }
 
+void Derived1::protected_func(void) const {
+    cout << "Derived1::protected_func" << endl;
+}
+
+void Derived11::debug(void) const {
+    cout << "[Derived11_DEBUG] " << endl;
+}
+
 void func1(Base &instance) {
+    // dynamic type bind
     instance.debug();
+    // static type bind
     instance.print();
 }
+
