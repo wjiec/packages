@@ -4,3 +4,6 @@
 
 # Sass
 .sass-cache
+
+# Java
+*.class
