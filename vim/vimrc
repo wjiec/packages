@@ -1,8 +1,109 @@
-"""""""""""""""""""""""""""""""""""""""""""""""""
-" @author Shadowman
+""""""""""""""""""""""""""""""""""""""""""""""""
+" @suthor ShadowMan
 " @version 1.0.0
 " @license MIT License
-" @link https://github.com/JShadowMan/
-"""""""""""""""""""""""""""""""""""""""""""""""""
+" @link https://github.com/JShadowMan
+""""""""""""""""""""""""""""""""""""""""""""""""
+
+
+""""""""""""""""""""""""""""""""""""""""""""""""
+" General Configure
+""""""""""""""""""""""""""""""""""""""""""""""""
+
+" Use Vim settings, rather than Vi settings
+" This must be first, because it changes other options as a side effect
 set nocompatible
 
+" Enable filetype plugins
+filetype plugin on
+filetype indent on
+
+" Set to auto read when a file is changed from the outside
+set autoread
+
+" Sets how many lines of history VIM has to remember
+set history=88
+
+""""""""""""""""""""""""""""""""""""""""""""""""
+" User Interface
+""""""""""""""""""""""""""""""""""""""""""""""""
+
+" Ingore compiled files
+set wildignore=*.o,*~,*.pyc
+
+" Always show current position
+set ruler
+
+" Height of the command bar
+set cmdheight=1
+
+" Configure backspace so it acts as it should act
+set backspace=eol,start,indent
+set whichwrap=<,>,h,l
+
+" Ignore case when searching
+set ignorecase
+
+" Highlight search results
+set hlsearch
+
+" Don't redraw while executing macros
+set lazyredraw
+
+" For regular expressions trun magic on
+set magic
+
+" Show matching bracket when text indicator is over them
+set showmatch
+
+
+""""""""""""""""""""""""""""""""""""""""""""""""
+" Colors and Fonts
+""""""""""""""""""""""""""""""""""""""""""""""""
+
+" Enable syntax highlighting
+syntax enable
+
+" Color scheme
+colorscheme desert
+
+" Background set to dark
+set background=dark
+
+" Set extra options when running in GUI mode
+if has("gui_running")
+    set guioptions-=T
+    set guioptions+=e
+    set t_Co=256
+    set guitablabel=%M\ %t
+endif
+
+" Set UTF-8 as standard encoding and en_US as the standard language
+set encoding=utf8
+
+" Use Unix as the standard file type
+set ffs=unix,dos,mac
+
+
+""""""""""""""""""""""""""""""""""""""""""""""""
+" Text, Tab and indent related
+""""""""""""""""""""""""""""""""""""""""""""""""
+
+" Use spaces instead of tabs
+set expandtab
+
+" Be smart when using tabs
+set smarttab
+
+" Using 4 spaces replace 1 tab
+set shiftwidth=4
+set tabstop=4
+
+" Auto indent
+set autoindent
+
+" Smart indent
+set smartindent
+
+" no-wrap lines
+set nowrap
