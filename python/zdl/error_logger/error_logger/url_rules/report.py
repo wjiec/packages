@@ -2,7 +2,11 @@
 #
 # Copyright (C) 2017
 import json
+import time
 from error_logger.url_rules import _base_url_rule
+# from error_logger.net import sms_notification, email_notification
+from error_logger.utils import generic
+
 
 class Report(_base_url_rule.BaseUrlRule):
 
@@ -19,28 +23,37 @@ class Report(_base_url_rule.BaseUrlRule):
         json_data = self.get_body_dict()  # type: dict
 
         for error in json_data.get('errors', []):
-            _level = error.pop('level')
-            _time = error.pop('time', self.get_current_timestamp())
-            _module = error.pop('module')
-            _type = error.pop('type')
+            _level = int(error.pop('level'))
+            _time = int(error.pop('time', self.get_current_timestamp()))
+            _module = generic.to_string(error.pop('module'))
+            _type = generic.to_string(error.pop('type'))
             _msg = error.pop('msg')
             _other_data = json.dumps(error)
-            _ip = self.get_remote_ip()
+            _ip = generic.to_string(self.get_remote_ip())
             # TODO. modify this
-            self._notification(_level)
+            self._notification(source, _level)
 
             if not _level or not _time or not _module or not _type or not _msg:
                 return self.jsonify(1, 'report data format invalid, '
                                        'may be loss some fields')
-            sql = '''
-                INSERT INTO "{source}"
-                  ("level", "time", "module", "type", "msg", "ip", "other_data") 
-                VALUES
-                  ('{level}', to_timestamp('{time}'), '{module}', '{type}', '{msg}', '{ip}', '{other_data}');
-            '''.format(
-                source = source,
-                level=_level, time=_time, module=_module, type=_type, msg=_msg,
-                ip=_ip, other_data=_other_data)
+            source.replace('\'', '\'\'')
+            sql = 'INSERT INTO "{source}"'.format(source=source)
+            with adapter.cursor() as cursor:
+                sql = cursor.mogrify(
+                    '''
+                    INSERT INTO "{source}"
+                      ("level", "time", "module", "type", "msg", "ip", "other_data")
+                    VALUES 
+                      (%s, %s, %s, %s, %s, %s, %s)
+                    '''.format(source=source), (_level,
+                         time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(_time)),
+                         _module,
+                         _type,
+                         _msg,
+                         _ip,
+                         _other_data
+                    )
+                )
             try:
                 adapter.execute(sql)
             except Exception as e:
@@ -50,5 +63,5 @@ class Report(_base_url_rule.BaseUrlRule):
         else:
             return self.jsonify(0, 'success')
 
-    def _notification(self, error_level):
+    def _notification(self, source, error_level):
         pass

@@ -33,41 +33,59 @@ class FetchLog(_base_url_rule.BaseUrlRule):
             sql += " WHERE"
 
             if _level:
-                sql += " level='{level}'".format(level=_level)
+                sql += " level=%s"
 
             if _start_time:
                 if not sql.endswith('WHERE'):
                     sql += " AND"
-                sql += " time>='{start_time}'".format(start_time=_start_time)
+                sql += " time>=%s"
 
             if _end_time:
                 if not sql.endswith('WHERE'):
                     sql += " AND"
-                sql += " time<='{end_time}'".format(end_time=_end_time)
+                sql += " time<=%s"
 
             if _module:
                 if not sql.endswith('WHERE'):
                     sql += " AND"
-                sql += " module='{module}'".format(module=_module)
+                sql += " module=%s"
 
             if _ip:
                 if not sql.endswith('WHERE'):
                     sql += " AND"
-                sql += " ip='{ip}'".format(ip=_ip)
+                sql += " ip=%s"
 
         if _limit:
-            sql += " LIMIT {limit}".format(limit=_limit)
+            sql += " LIMIT %s"
         if _offset:
-            sql += " OFFSET {offset}".format(offset=_offset)
+            sql += " OFFSET %s"
         sql += ';'
-        result = map(lambda r: {
-            'eid': r[0],
-            'level': r[1],
-            'time': r[2],
-            'module': r[3],
-            'type': r[4],
-            'msg': r[5],
-            'ip': r[6],
-            'other_data': r[7]
-        }, adapter.fetch_all(sql))
-        return self.jsonify(result)
+        try:
+            with adapter.cursor() as cursor:
+                result = map(lambda r: {
+                    'eid': r[0],
+                    'level': r[1],
+                    'time': r[2],
+                    'module': r[3],
+                    'type': r[4],
+                    'msg': r[5],
+                    'ip': r[6],
+                    'other_data': r[7]
+                }, adapter.fetch_all(
+                    cursor.mogrify(
+                        sql,
+                        filter(lambda x: x, [
+                            _level,
+                            _start_time,
+                            _end_time,
+                            _module,
+                            _type,
+                            _ip,
+                            _limit,
+                            _offset
+                        ])
+                    )
+                ))
+                return self.jsonify(result)
+        except Exception:
+            return self.jsonify({'status': 1, 'message': 'fetch log error occurs'})

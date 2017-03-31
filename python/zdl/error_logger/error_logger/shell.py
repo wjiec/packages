@@ -13,7 +13,6 @@ def entry_pointer():
 
     parser.add_argument('-c', '--config',
                         type=str,
-                        default='./config.json',
                         help='configure file path')
     parser.add_argument('-s', '--server',
                         type=str,
@@ -24,10 +23,11 @@ def entry_pointer():
                         choices=['start', 'stop', 'debug'],
                         help='server start mode')
     options = parser.parse_args()
-    if hasattr(options, 'daemon'):
+    if hasattr(options, 'daemon') and hasattr(options, 'config'):
         if options.daemon is None:
             parser.error('too few arguments')
-
+        if options.config is None:
+            parser.error('too few arguments')
     _config = config.Config(options.config)
     for attr in dir(options):
         if attr.startswith('_'):

@@ -7,6 +7,7 @@ import os
 import time
 import flask
 import signal
+import hashlib
 from gevent import pywsgi
 from error_logger import url_rules
 from error_logger.net import ip_network
@@ -23,7 +24,7 @@ class ErrorLoggerServer(daemon.Daemon):
         self._config = config
         self._http_server = None
         self._ip_policy = self._config.ip_policy
-        self._whitelist_ip = ip_network.IPNetwork()
+        self._whitelist_ip = dict()
         self._time_loop = dict()
         self._debug = config.daemon == 'debug'
         if os.name == 'nt':
@@ -39,19 +40,27 @@ class ErrorLoggerServer(daemon.Daemon):
             self._before_request)
 
     def _ip_network_init(self):
-        forbidden_ip = self._ip_policy.get('forbidden_ip')
-        if not forbidden_ip:
+        unlimited_ip = self._ip_policy.get('unlimited')
+        self._create_white_list_node('unlimited', unlimited_ip)
+
+        _url_whitelist_ip = self._ip_policy.get('whitelist_ip')
+        for url, ip in _url_whitelist_ip.items():
+            self._create_white_list_node(url, ip)
+
+    def _create_white_list_node(self, key, ip):
+        if not ip:
             return
-        if isinstance(forbidden_ip, str):
-            forbidden_ip = forbidden_ip.split(',')
-        elif not isinstance(forbidden_ip, (tuple, list)):
+        if isinstance(ip, (str, unicode)):
+            ip = generic.to_string(ip).split(',')
+        elif not isinstance(ip, (tuple, list)):
+            print(key, ip)
             raise exceptions.ForbiddenIpError(
-                'In config.json forbidden_ip field invalid')
-        for ip in forbidden_ip:
-            self._whitelist_ip.add_network(generic.to_string(ip))
-            logger.wait_logger_init_msg(
-                logger.info,
-                'Add address({}) to white list'.format(ip))
+                'In config.json `{}` field invalid'.format(key))
+
+        if key not in self._whitelist_ip:
+            self._whitelist_ip[key] = ip_network.IPNetwork()
+        for address in ip:
+            self._whitelist_ip[key].add_network(address)
 
     def _bind_url_rule(self):
         for rule in filter(lambda m: not m.startswith('_'), dir(url_rules)):
@@ -112,9 +121,13 @@ class ErrorLoggerServer(daemon.Daemon):
         self._check_authentication()
 
     def _check_ip_forbidden(self):
+        url = flask.request.path
         ip_address = flask.request.remote_addr
+        if url in self._whitelist_ip:
+            if ip_address not in self._whitelist_ip[url]:
+                flask.abort(403)
         # check request in white list
-        if ip_address in self._whitelist_ip:
+        if ip_address in self._whitelist_ip['unlimited']:
             return
         # execute ip policy
         _reset_time = self._ip_policy.get('reset_policy_time')
@@ -157,7 +170,12 @@ class ErrorLoggerServer(daemon.Daemon):
             self._time_loop[ip_address] = [1, time.time(), False]
 
     def _check_authentication(self):
-        pass
+        timestamp = str(flask.request.args['timestamp'])
+        session = str(flask.request.args['session'])
+        md5 = hashlib.md5()
+        md5.update('.'.join([timestamp, self._config.get('secret')]))
+        if session != md5.hexdigest():
+            flask.abort(401)
 
     def __enter__(self):
         return self

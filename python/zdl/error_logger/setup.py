@@ -9,5 +9,12 @@ setup(
     version='0.0.1',
     description='error logger for linux',
 
-    packages=find_packages('error_logger')
+    packages=find_packages('.'),
+
+    include_package_data=True,
+    entry_points={
+        'console_scripts': [
+            'error_logger_server = error_logger.shell:entry_pointer'
+        ],
+    }
 )

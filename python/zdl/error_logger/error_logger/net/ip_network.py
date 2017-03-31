@@ -4,7 +4,7 @@
 #
 import struct
 import socket
-from error_logger.utils import logger, generic
+from error_logger.utils import logger, generic, exceptions
 
 
 def inet_pton(family, address):
@@ -59,7 +59,12 @@ class IPNetwork(object):
         self._network_list_v6 = []
         if type(address) == str:
             address = address.split(',')
-            list(map(self.add_network, address))
+        elif address is None:
+            return
+        elif not isinstance(address, (list, tuple)):
+            raise exceptions.ForbiddenIpError(
+                "address('{}') invalid".format(address))
+        list(map(self.add_network, address))
 
     def add_network(self, address, prefix_length=None):
         if address is "":

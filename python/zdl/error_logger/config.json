@@ -2,6 +2,16 @@
     "dbs": {
         "postgresql": "host='127.0.0.1' port='5432' dbname='error_log' user='postgres' password='postgres'"
     },
+    "smtp": {
+        "host": "192.168.148.128",
+        "port": "25",
+        "username": "email",
+        "password": "email",
+        "server_name": "example.com"
+    },
+    "sms": {
+        "address": ""
+    },
     "notification_level": {
         "client": {
             "sms": 5,
@@ -13,21 +23,36 @@
         }
     },
     "notification": {
-        "sms": [
-            "13812345678"
-        ],
-        "email": [
-            "admin@example.com"
-        ]
+        "default": {
+            "sms": [
+                "13812345678"
+            ],
+            "email": [
+                "admin@example.com"
+            ]
+        },
+        "client": {
+            "sms": [
+                "13812345678"
+            ],
+            "email": [
+                "admin@example.com"
+            ]
+        }
     },
     "ip_policy": {
-        "forbidden_ip": "",
-        // "forbidden_ip": "192.168.0.0/16",
+        "unlimited": "127.0.0.1",
+        "whitelist_ip": {
+            "/fetch_log": "192.168.0.0/0",
+            "/get_source_list": "192.168.0.0/16",
+            "/create_collector": "192.168.0.0/16"
+        },
         "max_report_count": 8,
         "reset_policy_time": 30
     },
     "logging_level": "info",
     "pid_file": "/tmp/error_logger.pid",
     "log_file": "/tmp/error_logger.log",
-    "listen_port": 7899
+    "listen_port": 7899,
+    "secret": "aBcDeFgHiJkLmN"
 }
