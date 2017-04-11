@@ -2,6 +2,7 @@
 #
 # Copyright (C) 2017 DL
 #
+# -*- coding: UTF-8 -*-
 from __future__ import print_function, with_statement
 import os
 import math
@@ -10,6 +11,18 @@ import hashlib
 import operator
 from PIL import Image
 from functools import reduce
+
+
+_cv2_imported = False
+_sift_supported = False
+
+try:
+    import cv2
+    _cv2_imported = True
+    if hasattr(cv2, 'xfeatures2d'):
+        _sift_supported = True
+except:
+    pass
 
 
 class BaseDuplicate(object):
@@ -24,6 +37,7 @@ class BaseDuplicate(object):
 
 
 class Md5Duplicate(BaseDuplicate):
+    
     def __init__(self, path_to_res_dir):
         super(Md5Duplicate, self).__init__(path_to_res_dir)
 
@@ -53,6 +67,7 @@ class Md5Duplicate(BaseDuplicate):
 
 # TODO. multi process
 class PhaDuplicate(BaseDuplicate):
+
     def duplicate(self, options):
         _variance = options.variance
         _resize_width = options.width
@@ -117,7 +132,7 @@ class PhaDuplicate(BaseDuplicate):
                         return False
             return True
 
-        _keys = rst.keys()
+        _keys = list(rst.keys())
         for _idx in range(len(_keys)):
             for _lo in range(_idx + 1, len(_keys)):
                 if _compare(rst[_keys[_idx]], rst[_keys[_lo]], _variance):
@@ -128,6 +143,7 @@ class PhaDuplicate(BaseDuplicate):
 
 # TODO. multi process
 class HistDuplicate(BaseDuplicate):
+
     def duplicate(self, options):
         _duplicate_result = {}
         for current_dir, dirs, files in os.walk(self._directory):
@@ -140,11 +156,11 @@ class HistDuplicate(BaseDuplicate):
                     _duplicate_result[_absolute_path] = _image.histogram()
                 except IOError:
                     continue
-        return self._result_filter(_duplicate_result, options.variance)
+        return self._result_filter(_duplicate_result, abs(options.variance))
 
     def _result_filter(self, rst, *args):
         _variance = args[0]
-        _keys = rst.keys()
+        _keys = list(rst.keys())
 
         _duplicate_result = []
         for _idx in range(len(_keys)):
@@ -162,12 +178,66 @@ class HistDuplicate(BaseDuplicate):
                 list(
                     map(
                         lambda a, b:
-                        (a - b) ** 2, h1, h2
+                            (a - b) ** 2, h1, h2
                     )
                 )
             ) / len(h1)
         )
         return result <= brd
+
+
+class SiftDuplicate(BaseDuplicate):
+
+    def duplicate(self, options):
+        _variance = options.variance
+
+        _duplicate_result = {}
+        _sift = cv2.xfeatures2d.SIFT_create()
+        for current_dir, dirs, files in os.walk(self._directory):
+            for _file_name in files:
+                _absolute_path = os.path.join(current_dir, _file_name)
+
+                try:
+                    _image = cv2.imread(_absolute_path)
+                    _kp, _des = _sift.detectAndCompute(_image, None)
+                    print('Calc KeyPointer of {}'.format(_absolute_path))
+                    _duplicate_result[_absolute_path] = (_kp, _des)
+                except cv2.error:
+                    continue
+        return self._result_filter(_duplicate_result, _variance)
+
+    def _result_filter(self, rst, *args):
+        _var = args[0]
+        _keys = list(rst.keys())
+
+        _duplicate_result = []
+        for _idx in range(len(_keys)):
+            (kp1, des1) = rst[_keys[_idx]]
+            for _lo in range(_idx + 1, len(_keys)):
+                (kp2, des2) = rst[_keys[_lo]]
+                if self._compare(kp1, des1, kp2, des2, _var):
+                    _duplicate_result.append((_idx, _lo))
+            print('{:<8}/{:>8}'.format(_idx + 1, len(_keys)))
+        return [
+            (
+                'LIMIT: {}'.format(_var),
+                (_keys[k[0]], _keys[k[1]])
+            )
+            for k in _duplicate_result
+        ]
+
+    @staticmethod
+    def _compare(kp1, des1, kp2, des2, variance):
+        _bf = cv2.BFMatcher()
+        _matches = _bf.knnMatch(des1, des2, k=2)
+
+        _good_match = 0
+        for m, n in _matches:
+            if m.distance < 0.75 * n.distance:
+                _good_match += 1
+        if _good_match / (sum([len(kp1), len(kp2)]) / 2) >= variance:
+            return True
+        return False
 
 
 def init_parser():
@@ -185,11 +255,11 @@ def init_parser():
         'pha', help='Using perceptual hash algorithm duplicate')
     _pha_parser.add_argument('-w', '--width',
                              type=int,
-                             default=64,
+                             default=200,
                              help='picture width, pixel')
     _pha_parser.add_argument('-H', '--height',
                              type=int,
-                             default=64,
+                             default=200,
                              help='picture height, pixel')
     _pha_parser.add_argument('-v', '--variance',
                              type=int,
@@ -203,13 +273,25 @@ def init_parser():
     _hist_parser = sub_parsers.add_parser(
         'hist', help='Using Histogram duplicate')
     _hist_parser.add_argument('-v', '--variance',
-                              type=int,
+                              type=float,
                               default=5,
                               help='allow variance')
     _hist_parser.add_argument('directory',
                               type=str,
                               help='resource directory')
     _hist_parser.set_defaults(method=('hist', HistDuplicate))
+
+    if _cv2_imported and _sift_supported:
+        _sift_parser = sub_parsers.add_parser(
+            'sift', help='Using SIFT duplicate')
+        _sift_parser.add_argument('-v', '--variance',
+                                  type=float,
+                                  default=.85,
+                                  help='allow variance')
+        _sift_parser.add_argument('directory',
+                                  type=str,
+                                  help='resource directory')
+        _sift_parser.set_defaults(method=('sift', SiftDuplicate))
 
     return parser
 
@@ -233,7 +315,7 @@ def result_printer(result, file):
 def main():
     parser = init_parser()
     options = parser.parse_args()
-    if not hasattr(options, 'directory'):
+    if not hasattr(options, 'directory') or not hasattr(options, 'method'):
         parser.error('too few arguments')
     _name, _duplicator = options.method
     _directory = options.directory
