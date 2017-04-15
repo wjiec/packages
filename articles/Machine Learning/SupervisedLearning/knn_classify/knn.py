@@ -13,8 +13,37 @@ group = np.array([
 ])
 labels = ['A', 'A', 'B','B']
 
+def auto_normal(data_set):
+    # 寻找一行/列中的最小值
+    #   axis：表示行(1)或者列(0)
+    min_values = data_set.min(axis = 0)
+    # 寻找一行/列中的最大值
+    #   axis：表示行(1)或者列(0)
+    max_values = data_set.max(axis = 0)
+    # 计算最大值和最小值之间的差值
+    diff_range = max_values - min_values
+    # 归一化的数组
+    normal_array = np.zeros(data_set.shape)
+    # 获得所有行的数目
+    row_count = data_set.shape[0]
+    # 得到减去最小值之后的数据集合
+    normal_array = data_set - np.tile(min_values, (row_count, 1))
+    # 得到归一化的数组
+    #   将 [1, 2, 3, 4, 5] 转化到 0 - 1 范围内
+    #       首先获取最小值为1，最大值为5，差值为4
+    #           将每个值减去这个最小值得到: [0, 1, 2, 3, 4]
+    #               最后将每个值除以差值: [0, .25, .5, .75, 1]
+    #   直接除以最大值是不对的，因为最小值应该转化之后为0，最大值转化之后为1
+    #       所以需要先把最小值变成0，然后再除以最小值变成0后的最大值(就是最大值和最小值的差值)
+    normal_array = normal_array / diff_range
+    # 返回结果
+    return normal_array, min_values, diff_range
 
 def knn_classify(inX, data_set, labels, k):
+    # 将输入数据集进行归一化
+    data_set, min_values, diff_range = auto_normal(data_set)
+    # 将将要预测值进行归一化
+    inX = (inX - min_values) / diff_range
     # shape 或者该 array/matrix 的大小, 结果为 [行数, 列数]
     data_set_row_size = data_set.shape[0]  # >>> 4
     # 扩展 array/matrix
@@ -62,6 +91,9 @@ def knn_classify(inX, data_set, labels, k):
     # 获取最佳的标签
     return sorted_vote_labels[0][0]
 
+if __name__ == '__main__':
+    print(knn_classify((1.0, 0.5), group, labels, 2))
 
-print(knn_classify((0.5, 0.5), group, labels, 2))
-print(knn_classify((0.55, 0.55), group, labels, 2))
+    print(knn_classify((18, 90), np.array([
+        [3, 104], [2, 100], [1, 81], [101, 10], [99, 5], [98, 2]
+    ]), [ 'M', 'M', 'M', 'A', 'A', 'A'], 5))
