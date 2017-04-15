@@ -2,7 +2,6 @@
 #
 # Copyright (C) 2017 DL
 #
-# -*- coding: UTF-8 -*-
 from __future__ import print_function, with_statement
 import os
 import math
