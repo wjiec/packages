@@ -12,6 +12,6 @@ public class OldInput {
         try {
             BufferedReader in = new BufferedReader(new InputStreamReader(System.in));
             System.out.println(in.readLine());
-        } catch (IOException e) { }
+        } catch (IOException e) {}
     }
 }
