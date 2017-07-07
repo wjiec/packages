@@ -4,11 +4,11 @@ nginx compile
 ```
 ./configure \
 --prefix=/usr/local/nginx \
---sbin-path=/usr/sbin/nginx \
---conf-path=/etc/nginx/nginx.conf \
+--sbin-path=/usr/local/nginx/bin/nginx \
+--conf-path=/usr/local/nginx/etc/nginx.conf \
 --error-log-path=/var/log/nginx/nginx_error.log \
---http-log-path=/var/log/nginx/access.log \
---pid-path=/vaar/run/nginx/nginx.pid \
+--pid-path=/var/run/nginx/nginx.pid \
+--lock-path=/var/lock/nginx/nginx.lock \
 --user=nginx \
 --group=nginx \
 --with-poll_module \
@@ -17,5 +17,5 @@ nginx compile
 --with-http_v2_module \
 --with-http_dav_module \
 --with-http_gzip_static_module \
---with-http_perl_module \
+--with-http_perl_module
 ```
