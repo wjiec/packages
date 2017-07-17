@@ -16,6 +16,11 @@ class Rtfd_Config {
     private $_user_role;
 
     /**
+     * @var string
+     */
+    private $_user_token;
+
+    /**
      * @var array
      */
     private $_options;
@@ -41,6 +46,20 @@ class Rtfd_Config {
     }
 
     /**
+     * @return string
+     */
+    public function get_username() {
+        return $this->_username;
+    }
+
+    /**
+     * @return string
+     */
+    public function get_role_name() {
+        return $this->_user_role->get_role_name();
+    }
+
+    /**
      * parse privilege string
      *
      * @param string $privilege_string
@@ -58,6 +77,22 @@ class Rtfd_Config {
                 'Rtfd:Config:set_privilege');
         }
         $this->_user_role = new $role_class();
+        // update user token
+        $this->_user_token = $privilege_string;
+    }
+
+    /**
+     * @return int
+     */
+    public function get_privilege_level() {
+        return $this->_user_role->get_privilege_level();
+    }
+
+    /**
+     * @return array
+     */
+    public function get_allowed_actions() {
+        return $this->_user_role->get_allowed_actions();
     }
 
     /**
@@ -72,5 +107,12 @@ class Rtfd_Config {
                 'error' => 'operator forbidden'
             ));
         }
+    }
+
+    /**
+     * @return string
+     */
+    public function get_user_token() {
+        return $this->_user_token;
     }
 }

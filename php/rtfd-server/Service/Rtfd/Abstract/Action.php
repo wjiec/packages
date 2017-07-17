@@ -28,6 +28,13 @@ abstract class Rtfd_Abstract_Action {
     }
 
     /**
+     * @return Rtfd_Config
+     */
+    final protected function get_config() {
+       return $this->_config;
+    }
+
+    /**
      * abstract method of Action start
      */
     abstract public function start();

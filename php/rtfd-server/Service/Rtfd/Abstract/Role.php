@@ -51,6 +51,13 @@ abstract class Rtfd_Abstract_Role {
     }
 
     /**
+     * @return int
+     */
+    public function get_privilege_level() {
+        return $this->_privilege_level;
+    }
+
+    /**
      * get allowed actions
      *
      * @param bool $lower_case

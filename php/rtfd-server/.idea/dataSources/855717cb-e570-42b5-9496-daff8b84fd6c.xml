@@ -1,0 +1,191 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<dataSource name="rtfd@localhost">
+  <database-model serializer="dbm" rdbms="MYSQL" format-version="4.2">
+    <root id="1"/>
+    <schema id="2" parent="1" name="rtfd">
+      <Current>1</Current>
+      <Visible>1</Visible>
+    </schema>
+    <schema id="3" parent="1" name="cloud"/>
+    <schema id="4" parent="1" name="cr"/>
+    <schema id="5" parent="1" name="information_schema"/>
+    <schema id="6" parent="1" name="mysql"/>
+    <schema id="7" parent="1" name="performance_schema"/>
+    <schema id="8" parent="1" name="ship"/>
+    <schema id="9" parent="1" name="sys"/>
+    <table id="10" parent="2" name="actions"/>
+    <table id="11" parent="2" name="docs"/>
+    <table id="12" parent="2" name="group"/>
+    <table id="13" parent="2" name="roles"/>
+    <table id="14" parent="2" name="users"/>
+    <column id="15" parent="10" name="aid">
+      <Position>1</Position>
+      <DataType>bigint(20) unsigned|0</DataType>
+      <NotNull>1</NotNull>
+      <SequenceIdentity>1</SequenceIdentity>
+    </column>
+    <column id="16" parent="10" name="name">
+      <Position>2</Position>
+      <DataType>varchar(32)|0</DataType>
+      <NotNull>1</NotNull>
+    </column>
+    <column id="17" parent="10" name="privilege_level">
+      <Position>3</Position>
+      <DataType>tinyint(4)|0</DataType>
+      <NotNull>1</NotNull>
+    </column>
+    <index id="18" parent="10" name="aid">
+      <ColNames>aid</ColNames>
+      <Unique>1</Unique>
+    </index>
+    <key id="19" parent="10" name="PRIMARY">
+      <NameSurrogate>1</NameSurrogate>
+      <ColNames>aid</ColNames>
+      <Primary>1</Primary>
+    </key>
+    <key id="20" parent="10" name="aid">
+      <ColNames>aid</ColNames>
+      <UnderlyingIndexName>aid</UnderlyingIndexName>
+    </key>
+    <column id="21" parent="11" name="cid">
+      <Position>1</Position>
+      <DataType>bigint(20) unsigned|0</DataType>
+      <NotNull>1</NotNull>
+      <SequenceIdentity>1</SequenceIdentity>
+    </column>
+    <column id="22" parent="11" name="name">
+      <Position>2</Position>
+      <DataType>varchar(64)|0</DataType>
+      <NotNull>1</NotNull>
+    </column>
+    <column id="23" parent="11" name="path">
+      <Position>3</Position>
+      <DataType>varchar(256)|0</DataType>
+      <NotNull>1</NotNull>
+    </column>
+    <column id="24" parent="11" name="owner_id">
+      <Position>4</Position>
+      <DataType>int(11)|0</DataType>
+      <DefaultExpression>&apos;0&apos;</DefaultExpression>
+    </column>
+    <column id="25" parent="11" name="group_id">
+      <Position>5</Position>
+      <DataType>int(11)|0</DataType>
+      <DefaultExpression>&apos;0&apos;</DefaultExpression>
+    </column>
+    <column id="26" parent="11" name="min_privilege_level">
+      <Position>6</Position>
+      <DataType>tinyint(4)|0</DataType>
+      <DefaultExpression>&apos;101&apos;</DefaultExpression>
+    </column>
+    <index id="27" parent="11" name="cid">
+      <ColNames>cid</ColNames>
+      <Unique>1</Unique>
+    </index>
+    <key id="28" parent="11" name="PRIMARY">
+      <NameSurrogate>1</NameSurrogate>
+      <ColNames>cid</ColNames>
+      <Primary>1</Primary>
+    </key>
+    <key id="29" parent="11" name="cid">
+      <ColNames>cid</ColNames>
+      <UnderlyingIndexName>cid</UnderlyingIndexName>
+    </key>
+    <column id="30" parent="12" name="gid">
+      <Position>1</Position>
+      <DataType>bigint(20) unsigned|0</DataType>
+      <NotNull>1</NotNull>
+      <SequenceIdentity>1</SequenceIdentity>
+    </column>
+    <column id="31" parent="12" name="name">
+      <Position>2</Position>
+      <DataType>varchar(64)|0</DataType>
+      <NotNull>1</NotNull>
+    </column>
+    <index id="32" parent="12" name="gid">
+      <ColNames>gid</ColNames>
+      <Unique>1</Unique>
+    </index>
+    <key id="33" parent="12" name="PRIMARY">
+      <NameSurrogate>1</NameSurrogate>
+      <ColNames>gid</ColNames>
+      <Primary>1</Primary>
+    </key>
+    <key id="34" parent="12" name="gid">
+      <ColNames>gid</ColNames>
+      <UnderlyingIndexName>gid</UnderlyingIndexName>
+    </key>
+    <column id="35" parent="13" name="rid">
+      <Position>1</Position>
+      <DataType>bigint(20) unsigned|0</DataType>
+      <NotNull>1</NotNull>
+      <SequenceIdentity>1</SequenceIdentity>
+    </column>
+    <column id="36" parent="13" name="name">
+      <Position>2</Position>
+      <DataType>varchar(32)|0</DataType>
+      <NotNull>1</NotNull>
+    </column>
+    <column id="37" parent="13" name="privilege_level">
+      <Position>3</Position>
+      <DataType>tinyint(4)|0</DataType>
+      <NotNull>1</NotNull>
+    </column>
+    <index id="38" parent="13" name="rid">
+      <ColNames>rid</ColNames>
+      <Unique>1</Unique>
+    </index>
+    <key id="39" parent="13" name="PRIMARY">
+      <NameSurrogate>1</NameSurrogate>
+      <ColNames>rid</ColNames>
+      <Primary>1</Primary>
+    </key>
+    <key id="40" parent="13" name="rid">
+      <ColNames>rid</ColNames>
+      <UnderlyingIndexName>rid</UnderlyingIndexName>
+    </key>
+    <column id="41" parent="14" name="uid">
+      <Position>1</Position>
+      <DataType>bigint(20) unsigned|0</DataType>
+      <NotNull>1</NotNull>
+      <SequenceIdentity>1</SequenceIdentity>
+    </column>
+    <column id="42" parent="14" name="name">
+      <Position>2</Position>
+      <DataType>varchar(32)|0</DataType>
+      <NotNull>1</NotNull>
+    </column>
+    <column id="43" parent="14" name="nickname">
+      <Position>3</Position>
+      <DataType>varchar(128)|0</DataType>
+    </column>
+    <column id="44" parent="14" name="password">
+      <Position>4</Position>
+      <DataType>varchar(256)|0</DataType>
+      <NotNull>1</NotNull>
+    </column>
+    <column id="45" parent="14" name="role_id">
+      <Position>5</Position>
+      <DataType>int(11)|0</DataType>
+      <NotNull>1</NotNull>
+    </column>
+    <column id="46" parent="14" name="group_id">
+      <Position>6</Position>
+      <DataType>int(11)|0</DataType>
+      <NotNull>1</NotNull>
+    </column>
+    <index id="47" parent="14" name="uid">
+      <ColNames>uid</ColNames>
+      <Unique>1</Unique>
+    </index>
+    <key id="48" parent="14" name="PRIMARY">
+      <NameSurrogate>1</NameSurrogate>
+      <ColNames>uid</ColNames>
+      <Primary>1</Primary>
+    </key>
+    <key id="49" parent="14" name="uid">
+      <ColNames>uid</ColNames>
+      <UnderlyingIndexName>uid</UnderlyingIndexName>
+    </key>
+  </database-model>
+</dataSource>

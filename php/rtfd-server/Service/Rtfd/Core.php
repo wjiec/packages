@@ -38,7 +38,9 @@ class Rtfd_Core {
         // set response default mime-type
         Rtfd_Request::header('Content-Type', 'text/json; charset=utf-8');
         // enable Access-Control-Allow-Origin
-        Rtfd_Request::header('Access-Control-Allow-Origin', '*');
+        Rtfd_Request::header('Access-Control-Allow-Origin', Rtfd_Request::get_env('http_origin'));
+        // enable Access-Control-Allow-Credentials
+        Rtfd_Request::header('Access-Control-Allow-Credentials', 'true');
     }
 
     /**
@@ -172,7 +174,7 @@ class Rtfd_Core {
      * @return string
      */
     private static function _init_privilege() {
-        $privilege = Rtfd_Request::get_cookie('rp');
+        $privilege = Rtfd_Request::get_cookie('rpt');
         if ($privilege === null) {
             return Rtfd_Jwt::generate_token(array(
                 'username' => 'Guest',

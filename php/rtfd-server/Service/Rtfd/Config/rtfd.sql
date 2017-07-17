@@ -61,4 +61,5 @@ insert into `actions`(`name`, `privilege_level`) values
   ('addUser', 100),         -- add user operator [admin]
   ('delUser', 100),         -- delete user operator
   ('Login', 0),             -- login operator
-  ('Logout', 0);            -- logout operator
+  ('Logout', 0),            -- logout operator
+  ('Init', 0)               -- Init Information

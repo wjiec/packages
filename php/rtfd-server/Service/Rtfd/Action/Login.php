@@ -10,8 +10,8 @@ class Rtfd_Action_Login extends Rtfd_Abstract_Action {
      */
     public function start() {
         // get parameters
-        $username = Rtfd_Request::post_parameter('username');
-        $password = Rtfd_Request::post_parameter('password');
+        $username = $this->get_option('username');
+        $password = $this->get_option('password');
         // check username/password correct
         if ($username === null || $password === null) {
             Rtfd_Request::abort(401, array(
@@ -41,12 +41,16 @@ class Rtfd_Action_Login extends Rtfd_Abstract_Action {
             ));
         }
         // write cookies
-        Rtfd_Request::set_cookie('rp', Rtfd_Jwt::generate_token(array(
+        $token = Rtfd_Jwt::generate_token(array(
             'expired' => 0,
             'username' => $username,
             'role' => $user['role_name']
-        ), _rtfd_default_jwt_key_));
+        ), _rtfd_default_jwt_key_);
+        // set cookies
+        Rtfd_Request::set_cookie('rpt', $token);
+        // update user
+        $this->get_config()->set_privilege($token);
         // make response
-        Rtfd_Response::simple_response(true, null);
+        return (new Rtfd_Action_Init($this->get_config()))->start();
     }
 }
