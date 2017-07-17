@@ -13,8 +13,9 @@ import md5 from 'js-md5'
 axios.defaults.withCredentials = true
 Vue.prototype.$action = function(action, options = {}) {
   return axios({
-    url: 'http://192.168.1.251:10000/service.php',
+    url: 'http://localhost:10000/service.php',
     method: 'post',
+    timeout: 2500,
     data: {
       act: action,
       ts: Math.floor((new Date()).getTime() / 1000),

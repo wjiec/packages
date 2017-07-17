@@ -56,7 +56,8 @@ insert into `users` (`uid`, `name`, `nickname`, `password`, `role_id`, `group_id
 -- All actions
 --
 insert into `actions`(`name`, `privilege_level`) values
-  ('getDocsTree', 0),       -- get documents tree
+  ('GetDocs', 0),           -- get allowed docs
+  ('getDocTree', 0),        -- get documents tree
   ('getDocContent', 0),     -- get documents contents
   ('addUser', 100),         -- add user operator [admin]
   ('delUser', 100),         -- delete user operator
