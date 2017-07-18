@@ -6,7 +6,7 @@
  * @author ShadowMan
  */
 
-//define('DEBUG_MODE', true);
+define('DEBUG_MODE', true);
 //define('SKIP_SIGNATURE', true);
 //define('SKIP_REQUEST_EXPIRED', true);
 

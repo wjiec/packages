@@ -57,10 +57,10 @@ insert into `users` (`uid`, `name`, `nickname`, `password`, `role_id`, `group_id
 --
 insert into `actions`(`name`, `privilege_level`) values
   ('GetDocs', 0),           -- get allowed docs
-  ('getDocTree', 0),        -- get documents tree
-  ('getDocContent', 0),     -- get documents contents
-  ('addUser', 100),         -- add user operator [admin]
-  ('delUser', 100),         -- delete user operator
+  ('GetDocTree', 0),        -- get documents tree
+  ('GetDocContent', 0),     -- get documents contents
+  ('AddUser', 100),         -- add user operator [admin]
+  ('DelUser', 100),         -- delete user operator
   ('Login', 0),             -- login operator
   ('Logout', 0),            -- logout operator
   ('Init', 0)               -- Init Information

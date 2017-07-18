@@ -7,13 +7,16 @@ import router from './router'
 import ElementUI from 'element-ui'
 import 'element-ui/lib/theme-default/index.css'
 import './assets/rtfd.css'
+import './assets/hljs.min.css'
 import axios from 'axios'
 import md5 from 'js-md5'
+var marked = require('marked')
+import highlightjs from 'highlight.js'
 
 axios.defaults.withCredentials = true
 Vue.prototype.$action = function(action, options = {}) {
   return axios({
-    url: 'http://localhost:10000/service.php',
+    url: 'http://192.168.1.251:10000/service.php',
     method: 'post',
     timeout: 2500,
     data: {
@@ -52,6 +55,29 @@ Vue.prototype.$action = function(action, options = {}) {
     }
   })
 }
+
+// Create your custom renderer.
+const renderer = new marked.Renderer()
+renderer.code = (code, language) => {
+  // Check whether the given language is valid for highlight.js.
+  const validLang = !!(language && highlightjs.getLanguage(language))
+  // Highlight only if the language is valid.
+  const highlighted = validLang ? highlightjs.highlight(language, code).value : code
+  // Render the highlighted code with `hljs` class.
+  return `<pre><code class="hljs ${language}">${highlighted}</code></pre>`
+}
+
+marked.setOptions({
+  renderer: renderer,
+  gfm: true,
+  tables: true,
+  breaks: false,
+  pedantic: false,
+  sanitize: false,
+  smartLists: true,
+  smartypants: false
+})
+Vue.prototype.$marked = marked
 
 Vue.config.productionTip = false
 Vue.use(ElementUI)
