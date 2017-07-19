@@ -23,8 +23,17 @@ class Rtfd_Action_Login extends Rtfd_Abstract_Action {
         $helper = new Rtfd_Helper_Database();
         // fetch user information
         $user = $helper->fetch_single_row(
-            "select `password`, `roles`.`name` as `role_name` from `users` join `roles` 
-                  where `users`.`name`='{$username}';"
+            "select
+                    `uid`,
+                    `password`,
+                    `nickname`,
+                    `users`.`group_id` as `gid`,
+                    `roles`.`rid`,
+                    `users`.`role_id`,
+                    `roles`.`name` as `role_name`
+                  from `users` join `roles`
+                  where `users`.`name` = '{$username}'
+                  having `roles`.`rid`=`users`.`role_id`;"
         );
         // check user valid
         if ($user === false) {
@@ -43,7 +52,9 @@ class Rtfd_Action_Login extends Rtfd_Abstract_Action {
         // write cookies
         $token = Rtfd_Jwt::generate_token(array(
             'expired' => 0,
-            'username' => $username,
+            'uid' => $user['uid'],
+            'gid' => $user['gid'],
+            'username' => $user['nickname'],
             'role' => $user['role_name']
         ), _rtfd_default_jwt_key_);
         // set cookies

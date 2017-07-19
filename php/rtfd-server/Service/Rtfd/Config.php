@@ -8,6 +8,16 @@ class Rtfd_Config {
     /**
      * @var string
      */
+    private $_user_id;
+
+    /**
+     * @var string
+     */
+    private $_group_id;
+
+    /**
+     * @var string
+     */
     private $_username;
 
     /**
@@ -48,6 +58,20 @@ class Rtfd_Config {
     /**
      * @return string
      */
+    public function get_user_id() {
+        return $this->_user_id;
+    }
+
+    /**
+     * @return string
+     */
+    public function get_group_id() {
+        return $this->_group_id;
+    }
+
+    /**
+     * @return string
+     */
     public function get_username() {
         return $this->_username;
     }
@@ -66,11 +90,15 @@ class Rtfd_Config {
      * @throws Rtfd_Exception_FatalError
      */
     public function set_privilege($privilege_string) {
-        $privilege = Rtfd_Jwt::token_decode($privilege_string, _rtfd_default_jwt_key_);
+        $user_info = Rtfd_Jwt::token_decode($privilege_string, _rtfd_default_jwt_key_);
+        // user id
+        $this->_user_id = $user_info['uid'];
+        // group id
+        $this->_group_id = $user_info['gid'];
+        // username
+        $this->_username = $user_info['username'];
 
-        $this->_username = $privilege['username'];
-
-        $role_name = ucfirst($privilege['role']);
+        $role_name = ucfirst($user_info['role']);
         $role_class = join('_', array('Rtfd_Role', $role_name));
         if (!Rtfd_Utils::class_exists($role_class)) {
             throw new Rtfd_Exception_FatalError('privilege string invalid',

@@ -177,6 +177,8 @@ class Rtfd_Core {
         $privilege = Rtfd_Request::get_cookie('rpt');
         if ($privilege === null) {
             return Rtfd_Jwt::generate_token(array(
+                'uid' => 0,
+                'gid' => 0,
                 'username' => 'Guest',
                 'expired' => 0,
                 'role' => 'Guest'

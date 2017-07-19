@@ -83,7 +83,7 @@ abstract class Rtfd_Abstract_Role {
             "select * from `roles` where `name`='{$this->get_role_name()}';"
         );
         // Guest user
-        if ($role === null) {
+        if (!$role) {
             $this->_privilege_level = 0;
         } else {
             // setting member

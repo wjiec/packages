@@ -53,7 +53,7 @@ class Rtfd_Action_GetDocTree extends Rtfd_Abstract_Action {
             $result = array(
                 'is_file' => true,
                 'name' => $file_name[count($file_name) - 1],
-                'path' => join('@', array($doc_name, $rel_path)),
+                'path' => str_replace('/', '!', join('@', array($doc_name, $rel_path))),
                 'children' => null
             );
             return;
@@ -61,6 +61,13 @@ class Rtfd_Action_GetDocTree extends Rtfd_Abstract_Action {
         $result = array();
         // scan directory
         $dir = scandir($path);
+        // check result
+        if ($dir === false) {
+            Rtfd_Request::abort(500, array(
+                'errno' => 500,
+                'error' => 'cannot access'
+            ));
+        }
         // for each all child dir
         foreach ($dir as $name) {
             // continue hidden files and dir
@@ -78,7 +85,7 @@ class Rtfd_Action_GetDocTree extends Rtfd_Abstract_Action {
                 $result[$encode_name] = array(
                     'is_file' => false,
                     'name' => $encode_name,
-                    'path' => join('@', array($doc_name, $relative_path)),
+                    'path' => str_replace('/', '!', join('@', array($doc_name, $relative_path))),
                     'children' => array()
                 );
                 $this->scan_dir($result[$encode_name]['children'], $doc_name, $real_path, $relative_path);

@@ -26,6 +26,15 @@ class Rtfd_User {
     }
 
     /**
+     * !!don't send to client
+     *
+     * @param string $uid
+     */
+    public function set_user_id($uid) {
+        $this->_variables['user']['uid'] = $uid;
+    }
+
+    /**
      * @param string $username
      */
     public function set_username($username) {
