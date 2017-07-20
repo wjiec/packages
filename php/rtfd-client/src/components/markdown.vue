@@ -3,10 +3,17 @@
 
     <!-- Markdown Navigation -->
     <el-col id="rtfd-markdown-nav" :lg="4" :md="6" :sm="6" :xs="24">
-      <el-menu v-if="menu_show" @select="select_file" @open="open_folder">
-        <rtfd-markdown-tree
-          :doc_tree="doc_tree"
-        ></rtfd-markdown-tree>
+      <el-menu
+        v-if="menu_show"
+          :router="true"
+          :default-active="default_active"
+          :default-opened="default_opened"
+          @select="select_file"
+          @open="open_folder"
+      >
+
+        <!-- Menu Tree -->
+        <rtfd-markdown-tree :doc_tree="doc_tree"></rtfd-markdown-tree>
       </el-menu>
     </el-col>
 
@@ -37,6 +44,9 @@ export default {
     doc_content: {
       required: true,
       type: String
+    },
+    default_active: {
+      required: true
     }
   },
   methods: {
@@ -45,6 +55,11 @@ export default {
     },
     open_folder: function(index, indexPath) {
       this.$emit('open_file', 'folder', index, indexPath)
+    }
+  },
+  watch: {
+    default_active: function(fileName) {
+      this.$emit('open_file', 'file', fileName, [fileName])
     }
   },
   computed: {
@@ -56,6 +71,9 @@ export default {
     },
     markdown_content: function() {
       return this.$marked(this.doc_content)
+    },
+    default_opened: function() {
+      return []
     }
   },
   components: {rtfdMarkdownTree}
@@ -69,7 +87,8 @@ export default {
 
   #rtfd-markdown-nav, #rtfd-markdown-body {
     height: 100%;
-    overflow: scroll;
+    overflow-x: hidden;
+    overflow-y: scroll;
   }
 
   #rtfd-markdown-nav {

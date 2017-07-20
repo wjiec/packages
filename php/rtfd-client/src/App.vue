@@ -26,6 +26,7 @@
       <el-row key="markdown" id="rtfd-markdown" v-show="view_list.markdown" type="flex">
         <rtfd-markdown
           :doc_tree="doc_tree"
+          :default_active="default_active"
           :doc_content="doc_content"
           @open_file="open_file"
         ></rtfd-markdown>
@@ -41,8 +42,8 @@
 
     <!-- Setting Module -->
     <transition name="el-zoom-in-center" mode="out-in" v-on:after-leave="toggle_view">
-      <el-row key="setting" id="rtfd-setting" v-show="view_list.setting" type="flex">
-        <p>Setting Page</p>
+      <el-row key="setting" id="rtfd-setting" v-if="view_list.setting" type="flex">
+        <rtfd-setting></rtfd-setting>
       </el-row>
     </transition>
 
@@ -55,6 +56,7 @@ import { Message } from 'element-ui'
 import rtfdNavBar from './components/navbar'
 import rtfdLogin from './components/login'
 import rtfdMarkdown from './components/markdown'
+import rtfdSetting from './components/setting'
 
 export default {
   name: 'rtfd',
@@ -66,6 +68,7 @@ export default {
       doc_tree: {},
       toggle_state: {in: '', out: ''},
       doc_content: '',
+      default_active: null,
       keep_guest: false,
       state_loading: false,
       view_list: {
@@ -94,6 +97,13 @@ export default {
     }, () => {
       // cannot getting data
       Message.error('Oops~, 初始化数据出错咯')
+    })
+    // bind click event
+    document.body.addEventListener('click', function(event) {
+      if (event.target.tagName.toLowerCase() === 'a') {
+        console.log(event)
+        return false
+      }
     })
   },
   methods: {
@@ -129,8 +139,29 @@ export default {
         }
         // assign to this.docs
         this.docs = docs
+
+        let doc = this.docs[0].name
+        if (this.$route.path.indexOf('@') !== -1) {
+          this.default_active = decodeURI(this.$route.path.substr(1))
+          let docTmp = this.default_active.split('@')[0]
+          // check doc is in docs
+          for (let i = 0; i < this.docs.length; ++i) {
+            if (this.docs[i].name === docTmp) {
+              doc = docTmp
+              break
+            }
+          }
+        }
+
+        let docName = doc
+        if (this.default_active && this.default_active.indexOf('@') !== -1) {
+          if (this.access_flag === false) {
+            Message.error('Oops~, 你还没有权限访问这个文档哦~')
+          }
+        }
+
         // select default doc
-        this.select_doc = this.docs[0].name
+        this.select_doc = docName
         // show markdown
         this.pre_toggle('markdown')
         // stop loading state
@@ -162,8 +193,12 @@ export default {
       this.$action('GetDocContent', {path: relativePath, hl: 'no'}).then((response) => {
         this.doc_content = response.data.contents
         this.stop_loading()
-      }, () => {
-        Message.error('Oops~, 获取文档内容出错啦')
+      }, (e) => {
+        if (e.message.indexOf('privilege level')) {
+          Message.error('Oops~, 你没有权限查看这个文档哦')
+        } else {
+          Message.error('Oops~, 获取文档内容出错啦')
+        }
         this.stop_loading()
       })
     },
@@ -216,6 +251,7 @@ export default {
       if (doc === '') {
         return []
       }
+
       // loading doc tree
       this.$action('GetDocTree', {doc: doc}).then((response) => {
         this.doc_tree = response.data
@@ -224,7 +260,7 @@ export default {
       })
     }
   },
-  components: {rtfdNavBar, rtfdLogin, rtfdMarkdown}
+  components: {rtfdNavBar, rtfdLogin, rtfdMarkdown, rtfdSetting}
 }
 </script>
 
@@ -274,7 +310,7 @@ export default {
     height: 100vh;
   }
 
-  #rtfd-login, #rtfd-markdown {
+  #rtfd-login, #rtfd-markdown, #rtfd-setting {
     height: 100%;
   }
 

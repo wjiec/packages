@@ -24,18 +24,18 @@
 </template>
 
 <script>
-  export default {
-    name: 'rtfd-markdown-tree',
-    data: () => {
-      return {}
-    },
-    props: {
-      doc_tree: {
-        required: true
-      }
-    },
-    components: {}
-  }
+export default {
+  name: 'rtfd-markdown-tree',
+  data: () => {
+    return {}
+  },
+  props: {
+    doc_tree: {
+      required: true
+    }
+  },
+  components: {}
+}
 </script>
 
 <style scoped>
