@@ -33,6 +33,9 @@ class Rtfd_Utils {
     public static function calc_signature(array $options) {
         // options keys
         $values = array_map(function($v) {
+            if (is_array($v)) {
+                return urldecode(json_encode($v));
+            }
             return self::to_string($v);
         }, array_values($options));
         // sort bvy asc

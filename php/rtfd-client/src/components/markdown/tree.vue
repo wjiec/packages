@@ -17,7 +17,7 @@
         v-if="doc.is_file"
           :index="doc.path"
           :key="doc.path"
-    ><i class="el-icon-menu"></i>{{ doc.name }}</el-menu-item>
+    ><i class="el-icon-document"></i>{{ doc.name }}</el-menu-item>
 
     <!-- Markdown Tree End -->
   </div>

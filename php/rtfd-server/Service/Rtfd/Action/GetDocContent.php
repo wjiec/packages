@@ -60,7 +60,7 @@ class Rtfd_Action_GetDocContent extends Rtfd_Abstract_Action {
         $contents = ob_get_clean();
         // is enable syntax highlight
         if ($this->get_option('hl', 'no') === 'yes') {
-            // replace unsupported syntaxrtfd@localhost
+            // replace unsupported syntax
             $contents = preg_replace('/```\w+/', '```', $contents);
             $contents = preg_replace('/~~~\w+/', '~~~', $contents);
             // escape

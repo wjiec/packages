@@ -13,7 +13,7 @@ create table if not exists `users` (
 );
 
 
-create table if not exists `group` (
+create table if not exists `groups` (
   `gid` serial not null primary key auto_increment,
   `name` varchar(64) not null
 );
@@ -48,7 +48,7 @@ create table if not exists `docs` (
 -- Default user for Admin
 --
 insert into `roles` (`rid`, `name`, `privilege_level`) values (1, 'admin', 100);
-insert into `group` (`gid`, `name`) values (1, 'admin');
+insert into `groups` (`gid`, `name`) values (1, 'admin');
 insert into `users` (`uid`, `name`, `nickname`, `password`, `role_id`, `group_id`) values
   (1, 'admin', 'Admin', '$2y$10$IbYOfp3KjfimRImL21yB6ep3KVjZ68gGjHGCSHVB.HXW7dnFJaZZC', 1, 1);
 
@@ -64,4 +64,6 @@ insert into `actions`(`name`, `privilege_level`) values
   ('Login', 0),             -- login operator
   ('Logout', 0),            -- logout operator
   ('Init', 0),              -- Init Information
-  ('GetUsers', 100)
+  ('GetUsers', 100),        -- Get users list
+  ('UpdateUser', 10)        -- Update user
+

@@ -329,4 +329,8 @@ export default {
   pre, code {
     font-family: Consolas, Monaco, monospace;
   }
+
+  div.el-select-dropdown {
+    min-width: 217px;
+  }
 </style>

@@ -8,7 +8,7 @@
 
 define('DEBUG_MODE', true);
 //define('SKIP_SIGNATURE', true);
-//define('SKIP_REQUEST_EXPIRED', true);
+define('SKIP_REQUEST_EXPIRED', true);
 
 
 // root directory

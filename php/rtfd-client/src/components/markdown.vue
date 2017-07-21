@@ -96,11 +96,6 @@ export default {
     border-right: 1px solid rgba(0, 0, 0, .08);
   }
 
-  /*#rtfd-markdown-nav li {*/
-    /*border-top: 1px solid rgba(255, 255, 255, .85);*/
-    /*border-bottom: 1px solid rgba(0, 0, 0, .08);*/
-  /*}*/
-
   #rtfd-markdown-body {
     padding: 1rem 8rem;
     border-left: 1px solid rgba(255, 255, 255, .85);
@@ -121,5 +116,32 @@ export default {
   #rtfd-markdown-contents {
     width: 100%;
     max-width: 100%;
+  }
+
+  #rtfd-markdown-body table {
+    padding: 5px;
+  }
+
+  #rtfd-markdown-body table, #rtfd-markdown-body th, #rtfd-markdown-body td {
+    line-height: 1.5;
+    /*text-align: center !important;*/
+    border-collapse: collapse;
+    border: 1px solid #aaa;
+  }
+
+  #rtfd-markdown-body th, #rtfd-markdown-body td {
+    margin: 0;
+    padding: .4rem .8rem;
+  }
+
+  #rtfd-markdown-body blockquote {
+    border-left: 3px solid #aaa;
+    margin: 0;
+    padding-left: 1rem;
+  }
+
+  #rtfd-markdown-body code {
+    padding: 2px 4px;
+    background: #f0f0f0;
   }
 </style>

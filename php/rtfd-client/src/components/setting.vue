@@ -11,6 +11,8 @@
 
           <!-- Menu List -->
           <el-menu-item index="user_list">用户列表</el-menu-item>
+          <el-menu-item index="role_list">用户角色列表</el-menu-item>
+          <el-menu-item index="group_list">用户组列表</el-menu-item>
         </el-submenu>
 
         <!-- Document Manager -->
@@ -30,10 +32,12 @@
     <el-col id="rtfd-setting-body" :lg="20" :md="18" :sm="18" :xs="24">
 
       <!-- UserList Module -->
-      <transition name="el-zoom-in-center" mode="out-in" v-on:after-leave="toggle_setting">
+      <transition name="el-fade-in" mode="out-in" v-on:after-leave="toggle_setting">
         <el-row key="k_user_list" id="rtfd-setting-user-list" v-show="view_list.user_list" type="flex" justify="center">
           <rtfd-setting-user-list
             :user_list="user_list"
+            :role_list="role_list"
+            :group_list="group_list"
             @add_user="add_user"
             @del_user="del_user"
             @update_user="update_user"
@@ -41,15 +45,21 @@
         </el-row>
       </transition>
 
+      <!-- UserList Module -->
+      <transition name="el-fade-in" mode="out-in" v-on:after-leave="toggle_setting">
+        <el-row key="k_user_list" id="rtfd-setting-role-list" v-show="view_list.role_list" type="flex" justify="center">
+        </el-row>
+      </transition>
+
+      <!-- UserManager Module -->
+      <transition name="el-fade-in" mode="out-in" v-on:after-leave="toggle_setting">
+        <el-row key="k_user_list" id="rtfd-setting-group-list" v-show="view_list.group_list" type="flex" justify="center">
+        </el-row>
+      </transition>
+
       <!-- DocsList Module -->
-      <transition name="el-zoom-in-center" mode="out-in" v-on:after-leave="toggle_setting">
+      <transition name="el-fade-in" mode="out-in" v-on:after-leave="toggle_setting">
         <el-row key="k_docs_list" id="rtfd-setting-docs-list" v-show="view_list.docs_list" type="flex" justify="center">
-          <rtfd-setting-docs-list
-            :docs_list="docs_list"
-            @add_docs="add_docs"
-            @del_docs="del_docs"
-            @update_docs="update_docs"
-          ></rtfd-setting-docs-list>
         </el-row>
       </transition>
 
@@ -70,10 +80,14 @@ export default {
   data: () => {
     return {
       user_list: [],
+      role_list: [],
+      group_list: [],
       docs_list: [],
       current_view: null,
       view_list: {
         user_list: true,
+        role_list: false,
+        group_list: false,
         docs_list: false
       }
     }
@@ -82,11 +96,7 @@ export default {
     this.pre_toggle('user_list')
 
     // Getting users list
-    this.$action('GetUsers').then((response) => {
-      this.user_list = response.data.users
-    }, () => {
-      Message.error('Oops~, 获取用户列表出现错误了')
-    })
+    this.refresh_user()
   },
   methods: {
     select_setting: function(index, indexPath) {
@@ -102,6 +112,14 @@ export default {
           this.view_list.docs_list = true
           break
         }
+        case 'role_list': {
+          this.view_list.role_list = true
+          break
+        }
+        case 'group_list': {
+          this.view_list.group_list = true
+          break
+        }
       }
     },
     pre_toggle: function(_in) {
@@ -112,14 +130,47 @@ export default {
 
       this.current_view = _in
     },
-    add_user: function() {
-
+    add_user: function(user) {
+      this.$action('AddUser', user).then(() => {
+        // success
+        Message.success('Okay, 成功添加用户')
+        // refresh user list
+        this.refresh_user()
+      }, (e) => {
+        if (e.response.data.error.indexOf('duplicate') !== -1) {
+          Message.error('Oops~, 用户已存在咯')
+        } else {
+          Message.error('Oops~, 添加新用户失败了')
+        }
+      })
     },
     del_user: function(uid) {
-      console.log('del_user', uid)
+      this.$action('DelUser', {uid: uid}).then(() => {
+        // success
+        Message.success('Okay, 成功删除用户')
+        // refresh user list
+        this.refresh_user()
+      }, (e) => {
+        if (e.response.data.error.indexOf('admin') !== -1) {
+          Message.error('Oops~, 这个管理员账户不可以删除哦')
+        } else {
+          Message.error('Oops~, 删除用户失败了')
+        }
+      })
     },
-    update_user: function() {
-
+    update_user: function(user) {
+      this.$action('UpdateUser', user).then(() => {
+        // success
+        Message.success('Okay, 成功更新用户')
+        // refresh user list
+        this.refresh_user()
+      }, (e) => {
+        if (e.response.data.error.indexOf('not found') !== -1) {
+          Message.error('Oops~, 没找到这个用户')
+        } else {
+          Message.error('Oops~, 更新用户失败了')
+        }
+      })
     },
     add_docs: function() {
 
@@ -129,6 +180,16 @@ export default {
     },
     update_docs: function() {
 
+    },
+    refresh_user: function() {
+      // Getting users list
+      this.$action('GetUsers').then((response) => {
+        this.user_list = response.data.users
+        this.role_list = response.data.roles
+        this.group_list = response.data.groups
+      }, () => {
+        Message.error('Oops~, 获取用户列表出现错误了')
+      })
     }
   },
   components: {rtfdSettingUserList, rtfdSettingDocsList}
@@ -138,10 +199,16 @@ export default {
 <style scoped>
   #rtfd-setting-area {
     width: 100%;
+    height: 100%;
+  }
+
+  #rtfd-setting-nav, #rtfd-setting-body {
+    height: 100%;
+    overflow-x: hidden;
+    overflow-y: scroll;
   }
 
   #rtfd-setting-nav {
-    height: 100%;
     background: #eef1f6;
     border-right: 1px solid rgba(0, 0, 0, .08);
   }
