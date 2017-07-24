@@ -97,14 +97,9 @@ class Rtfd_Config {
         $this->_group_id = $user_info['gid'];
         // username
         $this->_username = $user_info['username'];
-
-        $role_name = ucfirst($user_info['role']);
-        $role_class = join('_', array('Rtfd_Role', $role_name));
-        if (!Rtfd_Utils::class_exists($role_class)) {
-            throw new Rtfd_Exception_FatalError('privilege string invalid',
-                'Rtfd:Config:set_privilege');
-        }
-        $this->_user_role = new $role_class();
+        // initializing role
+        $this->_user_role = new Rtfd_Role();
+        $this->_user_role->set_role_name(ucfirst($user_info['role']));
         // update user token
         $this->_user_token = $privilege_string;
     }

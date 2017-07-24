@@ -65,5 +65,6 @@ insert into `actions`(`name`, `privilege_level`) values
   ('Logout', 0),            -- logout operator
   ('Init', 0),              -- Init Information
   ('GetUsers', 100),        -- Get users list
-  ('UpdateUser', 10)        -- Update user
-
+  ('UpdateUser', 10),       -- Update user
+  ('AddRole', 100),         -- Add new role
+  ('UpdateRole', 100)       -- Update role attr

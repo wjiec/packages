@@ -7,7 +7,8 @@
         v-if="menu_show"
           :router="true"
           :default-active="default_active"
-          :default-opened="default_opened"
+          :default-openeds="default_opened"
+          :unique-opened="false"
           @select="select_file"
           @open="open_folder"
       >
@@ -35,7 +36,9 @@ import rtfdMarkdownTree from './markdown/tree'
 export default {
   name: 'rtfd-markdown',
   data: () => {
-    return {}
+    return {
+      default_opened: []
+    }
   },
   props: {
     doc_tree: {
@@ -71,10 +74,24 @@ export default {
     },
     markdown_content: function() {
       return this.$marked(this.doc_content)
-    },
-    default_opened: function() {
-      return []
     }
+  },
+  mounted: function() {
+    let segments = this.$route.path.substr(1).split('!')
+    // pop last element
+    segments.pop()
+    // join first and second
+    let firstEl = segments.shift()
+    let secondEl = segments.shift()
+    segments.unshift(firstEl + '!' + secondEl)
+    // reassign segment
+    if (segments.length > 1) {
+      for (let i = 1; i < segments.length; ++i) {
+        segments[i] = segments[i - 1] + '!' + segments[i]
+      }
+    }
+    // assign default open
+    this.default_opened = segments
   },
   components: {rtfdMarkdownTree}
 }

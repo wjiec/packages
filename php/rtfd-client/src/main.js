@@ -13,9 +13,11 @@ import promise from 'es6-promise'
 promise.polyfill()
 import axios from 'axios'
 
-import md5 from 'js-md5'
 var marked = require('marked')
 import highlightjs from 'highlight.js'
+
+import md5 from 'js-md5'
+var jwt = require('jwt-simple')
 
 axios.defaults.withCredentials = true
 Vue.prototype.$action = function(action, options = {}) {
@@ -23,11 +25,12 @@ Vue.prototype.$action = function(action, options = {}) {
     url: 'http://192.168.1.251:10000/service.php',
     // url: 'http://192.168.1.125/rtfd_server/service.php',
     method: 'post',
-    timeout: 8000,
+    timeout: 3500,
     data: {
       act: action,
       ts: Math.floor((new Date()).getTime() / 1000),
-      opts: options
+      // opts: options
+      opts: jwt.encode(options, 'ReadTheFuckDocs')
     },
     transformRequest: [function (data) {
       let ret = ''

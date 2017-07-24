@@ -36,7 +36,7 @@ class Rtfd_Action_GetUsers extends Rtfd_Abstract_Action {
         }
         // Roles
         $roles = $helper->fetch_all(
-            "select `rid`, `name` from `roles`;"
+            "select `rid`, `name`, `privilege_level` from `roles`;"
         );
         // check result
         if (!$roles) {

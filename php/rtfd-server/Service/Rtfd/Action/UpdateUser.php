@@ -44,7 +44,7 @@ class Rtfd_Action_UpdateUser extends Rtfd_Abstract_Action {
         $result = $helper->query(
             "update
                     `users`
-                  SET
+                  set
                     `name`='{$username}',
                     `password`='{$password}',
                     `role_id`='{$role_id}',

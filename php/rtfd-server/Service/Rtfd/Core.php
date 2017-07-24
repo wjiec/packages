@@ -127,22 +127,18 @@ class Rtfd_Core {
         if ($options === null) {
             throw new Rtfd_Exception_ParameterError('parameter `options` not found',
                 'Fatal:Rtfd_Core:_init_options');
-        } else {
-            $options = json_decode($options, true);
-            if ($options === null) {
-                throw new Rtfd_Exception_ParameterError('parameter `options` invalid',
-                    'Fatal:Rtfd_Core:_init_options');
-            }
         }
+//            Rtfd_Jwt::token_decode($options, _rtfd_default_jwt_key_)
         // return to init
-        $options = array_merge(array(
+        $sig_options = array(
             'action' => $action,
-            'timestamp' => $timestamp
-        ), $options);
+            'timestamp' => $timestamp,
+            'options' => $options
+        );
         // verify request
-        self::_verify_request($options, $signature);
+        self::_verify_request($sig_options, $signature);
         // return options;
-        return $options;
+        return array_merge($sig_options, Rtfd_Jwt::token_decode($options, _rtfd_default_jwt_key_));
     }
 
     /**

@@ -48,12 +48,22 @@
       <!-- UserList Module -->
       <transition name="el-fade-in" mode="out-in" v-on:after-leave="toggle_setting">
         <el-row key="k_user_list" id="rtfd-setting-role-list" v-show="view_list.role_list" type="flex" justify="center">
+          <rtfd-setting-role-list
+            :role_list="role_list"
+            @add_role="add_role"
+            @update_role="update_role"
+          ></rtfd-setting-role-list>
         </el-row>
       </transition>
 
       <!-- UserManager Module -->
       <transition name="el-fade-in" mode="out-in" v-on:after-leave="toggle_setting">
         <el-row key="k_user_list" id="rtfd-setting-group-list" v-show="view_list.group_list" type="flex" justify="center">
+          <rtfd-setting-group-list
+            :group_list="group_list"
+            @add_group="add_group"
+            @update_group="update_group"
+          ></rtfd-setting-group-list>
         </el-row>
       </transition>
 
@@ -73,7 +83,9 @@
 <script>
 import { Message } from 'element-ui'
 import rtfdSettingUserList from './setting/user_list'
+import rtfdSettingRoleList from './setting/role_list'
 import rtfdSettingDocsList from './setting/docs_list'
+import rtfdSettingGroupList from './setting/group_list'
 
 export default {
   name: 'rtfd-setting',
@@ -172,6 +184,42 @@ export default {
         }
       })
     },
+    add_role: function(role) {
+      this.$action('AddRole', role).then(() => {
+        // success
+        Message.success('Okay, 成功创建用户角色')
+        // refresh user list
+        this.refresh_user()
+      }, (e) => {
+        if (e.response.data.error.indexOf('duplicate') !== -1) {
+          Message.error('Oops~, 用户角色已经存在咯')
+        } else {
+          Message.error('Oops~, 添加用户角色失败了')
+        }
+      })
+    },
+    update_role: function(role) {
+      this.$action('UpdateRole', role).then(() => {
+        // success
+        Message.success('Okay, 成功更新用户角色')
+        // refresh user list
+        this.refresh_user()
+      }, (e) => {
+        if (e.response.data.error.indexOf('not found') !== -1) {
+          Message.error('Oops~, 没找到这个用户角色')
+        } else if (e.response.data.error.indexOf('admin') !== -1) {
+          Message.error('Oops~, 不能修改admin用户角色')
+        } else {
+          Message.error('Oops~, 更新用户角色失败了')
+        }
+      })
+    },
+    add_group: function(group) {
+      console.log(group)
+    },
+    update_group: function(group) {
+      console.log(group)
+    },
     add_docs: function() {
 
     },
@@ -192,7 +240,7 @@ export default {
       })
     }
   },
-  components: {rtfdSettingUserList, rtfdSettingDocsList}
+  components: {rtfdSettingUserList, rtfdSettingDocsList, rtfdSettingRoleList, rtfdSettingGroupList}
 }
 </script>
 

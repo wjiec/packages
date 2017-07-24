@@ -17,6 +17,7 @@
         v-if="doc.is_file"
           :index="doc.path"
           :key="doc.path"
+          :class="{'is-active': ('/' + doc.path) === $route.path}"
     ><i class="el-icon-document"></i>{{ doc.name }}</el-menu-item>
 
     <!-- Markdown Tree End -->
