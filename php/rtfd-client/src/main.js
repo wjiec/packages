@@ -22,8 +22,8 @@ var jwt = require('jwt-simple')
 axios.defaults.withCredentials = true
 Vue.prototype.$action = function(action, options = {}) {
   return axios({
-    url: 'http://192.168.1.251:10000/service.php',
-    // url: 'http://192.168.1.125/rtfd_server/service.php',
+    // url: 'http://192.168.1.251:10000/service.php',
+    url: 'http://192.168.1.125/rtfd_server/service.php',
     method: 'post',
     timeout: 3500,
     data: {

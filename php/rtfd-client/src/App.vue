@@ -141,8 +141,9 @@ export default {
         this.docs = docs
 
         let doc = this.docs[0].name
-        if (this.$route.path.indexOf('@') !== -1) {
-          this.default_active = decodeURI(this.$route.path.substr(1))
+        if (decodeURIComponent(this.$route.path).indexOf('@') !== -1) {
+          this.default_active = decodeURIComponent(decodeURIComponent(this.$route.path).substr(1))
+          console.log(this.default_active)
           let docTmp = this.default_active.split('@')[0]
           // check doc is in docs
           for (let i = 0; i < this.docs.length; ++i) {
@@ -182,11 +183,11 @@ export default {
       let relativePath = ''
       // open file
       if (type === 'file') {
-        relativePath = indexPath[indexPath.length - 1]
+        relativePath = decodeURIComponent(indexPath[indexPath.length - 1])
       }
       // open folder
       if (type === 'folder') {
-        relativePath = indexPath[indexPath.length - 1] + '/' + 'README.md'
+        relativePath = decodeURIComponent(indexPath[indexPath.length - 1] + '/' + 'README.md')
       }
 
       // loading file contents

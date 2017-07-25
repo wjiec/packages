@@ -215,10 +215,34 @@ export default {
       })
     },
     add_group: function(group) {
-      console.log(group)
+      this.$action('AddGroup', group).then(() => {
+        // success
+        Message.success('Okay, 成功创建用户组')
+        // refresh user list
+        this.refresh_user()
+      }, (e) => {
+        if (e.response.data.error.indexOf('duplicate') !== -1) {
+          Message.error('Oops~, 用户组已经存在咯')
+        } else {
+          Message.error('Oops~, 添加用户组失败了')
+        }
+      })
     },
     update_group: function(group) {
-      console.log(group)
+      this.$action('UpdateGroup', group).then(() => {
+        // success
+        Message.success('Okay, 成功更新用户组')
+        // refresh user list
+        this.refresh_user()
+      }, (e) => {
+        if (e.response.data.error.indexOf('not found') !== -1) {
+          Message.error('Oops~, 没找到这个用户组')
+        } else if (e.response.data.error.indexOf('admin') !== -1) {
+          Message.error('Oops~, 不能修改admin用户组')
+        } else {
+          Message.error('Oops~, 更新用户组失败了')
+        }
+      })
     },
     add_docs: function() {
 
