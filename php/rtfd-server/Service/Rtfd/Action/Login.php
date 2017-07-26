@@ -55,7 +55,8 @@ class Rtfd_Action_Login extends Rtfd_Abstract_Action {
             'uid' => $user['uid'],
             'gid' => $user['gid'],
             'username' => $user['nickname'],
-            'role' => $user['role_name']
+            'role' => $user['role_name'],
+            'verify' => md5($user['password'])
         ), _rtfd_default_jwt_key_);
         // set cookies
         Rtfd_Request::set_cookie('rpt', $token);

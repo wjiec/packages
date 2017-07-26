@@ -70,6 +70,14 @@
       <!-- DocsList Module -->
       <transition name="el-fade-in" mode="out-in" v-on:after-leave="toggle_setting">
         <el-row key="k_docs_list" id="rtfd-setting-docs-list" v-show="view_list.docs_list" type="flex" justify="center">
+          <rtfd-setting-docs-list
+            :user_list="user_list"
+            :group_list="group_list"
+            :docs_list="docs_list"
+            @add_doc="add_doc"
+            @update_doc="update_doc"
+            @del_doc="del_doc"
+          ></rtfd-setting-docs-list>
         </el-row>
       </transition>
 
@@ -244,14 +252,49 @@ export default {
         }
       })
     },
-    add_docs: function() {
-
+    add_doc: function(doc) {
+      this.$action('AddDoc', doc).then(() => {
+        // success
+        Message.success('Okay, 成功创建文档库')
+        // refresh user list
+        this.refresh_user()
+      }, (e) => {
+        if (e.response.data.error.indexOf('duplicate') !== -1) {
+          Message.error('Oops~, 文档库已经存在咯')
+        } else if (e.response.data.error.indexOf('owner not found') !== -1) {
+          Message.error('Oops~, 用户不存在')
+        } else if (e.response.data.error.indexOf('group not found') !== -1) {
+          Message.error('Oops~, 用户组不存在')
+        } else if (e.response.data.error.indexOf('directory invalid') !== -1) {
+          Message.error('Oops~, 文档库路径非法')
+        } else {
+          Message.error('Oops~, 添加文档库失败了')
+        }
+      })
     },
-    del_docs: function() {
-
+    del_doc: function(cid) {
+      this.$action('DelDoc', cid).then(() => {
+        // success
+        Message.success('Okay, 成功删除文档库')
+        // refresh user list
+        this.refresh_user()
+      }, () => {
+        Message.error('Oops~, 删除文档库失败了')
+      })
     },
-    update_docs: function() {
-
+    update_doc: function(doc) {
+      this.$action('UpdateDoc', doc).then(() => {
+        // success
+        Message.success('Okay, 成功更新文档库')
+        // refresh user list
+        this.refresh_user()
+      }, (e) => {
+        if (e.response.data.error.indexOf('not found') !== -1) {
+          Message.error('Oops~, 没找到这个文档库')
+        } else {
+          Message.error('Oops~, 更新文档库失败了')
+        }
+      })
     },
     refresh_user: function() {
       // Getting users list
@@ -259,6 +302,7 @@ export default {
         this.user_list = response.data.users
         this.role_list = response.data.roles
         this.group_list = response.data.groups
+        this.docs_list = response.data.docs
       }, () => {
         Message.error('Oops~, 获取用户列表出现错误了')
       })

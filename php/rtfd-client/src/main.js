@@ -18,6 +18,17 @@ import highlightjs from 'highlight.js'
 
 import md5 from 'js-md5'
 var jwt = require('jwt-simple')
+var jsencrypt = require('jsencrypt')
+
+let publicKey = '-----BEGIN PUBLIC KEY-----\n' +
+                'MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQCvj2ENgnZV0sqsYwTgXrcWAt49\n' +
+                'PsEISp9L/jZioZcrHbOWAj3/1wkZJsmKSXbmvzNBMnmKKSLl2yLmG8faYsFVD66u\n' +
+                'p0coq82clcP8S2NY7IsH6yawDXPROTeNGz/waXPn0D1iKtzc/HGUDhGWHJWt2dIC\n' +
+                '+PwN+xb9wWWUAToCLQIDAQAB\n' +
+                '-----END PUBLIC KEY-----'
+
+var encrypt = new jsencrypt.JSEncrypt()
+encrypt.setPublicKey(publicKey)
 
 axios.defaults.withCredentials = true
 Vue.prototype.$action = function(action, options = {}) {
@@ -30,7 +41,24 @@ Vue.prototype.$action = function(action, options = {}) {
       act: action,
       ts: Math.floor((new Date()).getTime() / 1000),
       // opts: options
-      opts: jwt.encode(options, 'ReadTheFuckDocs')
+      opts: (function(string) {
+        if (string.length < 117) {
+          return encrypt.encrypt(jwt.encode(options, 'ReadTheFuckDocs'))
+        } else {
+          let segments = []
+          while (string.length > 117) {
+            segments.push(string.substr(0, 117))
+            string = string.substr(117)
+          }
+          segments.push(string)
+
+          for (let i = 0; i < segments.length; ++i) {
+            segments[i] = encrypt.encrypt(segments[i])
+          }
+
+          return segments.join('.')
+        }
+      })(jwt.encode(options, 'ReadTheFuckDocs'))
     },
     transformRequest: [function (data) {
       let ret = ''

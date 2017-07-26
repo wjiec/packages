@@ -137,8 +137,39 @@ class Rtfd_Core {
         );
         // verify request
         self::_verify_request($sig_options, $signature);
+        // rsa private key
+        $private_key = '-----BEGIN RSA PRIVATE KEY-----
+MIICXAIBAAKBgQCvj2ENgnZV0sqsYwTgXrcWAt49PsEISp9L/jZioZcrHbOWAj3/
+1wkZJsmKSXbmvzNBMnmKKSLl2yLmG8faYsFVD66up0coq82clcP8S2NY7IsH6yaw
+DXPROTeNGz/waXPn0D1iKtzc/HGUDhGWHJWt2dIC+PwN+xb9wWWUAToCLQIDAQAB
+AoGAKNEYCnELnDaPAndfGd9Lh+WQ0AJ4FLpswNlQwau6Hr8gEr9gtMvFBMD82Jbt
++wX3H7Bhi5q2z2QcgA1zcLXHJuHvfqRgu8m/MslhaUQQg6xOMHu9ME6rpe9ClqEP
+xWK17/7Y9MG3DrfrPDg4c9Pt61V7LCKaTanMrjcja9Ncno0CQQDfnaIb+pl4mfGa
+X18YICDuJihHdHklnIWu1+fUj+cApnjO+qAWCfDUTyqmuPsK0cGB3eejTZcH0oMA
++20YFTADAkEAyPwfLcb4XhQoG5BjHEg/J3ETJzRoAEmZrzoHka53e5j8NLT2bDF9
+PFA+O9Ykv7Zk0XwnENKiGBK7GnEO0klmDwJBAIFS2wQvZD65WV8cNRTwz9qrOrRI
+ih/UbAP4Xd0y9DgODuQ1Ugws55kBx/rwFE/ni3Ad8+8f2m7tslIJFsjMyB0CQGGY
+jEteYxzMDO3Vn0sMih5M+k//UsFQ/B/qveIwJjUOhOnTNhYzseynypCj3BR8LVjM
+QOwaXDv0XIbqf5f9rGECQGnfaMzqjjg7zFpnMdMpBUAmER2ahEEsXyj95VPNEr+0
+JeYCmu/Goh15daXc4hE4GILq/qd08DpQ5J9AkwrjA60=
+-----END RSA PRIVATE KEY-----';
+
+        $segments = explode('.', $options);
+        if (count($segments) === 1) {
+            // decrypt
+            openssl_private_decrypt(base64_decode($options), $decrypted, $private_key);
+        } else {
+            $decrypted = '';
+
+            foreach ($segments as $segment) {
+                // decrypt
+                openssl_private_decrypt(base64_decode($segment), $segment_decrypted, $private_key);
+                $decrypted .= $segment_decrypted;
+            }
+        }
+
         // return options;
-        return array_merge($sig_options, Rtfd_Jwt::token_decode($options, _rtfd_default_jwt_key_));
+        return array_merge($sig_options, Rtfd_Jwt::token_decode($decrypted, _rtfd_default_jwt_key_));
     }
 
     /**

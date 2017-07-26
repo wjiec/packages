@@ -45,7 +45,8 @@ class Rtfd_Action_GetUsers extends Rtfd_Abstract_Action {
                 'error' => 'cannot fetch roles list'
             ));
         }
-        // Roles
+
+        // Groups
         $groups = $helper->fetch_all(
             "select `gid`, `name` from `groups`;"
         );
@@ -56,12 +57,26 @@ class Rtfd_Action_GetUsers extends Rtfd_Abstract_Action {
                 'error' => 'cannot fetch groups list'
             ));
         }
+
+        // Docs
+        $docs = $helper->fetch_all(
+            "select `cid`, `name`, `path`, `owner_id`, `group_id`, `min_privilege_level` as `mpl` from `docs`;"
+        );
+        // check result
+        if (!$docs) {
+            Rtfd_Request::abort(500, array(
+                'errno' => 500,
+                'error' => 'cannot fetch groups list'
+            ));
+        }
+
         // make response
         Rtfd_Response::json_response(array(
             'status' => 0,
             'users' => $users,
             'roles' => $roles,
-            'groups' => $groups
+            'groups' => $groups,
+            'docs' => $docs
         ));
     }
 }

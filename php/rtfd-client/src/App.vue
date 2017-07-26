@@ -35,8 +35,8 @@
 
     <!-- Account Module -->
     <transition name="el-zoom-in-center" mode="out-in" v-on:after-leave="toggle_view">
-      <el-row key="account" id="rtfd-account" v-show="view_list.account" type="flex">
-        <p>Account Page</p>
+      <el-row key="account" id="rtfd-account" v-if="view_list.account" type="flex" justify="center" align="middle">
+        <rtfd-profile></rtfd-profile>
       </el-row>
     </transition>
 
@@ -56,6 +56,7 @@ import { Message } from 'element-ui'
 import rtfdNavBar from './components/navbar'
 import rtfdLogin from './components/login'
 import rtfdMarkdown from './components/markdown'
+import rtfdProfile from './components/profile'
 import rtfdSetting from './components/setting'
 
 export default {
@@ -261,7 +262,7 @@ export default {
       })
     }
   },
-  components: {rtfdNavBar, rtfdLogin, rtfdMarkdown, rtfdSetting}
+  components: {rtfdNavBar, rtfdLogin, rtfdMarkdown, rtfdProfile, rtfdSetting}
 }
 </script>
 
@@ -311,7 +312,7 @@ export default {
     height: 100vh;
   }
 
-  #rtfd-login, #rtfd-markdown, #rtfd-setting {
+  #rtfd-login, #rtfd-markdown, #rtfd-account, #rtfd-setting {
     height: 100%;
   }
 

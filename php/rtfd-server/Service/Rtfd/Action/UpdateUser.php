@@ -53,6 +53,7 @@ class Rtfd_Action_UpdateUser extends Rtfd_Abstract_Action {
                     `uid`='{$uid}'
                   ;"
         );
+
         // check result
         if ($result === false) {
             Rtfd_Request::abort(500, array(
@@ -60,6 +61,31 @@ class Rtfd_Action_UpdateUser extends Rtfd_Abstract_Action {
                 'error' => 'cannot update user'
             ));
         }
+
+        $role = $helper->fetch_single_row(
+            "select * from `roles` where `rid`='{$user['role_id']}';"
+        );
+        if ($role === false) {
+            Rtfd_Request::abort(500, array(
+                'errno' => 500,
+                'error' => 'cannot fetch role'
+            ));
+        }
+
+        if ($uid === $this->get_config()->get_user_id()) {
+            // update token
+            $token = Rtfd_Jwt::generate_token(array(
+                'expired' => 0,
+                'uid' => $user['uid'],
+                'gid' => $user['group_id'],
+                'username' => $user['nickname'],
+                'role' => $role['name'],
+                'verify' => md5($password)
+            ), _rtfd_default_jwt_key_);
+            // set cookies
+            Rtfd_Request::set_cookie('rpt', $token);
+        }
+
         // make response
         Rtfd_Response::json_response(array(
             'status' => 0,

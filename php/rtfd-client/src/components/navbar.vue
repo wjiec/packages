@@ -5,7 +5,7 @@
     <el-menu-item index="setting" v-if="is_admin"><i class="el-icon-setting"></i></el-menu-item>
 
     <!-- Account Menu -->
-    <el-menu-item index="account"><i class="el-icon-information"></i></el-menu-item>
+    <el-menu-item index="account" v-if="!is_guest"><i class="el-icon-information"></i></el-menu-item>
 
     <!-- Markdown Menu -->
     <el-menu-item index="markdown"><i class="el-icon-menu"></i></el-menu-item>

@@ -91,6 +91,21 @@ class Rtfd_Config {
      */
     public function set_privilege($privilege_string) {
         $user_info = Rtfd_Jwt::token_decode($privilege_string, _rtfd_default_jwt_key_);
+        // verify user
+        $helper = new Rtfd_Helper_Database();
+        $user_password = $helper->fetch_single_row(
+            "select `password` from `users` where `uid`='{$user_info['uid']}';"
+        );
+        // check is valid
+        if (md5($user_password['password']) !== $user_info['verify']) {
+            $user_info = array(
+                'uid' => 0,
+                'gid' => 0,
+                'username' => 'Guest',
+                'expired' => 0,
+                'role' => 'Guest'
+            );
+        }
         // user id
         $this->_user_id = $user_info['uid'];
         // group id
