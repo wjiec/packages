@@ -14,42 +14,42 @@
 </template>
 
 <script>
-  export default {
-    name: 'rtfd-login',
-    data: () => {
-      return {
-        login_info: {
-          username: '',
-          password: ''
+export default {
+  name: 'rtfd-login',
+  data: () => {
+    return {
+      login_info: {
+        username: '',
+        password: ''
+      },
+      form_validate: {
+        username: {
+          required: true,
+          message: '用户名不能为空',
+          trigger: 'blur'
         },
-        form_validate: {
-          username: {
-            required: true,
-            message: '用户名不能为空',
-            trigger: 'blur'
-          },
-          password: {
-            required: true,
-            message: '密码不能为空',
-            trigger: 'blur'
-          }
+        password: {
+          required: true,
+          message: '密码不能为空',
+          trigger: 'blur'
         }
       }
+    }
+  },
+  methods: {
+    submit_login: function() {
+      this.$refs['rtfd-form'].validate((valid) => {
+        if (valid) {
+          this.$emit('user_login', this.login_info)
+        }
+      })
     },
-    methods: {
-      submit_login: function() {
-        this.$refs['rtfd-form'].validate((valid) => {
-          if (valid) {
-            this.$emit('user_login', this.login_info)
-          }
-        })
-      },
-      guest_login: function() {
-        this.$emit('user_login', false)
-      }
-    },
-    components: {}
-  }
+    guest_login: function() {
+      this.$emit('user_login', false)
+    }
+  },
+  components: {}
+}
 </script>
 
 <style scoped>

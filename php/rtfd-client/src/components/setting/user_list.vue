@@ -10,7 +10,7 @@
       <el-table-column label="操作">
         <template scope="scope">
           <!-- Edit User -->
-          <el-dialog title="编辑" :visible.sync="update_visible" size="small">
+          <el-dialog title="编辑" :visible.sync="update_visible" :size="$mobile ? 'large' : 'small'">
             <!-- EditUser Form -->
             <el-form ref="rtfd-setting-update-user-form" :model="will_update_user" label-position="left" label-width="80px" :rules="update_form_validate">
               <!-- Username/Password Form -->

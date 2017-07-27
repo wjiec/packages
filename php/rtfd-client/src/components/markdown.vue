@@ -2,7 +2,7 @@
   <div id="rtfd-markdown-area">
 
     <!-- Markdown Navigation -->
-    <el-col id="rtfd-markdown-nav" :lg="4" :md="6" :sm="6" :xs="24">
+    <el-col id="rtfd-markdown-nav" :class="{activate: open_tree}" :lg="4" :md="6" :sm="6" :xs="markdown_tree_xs_span">
       <el-menu
         v-if="menu_show"
           :router="true"
@@ -31,12 +31,22 @@
 </template>
 
 <script>
-import rtfdMarkdownTree from './markdown/tree'
+import Vue from 'vue'
+// var Vue = require('vue')
+// import rtfdMarkdownTree from './markdown/tree'
+
+const rtfdMarkdownTree = Vue.component('rtfdMarkdownTree', function (resolve) {
+  require(['./markdown/tree'], resolve)
+})
 
 export default {
   name: 'rtfd-markdown',
   data: () => {
     return {
+      markdown_tree_class: {
+        activate: false
+      },
+      markdown_tree_xs_span: 24,
       default_opened: []
     }
   },
@@ -50,11 +60,14 @@ export default {
     },
     default_active: {
       required: true
+    },
+    open_tree: {
+      required: true
     }
   },
   methods: {
     select_file: function(index, indexPath) {
-      this.$emit('open_file', 'file', index, indexPath)
+      this.$emit('open_file', 'file', index, indexPath, true)
     },
     open_folder: function(index, indexPath) {
       this.$emit('open_file', 'folder', index, indexPath)
@@ -62,6 +75,7 @@ export default {
   },
   watch: {
     default_active: function(fileName) {
+      // only using v-show ~
       this.$emit('open_file', 'file', fileName, [fileName])
     }
   },
@@ -77,6 +91,11 @@ export default {
     }
   },
   mounted: function() {
+    if (this.default_active) {
+      // auto loading contents
+      this.$emit('open_file', 'file', this.default_active, [this.default_active])
+    }
+
     let segments = this.$route.path.substr(1).split('!')
     // pop last element
     segments.pop()
@@ -92,6 +111,18 @@ export default {
     }
     // assign default open
     this.default_opened = segments
+
+    if (this.$mobile) {
+//      window.alert('bind click success')
+      this.markdown_tree_xs_span = 20
+
+//      let self = this
+//      document.querySelector('#rtfd-markdown-body').addEventListener('click', function() {
+//        if (self.markdown_tree_class['activate'] === true) {
+//          self.markdown_tree_class['activate'] = false
+//        }
+//      })
+    }
   },
   components: {rtfdMarkdownTree}
 }
@@ -111,6 +142,21 @@ export default {
   #rtfd-markdown-nav {
     background: #eef1f6;
     border-right: 1px solid rgba(0, 0, 0, .08);
+  }
+
+  @media screen and (max-width: 687px) {
+    #rtfd-markdown-nav {
+      position: absolute;
+      z-index: 99;
+      left: -100%;
+      opacity: 0;
+      transition: all .5s ease-in-out;
+    }
+
+    #rtfd-markdown-nav.activate {
+      left: 0%;
+      opacity: 1;
+    }
   }
 
   #rtfd-markdown-body {

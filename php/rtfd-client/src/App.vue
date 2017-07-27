@@ -1,8 +1,8 @@
 <template>
-  <el-row id="rtfd" type="flex" v-show="true">
+  <el-row id="rtfd" type="flex">
 
     <!-- Nav-bar Module [Always] -->
-    <el-row id="rtfd-nav-bar">
+    <el-row id="rtfd-nav-bar" ref="rtfd-nav-bar" @click="toggle_tree">
       <rtfd-nav-bar
         :docs="docs"
         :is_guest="is_guest"
@@ -23,11 +23,12 @@
 
     <!-- Markdown Module -->
     <transition name="el-zoom-in-center" mode="out-in" v-on:after-leave="toggle_view">
-      <el-row key="markdown" id="rtfd-markdown" v-show="view_list.markdown" type="flex">
+      <el-row key="markdown" id="rtfd-markdown" v-if="view_list.markdown" type="flex">
         <rtfd-markdown
           :doc_tree="doc_tree"
           :default_active="default_active"
           :doc_content="doc_content"
+          :open_tree="open_tree"
           @open_file="open_file"
         ></rtfd-markdown>
       </el-row>
@@ -52,12 +53,34 @@
 </template>
 
 <script>
+import Vue from 'vue'
+// var Vue = require('vue')
 import { Message } from 'element-ui'
-import rtfdNavBar from './components/navbar'
-import rtfdLogin from './components/login'
-import rtfdMarkdown from './components/markdown'
-import rtfdProfile from './components/profile'
-import rtfdSetting from './components/setting'
+// import rtfdNavBar from './components/navbar'
+// import rtfdLogin from './components/login'
+// import rtfdMarkdown from './components/markdown'
+// import rtfdProfile from './components/profile'
+// import rtfdSetting from './components/setting'
+
+const rtfdNavBar = Vue.component('rtfdNavBar', function (resolve) {
+  require(['./components/navbar'], resolve)
+})
+
+const rtfdLogin = Vue.component('rtfdLogin', function (resolve) {
+  require(['./components/login'], resolve)
+})
+
+const rtfdMarkdown = Vue.component('rtfdMarkdown', function (resolve) {
+  require(['./components/markdown'], resolve)
+})
+
+const rtfdProfile = Vue.component('rtfdProfile', function (resolve) {
+  require(['./components/profile'], resolve)
+})
+
+const rtfdSetting = Vue.component('rtfdSetting', function (resolve) {
+  require(['./components/setting'], resolve)
+})
 
 export default {
   name: 'rtfd',
@@ -77,7 +100,8 @@ export default {
         markdown: false,
         account: false,
         setting: false
-      }
+      },
+      open_tree: true
     }
   },
   mounted: function() {
@@ -95,17 +119,16 @@ export default {
         // init docs list
         this.init_docs()
       }
+      window.scrollTo(0, 0)
     }, () => {
       // cannot getting data
       Message.error('Oops~, 初始化数据出错咯')
     })
-    // bind click event
-    document.body.addEventListener('click', function(event) {
-      if (event.target.tagName.toLowerCase() === 'a') {
-        console.log(event)
-        return false
-      }
-    })
+
+    // close tree
+    if (this.$mobile && this.$route.path.substr(1)) {
+      this.open_tree = false
+    }
   },
   methods: {
     user_login: function(user) {
@@ -129,6 +152,7 @@ export default {
           this.stop_loading()
         })
       }
+      window.scrollTo(0, 0)
     },
     init_docs: function() {
       this.$action('GetDocs').then((response) => {
@@ -144,7 +168,6 @@ export default {
         let doc = this.docs[0].name
         if (decodeURIComponent(this.$route.path).indexOf('@') !== -1) {
           this.default_active = decodeURIComponent(decodeURIComponent(this.$route.path).substr(1))
-          console.log(this.default_active)
           let docTmp = this.default_active.split('@')[0]
           // check doc is in docs
           for (let i = 0; i < this.docs.length; ++i) {
@@ -175,8 +198,12 @@ export default {
     },
     checkout_doc: function(doc) {
       this.select_doc = doc
+
+      if (this.$mobile) {
+        this.open_tree = true
+      }
     },
-    open_file: function(type, index, indexPath) {
+    open_file: function(type, index, indexPath, close = false) {
       // start loading state
       this.start_loading()
 
@@ -203,6 +230,10 @@ export default {
         }
         this.stop_loading()
       })
+
+      if (close) {
+        this.open_tree = false
+      }
     },
     toggle_view: function() {
       // toggle to view
@@ -235,6 +266,11 @@ export default {
     },
     stop_loading: function() {
       this.state_loading = false
+    },
+    toggle_tree: function() {
+      if (this.$mobile) {
+        this.open_tree = !this.open_tree
+      }
     }
   },
   computed: {
@@ -334,5 +370,10 @@ export default {
 
   div.el-select-dropdown {
     min-width: 217px;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    -ms-word-wrap: break-word;
+    word-wrap: break-word;
   }
 </style>

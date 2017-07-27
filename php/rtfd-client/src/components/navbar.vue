@@ -15,7 +15,7 @@
 
     <!-- Docs List -->
     <el-submenu index="docs" v-if="docs_show" :default-active="select_doc">
-      <template slot="title"><i class="el-icon-more"></i>{{ select_doc }}&nbsp;</template>
+      <template slot="title"><i class="el-icon-more" v-if="!is_mobile"></i>{{ select_doc }}&nbsp;</template>
       <el-menu-item v-for="doc in docs" key="doc.name" :index="doc.name"><i :class="doc.name === select_doc ? 'el-icon-star-on' : 'el-icon-star-off'"></i>{{ doc.name }}&nbsp;</el-menu-item>
     </el-submenu>
 
@@ -52,6 +52,12 @@ export default {
   computed: {
     docs_show: function() {
       return this.docs.length > 0
+    },
+    doc_title: function() {
+      return this.$mobile ? '' : this.select_doc
+    },
+    is_mobile: function() {
+      return this.$mobile
     }
   },
   methods: {

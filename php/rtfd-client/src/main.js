@@ -1,24 +1,27 @@
 //
 // Rtfd Client
 //
-import Vue from 'vue'
+import Vue from 'vue'  // externals
+// var Vue = require('vue')
 import App from './App'
-import router from './router'
-import ElementUI from 'element-ui'
-import 'element-ui/lib/theme-default/index.css'
-import './assets/rtfd.css'
-import './assets/hljs.min.css'
+import router from './router'  // externals
+// import ElementUI from 'element-ui'
+var ELEMENT = require('element-ui')    // externals
+// import 'element-ui/lib/theme-default/index.css'
+import './assets/rtfd.css'    // no externals
+import './assets/hljs.min.css'    // no externals
 
-import promise from 'es6-promise'
-promise.polyfill()
-import axios from 'axios'
+// import promise from 'es6-promise'
+// promise.polyfill()
+var ES6Promise = require('es6-promise')    // externals
+ES6Promise.polyfill()
+import axios from 'axios'    // externals
 
-var marked = require('marked')
-import highlightjs from 'highlight.js'
+var marked = require('marked')    // externals
+import hljs from 'highlight.js'    // externals
 
-import md5 from 'js-md5'
-var jwt = require('jwt-simple')
-var jsencrypt = require('jsencrypt')
+import md5 from 'js-md5'    // no externals
+var jwt = require('jwt-simple')    // no externals
 
 let publicKey = '-----BEGIN PUBLIC KEY-----\n' +
                 'MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQCvj2ENgnZV0sqsYwTgXrcWAt49\n' +
@@ -27,16 +30,22 @@ let publicKey = '-----BEGIN PUBLIC KEY-----\n' +
                 '+PwN+xb9wWWUAToCLQIDAQAB\n' +
                 '-----END PUBLIC KEY-----'
 
-var encrypt = new jsencrypt.JSEncrypt()
+var JSEncrypt = require('jsencrypt')    // externals
+var encrypt = new JSEncrypt()
 encrypt.setPublicKey(publicKey)
+
+// var jsencrypt = require('jsencrypt')    // externals
+// var encrypt = new jsencrypt.JSEncrypt()
+// encrypt.setPublicKey(publicKey)
 
 axios.defaults.withCredentials = true
 Vue.prototype.$action = function(action, options = {}) {
   return axios({
     // url: 'http://192.168.1.251:10000/service.php',
-    url: 'http://192.168.1.125/rtfd_server/service.php',
+    // url: 'http://192.168.1.125/rtfd_server/service.php',
+    url: '/rtfd_server/service.php',
     method: 'post',
-    timeout: 3500,
+    timeout: 10000,
     data: {
       act: action,
       ts: Math.floor((new Date()).getTime() / 1000),
@@ -100,18 +109,26 @@ function htmlEncode(html) {
   return output
 }
 
+(function() {
+  let userAgent = navigator.userAgent.toLowerCase()
+  let IsIpad = userAgent.match(/ipad/i)
+  let IsIphoneOs = userAgent.match(/iphone os/i)
+  let IsUc = userAgent.match(/ucweb/i)
+  let IsAndroid = userAgent.match(/android/i)
+  if (IsIpad || IsIphoneOs || IsUc || IsAndroid) {
+    Vue.prototype.$mobile = true
+  }
+})()
+
 // Create your custom renderer.
 const renderer = new marked.Renderer()
 renderer.code = (code, language) => {
   // Check whether the given language is valid for highlight.js.
-  const validLang = !!(language && highlightjs.getLanguage(language))
+  const validLang = !!(language && hljs.getLanguage(language))
   // Highlight only if the language is valid.
-  const highlighted = validLang ? highlightjs.highlight(language, code).value : htmlEncode(code)
+  const highlighted = validLang ? hljs.highlight(language, code).value : htmlEncode(code)
   // Render the highlighted code with `hljs` class.
   return `<pre><code class="hljs ${language}">${highlighted}</code></pre>`
-}
-renderer.html = (html) => {
-  console.log(html)
 }
 
 marked.setOptions({
@@ -126,8 +143,7 @@ marked.setOptions({
 })
 Vue.prototype.$marked = marked
 
-Vue.config.productionTip = false
-Vue.use(ElementUI)
+Vue.use(ELEMENT)
 
 /* eslint-disable no-new */
 new Vue({

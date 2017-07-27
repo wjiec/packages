@@ -2,7 +2,7 @@
   <div id="rtfd-setting-area">
 
     <!-- Setting Navigation -->
-    <el-col id="rtfd-setting-nav" :lg="4" :md="6" :sm="6" :xs="24">
+    <el-col id="rtfd-setting-nav" :class="setting_menu_class" :lg="4" :md="6" :sm="6" :xs="setting_menu_xs_span">
       <!-- User Manager -->
       <el-menu @select="select_setting" default-active="user_list">
         <el-submenu index="user_manager">
@@ -89,16 +89,38 @@
 </template>
 
 <script>
+import Vue from 'vue'
+// var Vue = require('vue')
 import { Message } from 'element-ui'
-import rtfdSettingUserList from './setting/user_list'
-import rtfdSettingRoleList from './setting/role_list'
-import rtfdSettingDocsList from './setting/docs_list'
-import rtfdSettingGroupList from './setting/group_list'
+// import rtfdSettingUserList from './setting/user_list'
+// import rtfdSettingRoleList from './setting/role_list'
+// import rtfdSettingDocsList from './setting/docs_list'
+// import rtfdSettingGroupList from './setting/group_list'
+
+const rtfdSettingUserList = Vue.component('rtfdSettingUserList', function (resolve) {
+  require(['./setting/user_list'], resolve)
+})
+
+const rtfdSettingRoleList = Vue.component('rtfdSettingRoleList', function (resolve) {
+  require(['./setting/role_list'], resolve)
+})
+
+const rtfdSettingDocsList = Vue.component('rtfdSettingDocsList', function (resolve) {
+  require(['./setting/docs_list'], resolve)
+})
+
+const rtfdSettingGroupList = Vue.component('rtfdSettingGroupList', function (resolve) {
+  require(['./setting/group_list'], resolve)
+})
 
 export default {
   name: 'rtfd-setting',
   data: () => {
     return {
+      setting_menu_xs_span: 24,
+      setting_menu_class: {
+        activate: false
+      },
       user_list: [],
       role_list: [],
       group_list: [],
@@ -114,9 +136,34 @@ export default {
   },
   mounted: function() {
     this.pre_toggle('user_list')
-
     // Getting users list
     this.refresh_user()
+
+    if (this.$mobile) {
+      this.setting_menu_xs_span = 20
+
+      let self = this
+      document.body.onclick = function(event) {
+        let clickX = event.clientX
+        let clickY = event.clientY
+
+        let screenW = window.screen.availWidth
+        let screenH = window.screen.availHeight
+
+        let offsetX = Math.abs(clickX - screenW / 2)
+        let offsetY = Math.abs(clickY - screenH / 2)
+
+        if (offsetX < 50 && offsetY < 70) {
+          self.setting_menu_class.activate = true
+        }
+      }
+
+      document.querySelector('#rtfd-setting-body').addEventListener('click', function() {
+        if (self.setting_menu_class['activate'] === true) {
+          self.setting_menu_class['activate'] = false
+        }
+      })
+    }
   },
   methods: {
     select_setting: function(index, indexPath) {
@@ -327,6 +374,21 @@ export default {
   #rtfd-setting-nav {
     background: #eef1f6;
     border-right: 1px solid rgba(0, 0, 0, .08);
+  }
+
+  @media screen and (max-width: 687px) {
+    #rtfd-setting-nav {
+      position: absolute;
+      z-index: 99;
+      left: -100%;
+      opacity: 0;
+      transition: all .5s ease-in-out;
+    }
+
+    #rtfd-setting-nav.activate {
+      left: 0%;
+      opacity: 1;
+    }
   }
 
   #rtfd-setting-body {

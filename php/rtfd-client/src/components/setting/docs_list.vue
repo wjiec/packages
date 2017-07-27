@@ -11,7 +11,7 @@
       <el-table-column label="操作">
         <template scope="scope">
           <!-- Edit Group -->
-          <el-dialog title="编辑" :visible.sync="update_visible" size="small">
+          <el-dialog title="编辑" :visible.sync="update_visible" :size="$mobile ? 'large' : 'small'">
             <!-- EditUser Form -->
             <el-form id="rtfd-setting-update-doc-form" ref="rtfd-setting-update-doc-form" label-position="left" label-width="80px" :model="will_update_doc" :rules="form_validate">
 
