@@ -19,11 +19,22 @@ var webpackConfig = merge(baseWebpackConfig, {
       extract: true
     })
   },
-  devtool: config.build.productionSourceMap ? '#source-map' : false,
+  // devtool: config.build.productionSourceMap ? '#source-map' : false,
+  devtool: false,
   output: {
     path: config.build.assetsRoot,
     filename: utils.assetsPath('js/[name].[chunkhash].js'),
     chunkFilename: utils.assetsPath('js/[id].[chunkhash].js')
+  },
+  externals: {
+    'vue': 'Vue',
+    'element-ui': 'ELEMENT',
+    'axios': 'axios',
+    'marked': 'marked',
+    'vue-router': 'VueRouter',
+    'highlight.js': 'hljs',
+    'es6-promise': 'ES6Promise',
+    'jsencrypt': 'JSEncrypt'
   },
   plugins: [
     // http://vuejs.github.io/vue-loader/en/workflow/production.html
