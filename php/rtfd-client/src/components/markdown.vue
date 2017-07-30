@@ -2,7 +2,7 @@
   <div id="rtfd-markdown-area">
 
     <!-- Markdown Navigation -->
-    <el-col id="rtfd-markdown-nav" :class="{activate: open_tree}" :lg="4" :md="6" :sm="6" :xs="markdown_tree_xs_span">
+    <el-col id="rtfd-markdown-nav" :class="{activate: open_tree || !default_active}" :lg="4" :md="6" :sm="6" :xs="markdown_tree_xs_span">
       <el-menu
         v-if="menu_show"
           :router="true"
@@ -91,7 +91,7 @@ export default {
     }
   },
   mounted: function() {
-    if (this.default_active) {
+    if (this.default_active && this.default_active !== 'true') {
       // auto loading contents
       this.$emit('open_file', 'file', this.default_active, [this.default_active])
     }
@@ -113,15 +113,7 @@ export default {
     this.default_opened = segments
 
     if (this.$mobile) {
-//      window.alert('bind click success')
       this.markdown_tree_xs_span = 20
-
-//      let self = this
-//      document.querySelector('#rtfd-markdown-body').addEventListener('click', function() {
-//        if (self.markdown_tree_class['activate'] === true) {
-//          self.markdown_tree_class['activate'] = false
-//        }
-//      })
     }
   },
   components: {rtfdMarkdownTree}
@@ -131,6 +123,7 @@ export default {
 <style>
   #rtfd-markdown-area {
     width: 100%;
+    max-height: 100vh;
   }
 
   #rtfd-markdown-nav, #rtfd-markdown-body {
@@ -162,6 +155,8 @@ export default {
   #rtfd-markdown-body {
     padding: 1rem 8rem;
     border-left: 1px solid rgba(255, 255, 255, .85);
+    overflow-y: scroll;
+    max-height: 95vh;
   }
 
   @media screen and (max-width: 1200px) {
@@ -176,9 +171,17 @@ export default {
     }
   }
 
+  @media screen and (max-width: 687px) {
+    #rtfd-markdown-body {
+      padding: 1rem 1rem;
+    }
+  }
+
   #rtfd-markdown-contents {
     width: 100%;
     max-width: 100%;
+    height: 100%;
+    max-height: 100%;
   }
 
   #rtfd-markdown-body table {

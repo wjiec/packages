@@ -115,7 +115,7 @@ export default {
       this.info = response.data
       // Cookie Logged in
       if (!this.is_guest) {
-        Message.info('你现在的身份是: ' + this.info.user.username)
+        Message.success('你现在的身份是: ' + this.info.user.username)
         // init docs list
         this.init_docs()
       }
@@ -127,8 +127,12 @@ export default {
 
     // close tree
     if (this.$mobile && this.$route.path.substr(1)) {
-      this.open_tree = false
+      this.open_tree = -1
     }
+
+    document.body.addEventListener('touchmove', function(event) {
+      event.sto
+    })
   },
   methods: {
     user_login: function(user) {
@@ -200,7 +204,11 @@ export default {
       this.select_doc = doc
 
       if (this.$mobile) {
-        this.open_tree = true
+        if (this.open_tree === -1) {
+          this.open_tree = false
+        } else {
+          this.open_tree = true
+        }
       }
     },
     open_file: function(type, index, indexPath, close = false) {
@@ -218,7 +226,15 @@ export default {
         relativePath = decodeURIComponent(indexPath[indexPath.length - 1] + '/' + 'README.md')
       }
 
+      this.default_active = true
+      if (this.$route.path === '/') {
+        this.open_tree = true
+      }
+
       // loading file contents
+      if (relativePath === 'true') {
+        return
+      }
       this.$action('GetDocContent', {path: relativePath, hl: 'no'}).then((response) => {
         this.doc_content = response.data.contents
         this.stop_loading()
@@ -240,6 +256,9 @@ export default {
       switch (this.toggle_state.in) {
         case 'markdown': {
           this.view_list.markdown = true
+          if (this.$mobile) {
+            this.open_tree = !this.open_tree
+          }
           break
         }
         case 'account': {

@@ -61,4 +61,10 @@ export default {
     box-shadow: 1px 3px 10px 1px rgba(0, 0, 0, .1),
                 1px 1px 10px 1px rgba(0, 0, 0, .25);
   }
+
+  @media screen and (max-width: 987px) {
+    form {
+      padding: 3rem;
+    }
+  }
 </style>
