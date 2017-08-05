@@ -1,0 +1,6 @@
+<h1>{{ title }}</h1>
+<h2>My favicon hero is {{ heroes[heroes.length - 1].name }}</h2>
+<p *ngIf="heroes.length > 5">There are many heroes!</p>
+<ul>
+  <li *ngFor="let hero of heroes">{{ hero.name }}</li>
+</ul>
