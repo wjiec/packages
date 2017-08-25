@@ -18,6 +18,11 @@ class Rtfd_Action_GetDocTree extends Rtfd_Abstract_Action {
                 'error' => 'option `doc` not found'
             ));
         }
+
+        if (preg_match('/^share_(\w{32})$/', $doc, $results)) {
+            self::_generate_share_tree($doc, $results[1]);
+        }
+
         // create database helper
         $helper = new Rtfd_Helper_Database();
         // getting doc path
@@ -94,5 +99,41 @@ class Rtfd_Action_GetDocTree extends Rtfd_Abstract_Action {
                 $this->scan_dir($result[$encode_name], $doc_name, $real_path, $relative_path);
             }
         }
+    }
+
+    /**
+     * @param string $hash
+     */
+    private function _generate_share_tree($doc, $hash) {
+        $helper = new Rtfd_Helper_Database();
+
+        $share_info = $helper->fetch_single_row(
+            "select * from `share` where `code`='{$hash}';"
+        );
+
+        if (!$share_info) {
+            Rtfd_Request::abort(500, array(
+                'errno' => 500,
+                'error' => 'cannot access'
+            ));
+        }
+
+        $paths = json_decode(urldecode($share_info['paths']), true);
+        if ($paths === null) {
+            Rtfd_Request::abort(500, array(
+                'errno' => 500,
+                'error' => 'server error'
+            ));
+        }
+
+        $file_name = explode('!', $paths[0]);
+        Rtfd_Response::json_response(array(
+            $file_name[count($file_name) - 1] => array(
+                'is_file' => true,
+                'name' => $file_name[count($file_name) - 1],
+                'path' => $doc . '@!' . $file_name[count($file_name) - 1],
+                'children' => null
+            )
+        ));
     }
 }

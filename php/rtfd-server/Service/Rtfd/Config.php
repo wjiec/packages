@@ -55,6 +55,10 @@ class Rtfd_Config {
         return $default;
     }
 
+    public function set_options($name, $value) {
+        return $this->_options[$name] = $value;
+    }
+
     /**
      * @return string
      */

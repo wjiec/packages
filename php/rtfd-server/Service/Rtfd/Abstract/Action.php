@@ -27,6 +27,10 @@ abstract class Rtfd_Abstract_Action {
         return $this->_config->get_option($key, $default);
     }
 
+    final protected function set_option($key, $value) {
+        $this->_config->set_options($key, $value);
+    }
+
     /**
      * @return Rtfd_Config
      */

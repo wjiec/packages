@@ -43,6 +43,15 @@ create table if not exists `docs` (
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 auto_increment=1 ;
 
 
+create table if not exists `share` (
+  `sid` serial not null primary key auto_increment,
+  `code` varchar(32) not null,
+  `paths` text not null,
+  `created` int not null,
+  `expired` int not null,
+  unique key (`code`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 auto_increment=1 ;
+
 
 --
 -- Default user for Admin
@@ -73,4 +82,7 @@ insert into `actions`(`name`, `privilege_level`) values
   ('DelDoc', 100),          -- Del doc
   ('UpdateProfile', 10),    -- Update self profile
   ('GetProfile', 10),       -- Get profile
-  ('Logout', 10)            -- Logout
+  ('Logout', 10),           -- Logout
+  ('GenerateShare', 0),     -- Generate share code
+  ('GetShareList', 100),    -- Get share list
+  ('RemoveShare', 100)      -- Remove share
