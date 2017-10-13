@@ -1,42 +1,41 @@
-#!/usr/bin/env python3
+#!/usr/bin/env python
 # -*- coding: utf-8 -*-
-#
-# Copyright (C) 2017
 import os
 import re
 import sys
-import locale
-import subprocess
+reload(sys)
+sys.setdefaultencoding('utf-8')
 
 
-# stdout >> stderr
-os.dup2(sys.stderr.fileno(), sys.stdout.fileno())
-# reset shell coding
-os.system('export LANG=en_US.UTF-8')
+class SubVersionChecker(object):
+    def __init__(self, txn, repos):
+        self.repos = repos
+        self.txn = txn
 
-svn_txn = sys.argv[2]
-svn_repos = sys.argv[1]
+    def get_commit_logs(self):
+        commit_log_fd = os.popen('svnlook changed -t {txn} {repos}'.format(
+            txn=self.txn, repos=self.repos))
+        commit_logs = commit_log_fd.readlines()
+        return commit_logs
 
-commit_log_fd = os.popen('svnlook changed -t {txn} {repos}'.format(
-    txn=svn_txn, repos=svn_repos))
-commit_logs = commit_log_fd.readlines()
+    def check(self):
+        commit_logs = self.get_commit_logs()
+        for commit_log in commit_logs:
+            matches = re.match('^[AUD]\s*(.*)$', commit_log)
+            file_name = matches.group(1)
 
-for commit_log in commit_logs:
-    matches = re.match('^[AUD]\s*(.*)$', commit_log)
-    file_name = matches.group(1)
+            file_name = file_name.replace('{U+', '\\u')
+            file_name = file_name.replace('}', '')
+            file_name = file_name.encode('utf-8').decode('unicode-escape')
+            cmd = 'export LANG=en_US.UTF-8;svnlook cat -t {} {} {}'.format(
+                self.txn, self.repos, file_name)
 
-    file_name = file_name.replace('{U+', '\\u')
-    file_name = file_name.replace('}/', '/')
-
-    file_name = file_name.encode('utf-8').decode('unicode-escape')
-
-
-    cmd = 'svnlook cat -t {} {} {}'.format(svn_txn, svn_repos, file_name)
-    subprocess.call(['svnlook', 'cat', '-t', svn_txn, svn_repos, file_name])
-
-    #if re.search('', contents):
-    #    print('Commit rejected, because {} contents invalid'.format(file_name))
-    #    exit(1)
+            process = os.popen(cmd).read()
+            result = re.search(r'http:.+clouddn.+\.png', process)
 
 
-exit(1)
+if __name__ == '__main__':
+    os.dup2(sys.stderr.fileno(), sys.stdout.fileno())
+
+    checker = SubVersionChecker(sys.argv[2], sys.argv[1])
+    checker.check()
