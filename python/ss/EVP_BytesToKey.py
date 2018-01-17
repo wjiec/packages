@@ -5,7 +5,8 @@
 import hashlib
 
 
-def EVP_BytesToKey(password, salt, key_len, iv_len):
+def evp_bytes_to_key(password, key_len, iv_len,
+                     salt=None, count=1, hash_func=hashlib.md5):
     """ Pseude-Code
     M[] is an array of message digests
     MD() is the message digest function
@@ -26,28 +27,23 @@ def EVP_BytesToKey(password, salt, key_len, iv_len):
     M = M[0] . M[1] . M[2] .......
     """
     if not password:
-        return None
+        return None, None
 
-    M = []
+    data = password + (salt if salt else b'')
+    message_digest_array = [data]
+    for _ in range(count):
+        hash_inst = hash_func()
+        hash_inst.update(message_digest_array[0])
+        message_digest_array[0] = hash_inst.digest()
 
-    i = 0
-    while len(b''.join(M)) < (key_len + iv_len):
-        md5_hash = hashlib.md5()
+    while len(b''.join(message_digest_array)) < (key_len + iv_len):
+        hash_inst = hash_func()
+        hash_inst.update(message_digest_array[-1] + data)
+        message_digest_array.append(hash_inst.digest())
 
-        if len(M) == 0:
-            md5_hash.update(password + salt if salt else b'')
-            M.append(md5_hash.digest())
-            continue
-
-        md5_hash.update(M[i - 1] + password + salt if salt else b'')
-        M.append(md5_hash.digest())
-
-        i += 1
-
-    key = b''.join(M)[:key_len]
-    iv = b''.join(M)[key_len:key_len + iv_len]
-    return key, iv
+    result = b''.join(message_digest_array)
+    return result[:key_len], result[key_len:key_len + iv_len]
 
 
 if __name__ == '__main__':
-    print(EVP_BytesToKey(b'HelloWorld', b'', 16, 16))
+    print(evp_bytes_to_key(b'my-secret-password', 32, 16))
