@@ -19,7 +19,7 @@ class LRUCache(object):
         self._history.append(key)
 
         if len(self._history) > self._cache_size:
-            last_item = self._history.pop()
+            last_item = self._history.popleft()
             del self._value_store[last_item]
 
         return self._value_store[key]
@@ -30,11 +30,14 @@ class LRUCache(object):
         self._history.append(key)
 
         if len(self._history) > self._cache_size:
-            last_item = self._history.pop()
+            last_item = self._history.popleft()
             del self._value_store[last_item]
+        self._value_store[key] = value
 
     def __delitem__(self, key):
-        pass
+        if key in self._history:
+            self._history.remove(key)
+        del self._value_store[key]
 
     def __len__(self):
         return len(self._value_store)
@@ -52,10 +55,10 @@ if __name__ == '__main__':
     cache['d'] = 4
 
     assert len(cache) == 4
-    assert cache['c'] == 3
+    assert cache['d'] == 4
 
     cache['e'] = 5
-    assert 'e' not in cache
+    assert 'a' not in cache
 
     cache['b'] = 2
     cache['f'] = 6
