@@ -22,4 +22,14 @@ public class Banana extends Fruit{
     protected void testProtectedCase(Apple apple) {
         System.out.println(apple.protectedCase());
     }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (!super.equals(obj)) {
+            return false;
+        }
+
+        Banana banana = (Banana) obj;
+        return discount == banana.discount;
+    }
 }

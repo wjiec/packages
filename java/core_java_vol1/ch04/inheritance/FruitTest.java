@@ -14,10 +14,19 @@ public class FruitTest {
 
         Apple lastApple = null;
         for (Fruit fruit : fruits) {
-            System.out.printf("%s: %d * %f = %f\n", fruit.getClass().getName(), fruit.getCount(), fruit.getUnitPrice(), fruit.getTotalPrice());
+            System.out.printf("%s: %d * %f = %f, date = %s\n",
+                fruit.getClass().getName(),
+                fruit.getCount(), fruit.getUnitPrice(), fruit.getTotalPrice(),
+                fruit.getCreateDate()
+            );
 
             Fruit newFruit = fruit.replace();
-            System.out.printf("%s: %d * %f = %f\n", newFruit.getClass().getName(), newFruit.getCount(), newFruit.getUnitPrice(), newFruit.getTotalPrice());
+            System.out.printf("%s: %d * %f = %f, date = %s, equals = %b\n",
+                    newFruit.getClass().getName(),
+                    newFruit.getCount(), newFruit.getUnitPrice(), newFruit.getTotalPrice(),
+                    newFruit.getCreateDate(),
+                    newFruit.equals(fruit)
+            );
 
             if (fruit instanceof Apple) {
                 lastApple = (Apple) fruit;

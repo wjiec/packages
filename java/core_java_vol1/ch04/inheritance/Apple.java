@@ -22,4 +22,14 @@ public class Apple extends Fruit {
     public Fruit replace() {
         return new Apple(this.getUnitPrice(), getCount(), raise);
     }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (!super.equals(obj)) {
+            return false;
+        }
+
+        Apple apple = (Apple) obj;
+        return raise == apple.raise;
+    }
 }
