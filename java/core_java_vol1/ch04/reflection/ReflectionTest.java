@@ -1,7 +1,5 @@
 package reflection;
 
-import com.sun.org.apache.xpath.internal.operations.Mod;
-
 import java.lang.reflect.*;
 import java.util.Scanner;
 
@@ -67,7 +65,12 @@ public class ReflectionTest {
             );
         }
 
-        System.out.printf("%s%s %s(%s);\n", "\t", modifier, executable.getName(), stringPrams);
+        String returnType = "\b";
+        if (executable instanceof Method) {
+            returnType = ((Method) executable).getReturnType().getTypeName();
+        }
+
+        System.out.printf("%s%s %s %s(%s);\n", "\t", modifier, returnType, executable.getName(), stringPrams);
     }
 
     private static void printFields(Field[] fields) {
