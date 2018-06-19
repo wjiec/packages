@@ -1,8 +1,9 @@
 package exceptions;
 
 import java.io.FileInputStream;
-        import java.io.FileNotFoundException;
-        import java.util.Scanner;
+import java.io.FileNotFoundException;
+import java.util.Arrays;
+import java.util.Scanner;
 
 public class ResourceExceptions {
     public static void main(String[] args) {
@@ -11,6 +12,7 @@ public class ResourceExceptions {
                 System.out.println(scanner.nextLine());
             }
         } catch (FileNotFoundException e) {
+            System.out.println(Arrays.toString(e.getSuppressed()));
             e.printStackTrace();
         }
     }
