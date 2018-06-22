@@ -4,21 +4,21 @@ public class PairClass<T, U> {
     private T first;
     private U second;
 
-    private PairClass() {
+    PairClass() {
         this.first = null;
         this.second = null;
     }
 
-    private PairClass(T first, U second) {
+    PairClass(T first, U second) {
         this.first = first;
         this.second = second;
     }
 
-    private T getFirst() {
+    T getFirst() {
         return this.first;
     }
 
-    private U getSecond() {
+    U getSecond() {
         return this.second;
     }
 
