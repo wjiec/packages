@@ -1,0 +1,21 @@
+<h1>Register Page</h1>
+
+<?php echo $this->tag->form('register/register') ?>
+
+    <p>
+        <label for="name">Name: </label>
+        <?php echo $this->tag->textField('name') ?>
+    </p>
+
+    <p>
+        <label for="password">Password: </label>
+        <?php echo $this->tag->passwordField('password') ?>
+    </p>
+
+    <p>
+        <?php echo $this->tag->submitButton('Login') ?>
+    </p>
+
+</form>
+
+<?php echo $this->tag->linkTo('', 'Go Back') ?>

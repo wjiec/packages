@@ -1,0 +1,18 @@
+<h1>Basic MVC structure</h1>
+
+<ul>
+    <?php
+
+    $users = Users::find();
+    foreach ($users as $user) {
+        echo "<li>{$user->name}</li>";
+    }
+
+    ?>
+</ul>
+
+
+<?php
+
+/* @var \Phalcon\Mvc\View $this */
+echo $this->tag->linkTo('register', 'Sign up here!');
