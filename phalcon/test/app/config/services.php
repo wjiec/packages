@@ -7,6 +7,7 @@ use Phalcon\Mvc\View\Engine\Volt as VoltEngine;
 use Phalcon\Mvc\Model\Metadata\Memory as MetaDataAdapter;
 use Phalcon\Session\Adapter\Files as SessionAdapter;
 use Phalcon\Flash\Direct as Flash;
+use Phalcon\Logger\Factory as LoggerFactory;
 
 /**
  * Shared configuration service
@@ -110,4 +111,12 @@ $di->setShared('session', function () {
     $session->start();
 
     return $session;
+});
+
+// logging service
+$di->setShared('logger', function() use ($di) {
+    return LoggerFactory::load(array(
+        'name' => $di->get('config')->application->loggerDir . '/access.log',
+        'adapter' => 'file'
+    ));
 });
