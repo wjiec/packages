@@ -70,6 +70,9 @@ func main() {
 		fmt.Printf("len(slice3) = %d, cap(slice3) = %d\n", len(slice3), cap(slice3))
 	}
 
+	sliceInit := []int {2, 4, 6, 8}
+	fmt.Printf("sliceInit = %v, len(sliceInit) = %d, cap(sliceInit) = %d\n", sliceInit, len(sliceInit), cap(sliceInit))
+
 	// make slice
 	slice4 := make([]int, 16)
 	slice5 := make([]int, 16, 64)
@@ -83,4 +86,14 @@ func main() {
 	// delete
 	slice4 = append(slice4[:3], slice4[4:]...)
 	fmt.Printf("slice4 = %v, len(slice4) = %d, cap(slice4) = %d\n", slice4, len(slice4), cap(slice4))
+
+	// shift
+	front := sliceInit[0]
+	sliceInit = sliceInit[1:]
+	fmt.Printf("front = %d, sliceInit = %d\n", front, sliceInit)
+
+	// pop
+	back := sliceInit[len(sliceInit) - 1]
+	sliceInit = sliceInit[:len(sliceInit) - 1]
+	fmt.Printf("back = %d, sliceInit = %d\n", back, sliceInit)
 }
