@@ -2,6 +2,7 @@ package main
 
 import (
 	"laboys.org/jayson/learn/tree"
+	"laboys.org/jayson/learn/tree_ext"
 )
 
 func main() {
@@ -14,5 +15,7 @@ func main() {
 	root.Right = &tree.Node{Value:2}
 	root.Left.Left = &tree.Node{Value:3}
 	root.Left.Right = &tree.Node{Value:4}
-	tree.InorderTraverse(&root)
+
+	extRoot := tree_ext.Node{Node: &root}
+	extRoot.PostOrder()
 }
