@@ -14,7 +14,7 @@ func toBin(n int) string {
 
 	var result string
 	for ; n > 0; n /= 2 {
-		result = strconv.Itoa(n % 2) + result
+		result = strconv.Itoa(n%2) + result
 	}
 	return result
 }

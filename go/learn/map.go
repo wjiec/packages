@@ -2,13 +2,12 @@ package main
 
 import "fmt"
 
-
 func main() {
 	// map[type_of_key]type_of_value
 	var map0 map[string]string
 	fmt.Printf("map0 = %v, map0 == nil = %v\n", map0, map0 == nil)
 
-	map1 := map[string]string {
+	map1 := map[string]string{
 		"a": "abc",
 		"b": "bcd",
 		"c": "cde",
@@ -16,7 +15,7 @@ func main() {
 	fmt.Printf("map1 = %v, len(map1) = %d\n", map1, len(map1))
 
 	// complex map
-	map2 := map[string]map[int]float64 {
+	map2 := map[string]map[int]float64{
 		"d10": {
 			1: .1,
 			2: .2,

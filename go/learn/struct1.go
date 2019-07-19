@@ -3,7 +3,7 @@ package main
 import "fmt"
 
 type TreeNode struct {
-	value int
+	value       int
 	left, right *TreeNode
 }
 
@@ -12,11 +12,11 @@ func (node TreeNode) print() {
 	fmt.Print(node.value)
 }
 
-func (node TreeNode) setValue1(value int)  {
+func (node TreeNode) setValue1(value int) {
 	node.value = value
 }
 
-func (node *TreeNode) setValue2(value int)  {
+func (node *TreeNode) setValue2(value int) {
 	node.value = value
 }
 
@@ -33,7 +33,7 @@ func main() {
 	//node3.left.left.left.left.left = new(TreeNode)
 	fmt.Println(node3)
 
-	nodes1 := []TreeNode {
+	nodes1 := []TreeNode{
 		{value: 1, left: &node1},
 		{2, nil, &node2},
 		*new(TreeNode),

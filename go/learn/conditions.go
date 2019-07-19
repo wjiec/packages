@@ -17,7 +17,7 @@ func branch1(score int) int {
 
 func branch2(filename string) []byte {
 	if contents, err := ioutil.ReadFile(filename); err != nil {
-		return []byte {0}
+		return []byte{0}
 	} else {
 		return contents
 	}

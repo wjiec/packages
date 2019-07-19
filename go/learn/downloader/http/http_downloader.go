@@ -5,7 +5,7 @@ import (
 	"net/http/httputil"
 )
 
-type Downloader struct {}
+type Downloader struct{}
 
 func (r Downloader) Download(url string) string {
 	resp, err := http.Get(url)
@@ -20,6 +20,3 @@ func (r Downloader) Download(url string) string {
 	}
 	return string(bytes)
 }
-
-
-

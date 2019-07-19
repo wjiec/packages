@@ -10,10 +10,10 @@ func euler() {
 	cc := 3 + 4i
 	fmt.Println(cmplx.Abs(cc))
 
-	zero := cmplx.Pow(math.E, 1i * math.Pi) + 1
+	zero := cmplx.Pow(math.E, 1i*math.Pi) + 1
 	fmt.Println(zero)
 
-	zero1 := cmplx.Exp(1i * math.Pi) + 1
+	zero1 := cmplx.Exp(1i*math.Pi) + 1
 	fmt.Println(zero1)
 	fmt.Printf("%2.3f\n", zero1)
 
@@ -26,7 +26,7 @@ func euler() {
 func explicit() {
 	a, b := 3, 4
 	var c float64 // int
-	c = math.Sqrt(float64(a * a + b * b))
+	c = math.Sqrt(float64(a*a + b*b))
 	//            ^^^^^^
 	fmt.Println(c)
 }

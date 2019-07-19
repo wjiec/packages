@@ -1,6 +1,5 @@
 package alias_ext
 
-
 func (q *Queue) Push(v int) {
 	*q = append(*q, v)
 }
@@ -18,4 +17,3 @@ func (q *Queue) Pop() int {
 func (q *Queue) Empty() bool {
 	return len(*q) == 0
 }
-

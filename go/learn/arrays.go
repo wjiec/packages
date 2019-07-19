@@ -18,13 +18,13 @@ func main() {
 	var array1 [8]int
 	fmt.Println(array1)
 
-	array2 := [3]int { 1, 2, 3 }
+	array2 := [3]int{1, 2, 3}
 	fmt.Println(array2)
 
-	array3 := [...]int { 2, 4, 6, 8, 10 }
+	array3 := [...]int{2, 4, 6, 8, 10}
 	fmt.Println(array3)
 
-	array4 := [...][3]int {{0, 1, 2}, {0, 1, 2}}
+	array4 := [...][3]int{{0, 1, 2}, {0, 1, 2}}
 	fmt.Println(array4)
 
 	// bad
@@ -42,6 +42,5 @@ func main() {
 	for k, v := range array3 {
 		fmt.Println(k, v)
 	}
-
 
 }

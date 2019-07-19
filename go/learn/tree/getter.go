@@ -1,6 +1,5 @@
 package tree
 
-
 func (node *Node) GetValue() int {
 	return node.Value
 }

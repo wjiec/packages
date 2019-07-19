@@ -2,18 +2,18 @@ package main
 
 import "fmt"
 
-func passByView(arr []int)  {
+func passByView(arr []int) {
 	arr[0] = 0xff
 }
 
 func main() {
 	// test failure
 	//autoArray := [1024]int { iota }
-	arr1 := [...]int { 0, 1, 2, 3, 4, 5, 6, 7 }
+	arr1 := [...]int{0, 1, 2, 3, 4, 5, 6, 7}
 	fmt.Println(arr1[2:4]) // [2, 4)
-	fmt.Println(arr1[:4]) // [2, 4)
-	fmt.Println(arr1[2:]) // [2, 4)
-	fmt.Println(arr1[:]) // [2, 4)
+	fmt.Println(arr1[:4])  // [2, 4)
+	fmt.Println(arr1[2:])  // [2, 4)
+	fmt.Println(arr1[:])   // [2, 4)
 
 	s1 := arr1[:]
 	passByView(s1)
@@ -65,12 +65,12 @@ func main() {
 	fmt.Println(slice3, slice3 == nil)
 
 	// append to slice
-	for i:= 0; i < 100; i++ {
+	for i := 0; i < 100; i++ {
 		slice3 = append(slice3, i)
 		fmt.Printf("len(slice3) = %d, cap(slice3) = %d\n", len(slice3), cap(slice3))
 	}
 
-	sliceInit := []int {2, 4, 6, 8}
+	sliceInit := []int{2, 4, 6, 8}
 	fmt.Printf("sliceInit = %v, len(sliceInit) = %d, cap(sliceInit) = %d\n", sliceInit, len(sliceInit), cap(sliceInit))
 
 	// make slice
@@ -93,7 +93,7 @@ func main() {
 	fmt.Printf("front = %d, sliceInit = %d\n", front, sliceInit)
 
 	// pop
-	back := sliceInit[len(sliceInit) - 1]
-	sliceInit = sliceInit[:len(sliceInit) - 1]
+	back := sliceInit[len(sliceInit)-1]
+	sliceInit = sliceInit[:len(sliceInit)-1]
 	fmt.Printf("back = %d, sliceInit = %d\n", back, sliceInit)
 }
