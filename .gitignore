@@ -7,3 +7,7 @@
 
 # Java
 *.class
+
+
+.ipynb_checkpoints
+.idea
