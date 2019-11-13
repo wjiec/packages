@@ -26,7 +26,7 @@ public class Employee {
         this.hireDay = LocalDate.of(year, month, day);
     }
 
-    public String getName() {
+    public final String getName() {
         return name;
     }
 
