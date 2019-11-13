@@ -15,9 +15,17 @@ public class EmployeeCast {
         boss.setBonus(2000);
         System.out.println(staff[0].getSalary());
 
+        // bad
 //        Manager fake = (Manager)staff[1]; // ClassCastException
 //        fake.setBonus(2000);
 //        System.out.println(staff[1].getSalary());
+
+        // good
+        if (staff[1] instanceof Manager) {
+            Manager manager = (Manager)staff[1]; // ClassCastException
+            manager.setBonus(2000);
+            System.out.println(staff[1].getSalary());
+        }
     }
 
 }
