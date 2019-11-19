@@ -29,6 +29,9 @@ public class Array {
         int[] empty = {};
         System.out.println(Arrays.toString(empty));
         System.out.println(empty == null);
+
+//        int[] negIndex = {0, 1, 2, 3};
+//        System.out.println(negIndex[-1]);
     }
 
 }
