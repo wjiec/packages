@@ -1,6 +1,7 @@
 package main.reflection;
 
 import javax.print.DocFlavor;
+import javax.swing.plaf.basic.BasicTreeUI;
 import java.lang.reflect.Array;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
@@ -42,43 +43,16 @@ public class Analyzer {
             }
             return builder.append("}").toString();
         }
-
-        StringBuilder builder = new StringBuilder();
-        builder.append(analysisParent(obj, target, indent, 0));
-//        for (int depth = indent; target != null; target = target.getSuperclass(), depth += 1) {
-//            if (depth != indent) {
-//                builder.append(getIndent(depth - 1)).append("##");
-//            }
-//            builder.append(target.getName()).append("{\n");
-//            for (Field field : target.getDeclaredFields()) {
-//                builder.append(getIndent(depth)).append(field.getName()).append(" := ");
-//
-//                try {
-//                    field.setAccessible(true);
-//                    if (field.getType().isPrimitive()) {
-//                        builder.append(field.get(obj));
-//                    } else {
-//                        builder.append(analysis(field.get(obj), depth + 1));
-//                    }
-//                    builder.append("\n");
-//                } catch (IllegalAccessException ignored) {}
-//            }
-//        }
-
-        return builder.toString();
+        return analysisParent(obj, target, indent, 0);
     }
 
     private String analysisParent(Object obj, Class target, int indent, int depth) {
-        if (target == null) {
-            return "";
-        }
-
         StringBuilder builder = new StringBuilder();
         if (depth != 0) {
             builder.append("\t".repeat(indent + depth)).append("#-");
         }
 
-        builder.append(target.getName()).append("{\n");
+        builder.append(target.getName()).append("{").append(target.getDeclaredFields().length != 0 ? "\n" : "");
         for (Field field : target.getDeclaredFields()) {
             builder.append(getIndent(indent + depth)).append(field.getName()).append(" := ");
 
@@ -89,12 +63,18 @@ public class Analyzer {
                 } else {
                     builder.append(analysis(field.get(obj), indent + depth + 1));
                 }
-                builder.append(getIndent(indent + depth)).append("\n");
+                builder.append("\n");
             } catch (IllegalAccessException ignored) {}
         }
 
-        builder.append(analysisParent(obj, target.getSuperclass(), indent, depth + 1));
-        return builder.append(getIndent(indent + depth - 1)).append("}\n").toString();
+        if (target.getSuperclass() != null) {
+            builder.append(analysisParent(obj, target.getSuperclass(), indent, depth + 1)).append("\n");
+        }
+
+        if (target.getDeclaredFields().length != 0) {
+            builder.append(getIndent(indent + depth - 1));
+        }
+        return builder.append("}").toString();
     }
 
     private String getIndent(int indent) {
