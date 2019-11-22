@@ -1,7 +1,5 @@
 package main.reflection;
 
-import javax.print.DocFlavor;
-import javax.swing.plaf.basic.BasicTreeUI;
 import java.lang.reflect.Array;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
