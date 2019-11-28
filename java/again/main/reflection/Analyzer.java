@@ -64,6 +64,9 @@ public class Analyzer {
                 builder.append("\n");
             } catch (IllegalAccessException ignored) {}
         }
+        if (target.getDeclaredFields().length == 0 && target.getSuperclass() != null) {
+            builder.append("\n");
+        }
 
         if (target.getSuperclass() != null) {
             builder.append(analysisParent(obj, target.getSuperclass(), indent, depth + 1)).append("\n");
