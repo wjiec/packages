@@ -1,0 +1,15 @@
+{
+    "name": "jayson/rabbitmql",
+    "type": "project",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Jayson",
+            "email": "jayson@laboys.org"
+        }
+    ],
+    "require": {
+        "php": ">=7.2",
+        "php-amqplib/php-amqplib": "^2.11"
+    }
+}
