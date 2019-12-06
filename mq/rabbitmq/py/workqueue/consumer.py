@@ -15,7 +15,9 @@ from pika.spec import Basic, BasicProperties
 def consumer(ch: BlockingChannel, method: Basic.Deliver, properties: BasicProperties, body: bytes):
     logging.info('[x] Message {}:{}:<{}> from {} received by Python'.format(
         method.delivery_tag, properties.message_id, body.decode('utf-8'), method.routing_key))
-    for _ in range(int(body.decode('utf-8'))):
+    task_time, uuid = body.decode('utf-8').split(':')
+    print('[:] Task uuid: {}'.format(uuid), end='\t')
+    for _ in range(int(task_time)):
         print('.', end='', flush=True)
         time.sleep(1)
         if random.randint(0, 20) == 1:

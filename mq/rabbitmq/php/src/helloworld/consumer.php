@@ -2,13 +2,14 @@
 /**
  * rabbitmq hello-world
  */
-
-use PhpAmqpLib\Message\AMQPMessage;
-
 require_once __DIR__ . '/../bootstrap.php';
 
 
-$connection = new \PhpAmqpLib\Connection\AMQPStreamConnection(RABBITMQ_MASTER, 5672, 'guest', 'guest');
+use PhpAmqpLib\Connection\AMQPStreamConnection;
+use PhpAmqpLib\Message\AMQPMessage;
+
+
+$connection = new AMQPStreamConnection(RABBITMQ_MASTER, 5672, 'guest', 'guest');
 $channel = $connection->channel();
 
 $channel->queue_declare('hello', false, false, false, false);

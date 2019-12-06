@@ -4,6 +4,7 @@
 #
 import pika
 import time
+import uuid
 import random
 import logging
 from utils.connection import get_durable_connection
@@ -15,7 +16,8 @@ if __name__ == '__main__':
     init_logging(logging.INFO)
     with get_durable_connection(RABBITMQ_MASTER, 'task_queue') as channel:
         while True:
-            body, sleep_time = str(random.randint(1, 5)), random.randint(1, 3)
+            body = str(random.randint(1, 5)) + ':' + str(uuid.uuid4()) + '@python'
+            sleep_time = random.randint(1, 3)
             channel.basic_publish(exchange='',
                                   routing_key='task_queue',
                                   body=body.encode('utf-8'),
