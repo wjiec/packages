@@ -7,14 +7,14 @@ import time
 import uuid
 import random
 import logging
-from utils.connection import get_durable_connection
+from utils.connection import get_durable_queue_connection
 from config import RABBITMQ_MASTER
 from utils.logging import init_logging
 
 
 if __name__ == '__main__':
     init_logging(logging.INFO)
-    with get_durable_connection(RABBITMQ_MASTER, 'task_queue') as channel:
+    with get_durable_queue_connection(RABBITMQ_MASTER, 'task_queue') as channel:
         while True:
             body = str(random.randint(1, 5)) + ':' + str(uuid.uuid4()) + '@python'
             sleep_time = random.randint(1, 3)

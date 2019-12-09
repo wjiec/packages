@@ -5,7 +5,7 @@
 import logging
 from config import RABBITMQ_MASTER
 from utils.logging import init_logging
-from utils.connection import get_connection
+from utils.connection import get_queue_connection
 from pika.adapters.blocking_connection import BlockingChannel
 from pika.spec import Basic, BasicProperties
 
@@ -17,7 +17,7 @@ def consumer(ch: BlockingChannel, method: Basic.Deliver, properties: BasicProper
 
 if __name__ == '__main__':
     init_logging(logging.DEBUG)
-    with get_connection(RABBITMQ_MASTER, 'hello') as channel:
+    with get_queue_connection(RABBITMQ_MASTER, 'hello') as channel:
         channel.basic_consume(queue='hello', on_message_callback=consumer, auto_ack=True)
         logging.info('[*] Waiting for messages')
         channel.start_consuming()
