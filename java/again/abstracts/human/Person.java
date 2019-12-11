@@ -1,5 +1,7 @@
 package abstracts.human;
 
+import main.reflection.Analyzer;
+
 import java.util.Objects;
 
 public abstract class Person {
@@ -30,4 +32,8 @@ public abstract class Person {
         return Objects.equals(name, person.name);
     }
 
+    @Override
+    public String toString() {
+        return new Analyzer().analysis(this);
+    }
 }
