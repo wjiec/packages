@@ -69,9 +69,9 @@ RUN set -ex \
     && rm -rf /tmp/*
 
 RUN set -ex \
-    mkdir -p "${ARIA2_CONFIG}" \
-    mkdir -p "${ARIA2_DOWNLOAD}" \
-    touch "${ARIA2_CONFIG}/aria2.session"
+    && mkdir -p "${ARIA2_CONFIG}" \
+    && mkdir -p "${ARIA2_DOWNLOAD}" \
+    && touch "${ARIA2_CONFIG}/aria2.session"
 
 ENV PATH "${ARIA2_HOME}/bin:${PATH}"
 VOLUME ["/var/aria2"]
@@ -79,4 +79,4 @@ VOLUME ["/var/aria2"]
 EXPOSE 6800
 
 WORKDIR /var/aria2
-CMD ["aria2c --conf-path=${ARIA2_CONFIG}/aria2.config"]
+CMD ["aria2c", "--conf-path=/var/aria2/config/aria2.config"]
