@@ -4,6 +4,8 @@ MAINTAINER Jayson Wang <jayson@laboys.org>
 
 ENV ARIA2_VERSION=1.35.0
 ENV ARIA2_HOME=/usr/local/aria2
+ENV ARIA2_CONFIG=/var/aria2/config
+ENV ARIA2_DOWNLOAD=/var/aria2/download
 
 
 RUN set -ex \
@@ -46,7 +48,7 @@ RUN set -ex \
         --prefix="${ARIA2_HOME}" \
         --with-libuv \
     \
-    && make \
+    && make -j $(nproc) \
     && make install \
     && make clean \
     \
@@ -66,10 +68,15 @@ RUN set -ex \
     && rm -rf /var/cache/apk/* \
     && rm -rf /tmp/*
 
+RUN set -ex \
+    mkdir -p "${ARIA2_CONFIG}" \
+    mkdir -p "${ARIA2_DOWNLOAD}" \
+    touch "${ARIA2_CONFIG}/aria2.session"
+
 ENV PATH "${ARIA2_HOME}/bin:${PATH}"
 VOLUME ["/var/aria2"]
 
 EXPOSE 6800
 
 WORKDIR /var/aria2
-CMD ["aria2c"]
+CMD ["aria2c --conf-path=${ARIA2_CONFIG}/aria2.config"]
