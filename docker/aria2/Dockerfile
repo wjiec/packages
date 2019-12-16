@@ -27,6 +27,7 @@ RUN set -ex \
         linux-headers \
         libuv-dev \
         libxml2-dev \
+        make \
         openssl-dev \
         sqlite-dev \
         zlib-dev \
@@ -43,4 +44,32 @@ RUN set -ex \
     && cd "/usr/src/aria2-${ARIA2_VERSION}" \
     && ./configure \
         --prefix="${ARIA2_HOME}" \
-        --with-libuv
+        --with-libuv \
+    \
+    && make \
+    && make install \
+    && make clean \
+    \
+    && cd "${ARIA2_HOME}" \
+    && rm -rf /usr/src/* \
+    \
+    && { find . -type f -perm +0111 -exec strip --strip-all {} + || true; } \
+    && ARIA2_RUNTIME_DEPS="$( \
+        scanelf --needed --nobanner --format '%n#p' --recursive ${ARIA2_HOME} \
+            | tr ',' '\n' \
+            | sort -u \
+            | awk 'system("[ -e /usr/local/lib" $1 " ]") == 0 { next } { print "so:" $1 }' \
+        )" \
+    && apk add --virtual .nginx-runtime-deps $ARIA2_RUNTIME_DEPS \
+    && apk del .build-deps \
+    \
+    && rm -rf /var/cache/apk/* \
+    && rm -rf /tmp/*
+
+ENV PATH "${ARIA2_HOME}/bin:${PATH}"
+VOLUME ["/var/aria2"]
+
+EXPOSE 6800
+
+WORKDIR /var/aria2
+CMD ["aria2c"]
