@@ -10,19 +10,18 @@ import (
 
 // Assemble represents a assemble-command
 type Assemble struct {
-	name     string
 	output   string
 	password string
 }
 
 // Name returns name of the assemble-command
 func (a *Assemble) Name() string {
-	return a.name
+	return "assemble"
 }
 
 // Synopsis returns a short string (less than one line) describing the command
 func (a *Assemble) Synopsis() string {
-	return "assemble a archive"
+	return "assemble a archive from files"
 }
 
 // SetFlags add flags to commands

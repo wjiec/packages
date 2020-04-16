@@ -10,19 +10,18 @@ import (
 
 // Disassemble represents a disassemble-command
 type Disassemble struct {
-	name     string
 	output   string
 	password string
 }
 
 // Name returns name of the assemble-command
 func (d *Disassemble) Name() string {
-	return d.name
+	return "disassemble"
 }
 
 // Synopsis returns a short string (less than one line) describing the command
 func (d *Disassemble) Synopsis() string {
-	return "assemble a archive"
+	return "disassemble a archive into a directory"
 }
 
 // SetFlags add flags to commands

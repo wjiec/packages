@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"flag"
+	"fmt"
 	"io"
 	"os"
 	"path"
@@ -66,6 +67,7 @@ func (c *CommandLine) Name() string {
 func (c *CommandLine) Execute(ctx context.Context, args ...interface{}) ExitStatus {
 	if c.topFlags.NArg() < 1 {
 		c.topFlags.Usage()
+		c.explain()
 		return ExitUsageError
 	}
 
@@ -74,6 +76,7 @@ func (c *CommandLine) Execute(ctx context.Context, args ...interface{}) ExitStat
 		f := flag.NewFlagSet(name, flag.ContinueOnError)
 		commander.SetFlags(f)
 		if f.Parse(c.topFlags.Args()[1:]) != nil {
+			f.Usage()
 			return ExitUsageError
 		}
 
@@ -86,6 +89,15 @@ func (c *CommandLine) Execute(ctx context.Context, args ...interface{}) ExitStat
 
 	c.topFlags.Usage()
 	return ExitUsageError
+}
+
+// explain explain command-line
+func (c *CommandLine) explain() {
+	_, _ = fmt.Fprintln(c.Error, "commands:")
+	for name, commander := range c.commands {
+		_, _ = fmt.Fprintf(c.Error, "\t%s\t\t: %s\n", name, commander.Synopsis())
+	}
+	_, _ = fmt.Fprintln(c.Error)
 }
 
 // New create a command line
