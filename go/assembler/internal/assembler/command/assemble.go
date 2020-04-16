@@ -1,11 +1,17 @@
 package command
 
 import (
+	"assembler/pkg/aes"
 	"assembler/pkg/commander"
+	"assembler/pkg/gzip"
+	"assembler/pkg/tar"
 	"context"
 	"flag"
 	"fmt"
+	"io"
+	"log"
 	"os"
+	"path"
 )
 
 // Assemble represents a assemble-command
@@ -45,7 +51,48 @@ func (a *Assemble) Execute(ctx context.Context, f *flag.FlagSet, args ...interfa
 		return commander.ExitUsageError
 	}
 
-	fmt.Println(a)
+	file, err := os.Create(a.output)
+	if err != nil {
+		_, _ = fmt.Fprintf(os.Stderr, "unable to create archive: %s", err)
+		return commander.ExitUsageError
+	}
+
+	var reader io.Reader
+
+	archive := tar.New(path.Base(a.output))
+	for _, file := range f.Args() {
+		if err := archive.Add(file, "/"); err != nil {
+			log.Printf("unable to add file: %s\n", err)
+			return commander.ExitFailure
+		}
+	}
+	reader = archive
+
+	gz := gzip.New()
+	if err := archive.WriteTo(gz); err != nil {
+		log.Printf("unable to compress archive: %s\n", err)
+		return commander.ExitFailure
+	}
+	reader = gz
+
+	if len(a.password) != 0 {
+		cipher, err := aes.New(a.password)
+		if err != nil {
+			log.Printf("unable to create cipher: %s\n", err)
+			return commander.ExitFailure
+		}
+
+		if err := gz.WriteTo(cipher); err != nil {
+			log.Printf("unable to encrypted: %s\n", err)
+			return commander.ExitFailure
+		}
+		reader = cipher
+	}
+
+	if _, err := io.Copy(file, reader); err != nil {
+		log.Printf("unable to written: %s\n", err)
+		return commander.ExitFailure
+	}
 
 	return commander.ExitSuccess
 }
