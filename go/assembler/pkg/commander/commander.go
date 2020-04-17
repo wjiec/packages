@@ -65,34 +65,39 @@ func (c *CommandLine) Name() string {
 
 // Execute execute command-line
 func (c *CommandLine) Execute(ctx context.Context, args ...interface{}) ExitStatus {
+	if err := c.topFlags.Parse(os.Args); err != nil {
+		_, _ = fmt.Fprintf(c.Error, "parse flag error: %s\n", err)
+		return ExitUsageError
+	}
+
 	if c.topFlags.NArg() < 1 {
-		c.topFlags.Usage()
 		c.explain()
 		return ExitUsageError
 	}
 
-	name := c.topFlags.Arg(0)
+	name := c.topFlags.Arg(1)
 	if commander, ok := c.commands[name]; ok {
 		f := flag.NewFlagSet(name, flag.ContinueOnError)
 		commander.SetFlags(f)
-		if f.Parse(c.topFlags.Args()[1:]) != nil {
-			f.Usage()
+		if f.Parse(c.topFlags.Args()[2:]) != nil {
+			f.PrintDefaults()
 			return ExitUsageError
 		}
 
 		status := commander.Execute(ctx, f, args...)
 		if status == ExitUsageError {
-			f.Usage()
+			f.PrintDefaults()
 		}
 		return status
 	}
 
-	c.topFlags.Usage()
+	c.explain()
 	return ExitUsageError
 }
 
 // explain explain command-line
 func (c *CommandLine) explain() {
+	c.topFlags.PrintDefaults()
 	_, _ = fmt.Fprintln(c.Error, "commands:")
 	for name, commander := range c.commands {
 		_, _ = fmt.Fprintf(c.Error, "\t%s\t\t: %s\n", name, commander.Synopsis())
