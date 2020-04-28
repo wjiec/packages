@@ -6,18 +6,17 @@ import java.util.stream.Stream;
 
 public class Shower {
 
-    public static <T> int show(String name, Stream<T> s, int size) {
+    public static <T> void show(String name, Stream<T> s, int size) {
         List<T> list = s.limit(size).collect(Collectors.toList());
         System.out.printf("%s: %s\n", name, list);
-        return size;
     }
 
-    public static <T> int show(String name, Stream<T> s) {
-        return show(name, s, 10);
+    public static <T> void show(String name, Stream<T> s) {
+        show(name, s, 10);
     }
 
-    public static <T> int show(Stream<T> s) {
-        return show("-", s);
+    public static <T> void show(Stream<T> s) {
+        show("-", s);
     }
 
 }

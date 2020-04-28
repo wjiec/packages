@@ -7,8 +7,11 @@ import java.util.stream.Stream;
 public class MapperTest {
 
     public static void main(String[] args) {
-        Stream<String> words = Stream.of("中文龍, English dragon");
-        words.map(MapperTest::codePoints).map(Shower::show).count();
+        Stream<String> words = Stream.of("中文龍", "English dragon", "中Java英Core混Volume排II");
+        words.map(MapperTest::codePoints).forEach(Shower::show);
+
+        words = Stream.of("中文龍", "English dragon", "中Java英Core混Volume排II");
+        words.flatMap(MapperTest::codePoints).forEach(System.out::print);
     }
 
     private static Stream<String> codePoints(String s) {
