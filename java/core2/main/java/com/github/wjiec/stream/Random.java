@@ -1,5 +1,7 @@
 package com.github.wjiec.stream;
 
+import com.github.wjiec.human.Person;
+
 import java.util.Optional;
 import java.util.stream.Stream;
 
