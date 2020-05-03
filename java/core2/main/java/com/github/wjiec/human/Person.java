@@ -1,7 +1,6 @@
 package com.github.wjiec.human;
 
 import com.github.wjiec.stream.AliceInWonderLand;
-import com.github.wjiec.stream.Splitter;
 
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Stream;
@@ -42,8 +41,7 @@ public class Person {
     }
 
     public static Stream<Person> random() {
-        return Stream.generate(() -> new Person(Splitter.split(AliceInWonderLand.ReadAsStream())
-            .filter(s -> s.length() != 0)
+        return Stream.generate(() -> new Person(AliceInWonderLand.words(s -> s.length() != 0)
             .findAny().orElse("unknown"), (int)(Math.random() * 100)));
     }
 
