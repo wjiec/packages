@@ -2,6 +2,7 @@ package com.github.wjiec.human;
 
 import com.github.wjiec.stream.AliceInWonderLand;
 
+import java.util.StringJoiner;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Stream;
 
@@ -40,9 +41,17 @@ public class Person {
         return name;
     }
 
+    @Override
+    public String toString() {
+        return new StringJoiner(" - ")
+            .add(String.valueOf(getId()))
+            .add(getName())
+            .add(String.valueOf(getAge()))
+            .toString();
+    }
+
     public static Stream<Person> random() {
-        return Stream.generate(() -> new Person(AliceInWonderLand.words(s -> s.length() != 0)
-            .findAny().orElse("unknown"), (int)(Math.random() * 100)));
+        return AliceInWonderLand.words(s -> s.length() != 0).map((n) -> new Person(n, (int)(Math.random() * 100)));
     }
 
 }
