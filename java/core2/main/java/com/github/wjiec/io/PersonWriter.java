@@ -16,11 +16,9 @@ public class PersonWriter implements Flushable {
     }
 
     public void write(Person person) throws IOException {
+        output.writeInt(person.getName().length());
         output.writeChars(person.getName());
-        output.writeChar(0);
-
         output.writeInt(person.getAge());
-        output.writeChar(0);
     }
 
     @Override

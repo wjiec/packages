@@ -14,13 +14,13 @@ public class PersonReader {
 
     public Person read() throws IOException {
         try {
+            int length = input.readInt();
             StringBuilder name = new StringBuilder();
-            for (char c = input.readChar(); c != 0; c = input.readChar()) {
-                name.append(c);
+            for (var i = 0; i < length; ++i) {
+                name.append(input.readChar());
             }
 
             int age = input.readInt();
-            input.readChar(); // skip 0
             return new Person(name.toString(), age);
         } catch (IOException e) {
             if (e instanceof EOFException) {
