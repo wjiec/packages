@@ -11,6 +11,7 @@ public class ListTest {
         System.out.println(l0.get(0));
         System.out.println(l0.get(50));
         System.out.println(l0.get(99));
+        System.out.println(l0.get(99) == 0);
     }
 
 }

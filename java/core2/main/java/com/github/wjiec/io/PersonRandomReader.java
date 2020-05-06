@@ -4,29 +4,44 @@ import com.github.wjiec.human.Person;
 
 import java.io.IOException;
 import java.io.RandomAccessFile;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 public class PersonRandomReader {
 
     private RandomAccessFile stream;
 
-    private List<Integer> coordinates;
+    private Map<Integer, Integer> coordinates;
 
     public PersonRandomReader(String filename) throws IOException {
         stream = new RandomAccessFile(filename, "r");
-        coordinates = new ArrayList<>((int)(stream.length() / RECORD_AVG_SIZE));
+        coordinates = new HashMap<>();
+        coordinates.put(0, 0);
     }
 
     public Person read(int offset) throws IOException {
         var index = coordinates.get(offset);
-        if (index == 0 && offset != 0) {
+        if (index == null) {
+            int last;
+            for (last = offset - 1; last >= 0; --last) {
+                if (coordinates.get(last) != null) {
+                    break;
+                }
+            }
 
+            for (; last <= offset; ++last) {
+                index = stream.readInt() + 8; // length + age = 8
+                coordinates.put(last + 1, index);
+                stream.seek(index);
+            }
         }
+        stream.seek(index);
 
-        return null;
+        int length = stream.readInt();
+        StringBuilder builder = new StringBuilder();
+        for (int i = 0; i < length; ++i) {
+            builder.append(stream.readChar());
+        }
+        return new Person(builder.toString(), stream.readInt());
     }
-
-    private final int RECORD_AVG_SIZE = 16;
 
 }
