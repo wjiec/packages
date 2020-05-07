@@ -6,7 +6,7 @@ import java.util.StringJoiner;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Stream;
 
-public class Person {
+public class Person implements Human {
 
     private int id;
 
