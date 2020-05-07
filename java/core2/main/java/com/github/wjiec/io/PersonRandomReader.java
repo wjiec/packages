@@ -14,27 +14,29 @@ public class PersonRandomReader {
 
     public PersonRandomReader(String filename) throws IOException {
         stream = new RandomAccessFile(filename, "r");
-        coordinates = new HashMap<>();
-        coordinates.put(0, 0);
+        coordinates = new HashMap<>() {{ put(0, 0); }};
     }
 
     public Person read(int offset) throws IOException {
-        var index = coordinates.get(offset);
+        Integer index = coordinates.get(offset);
         if (index == null) {
-            int last;
-            for (last = offset - 1; last >= 0; --last) {
-                if (coordinates.get(last) != null) {
-                    break;
-                }
+            int last = offset - 1;
+            index = coordinates.get(last);
+            while (index == null) {
+                --last;
+                index = coordinates.get(last);
             }
 
-            for (; last <= offset; ++last) {
-                index = stream.readInt() + 8; // length + age = 8
-                coordinates.put(last + 1, index);
+            stream.seek(index);
+            do {
+                index += stream.readInt() * 2 + 8; // skip length + age
+                if (index >= stream.length()) {
+                    return null;
+                }
+                coordinates.put(++last, index);
                 stream.seek(index);
-            }
+            } while (last < offset);
         }
-        stream.seek(index);
 
         int length = stream.readInt();
         StringBuilder builder = new StringBuilder();
