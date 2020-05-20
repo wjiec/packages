@@ -10,4 +10,10 @@ public class Builder {
         return DocumentBuilderFactory.newInstance().newDocumentBuilder();
     }
 
+    public static DocumentBuilder validator(boolean validate) throws ParserConfigurationException {
+        DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+        factory.setValidating(true);
+        return factory.newDocumentBuilder();
+    }
+
 }

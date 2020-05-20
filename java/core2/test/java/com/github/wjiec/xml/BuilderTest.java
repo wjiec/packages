@@ -9,10 +9,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URISyntaxException;
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.regex.Pattern;
-import java.util.stream.Collectors;
 
 public class BuilderTest {
 
@@ -29,6 +26,22 @@ public class BuilderTest {
         try {
             File file = Books.asFile();
             DocumentBuilder builder = Builder.simple();
+            doSomething(builder.parse(file));
+        } catch (IOException | SAXException | URISyntaxException e) {
+            e.printStackTrace();
+        }
+
+        try {
+            File file = Books.asFile();
+            DocumentBuilder builder = Builder.validator(true);
+            doSomething(builder.parse(file));
+        } catch (IOException | SAXException | URISyntaxException e) {
+            e.printStackTrace();
+        }
+
+        try {
+            File file = Books.asFile();
+            DocumentBuilder builder = Builder.validator(false);
             doSomething(builder.parse(file));
         } catch (IOException | SAXException | URISyntaxException e) {
             e.printStackTrace();
