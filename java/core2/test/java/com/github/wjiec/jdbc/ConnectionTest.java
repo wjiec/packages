@@ -1,0 +1,38 @@
+package com.github.wjiec.jdbc;
+
+import java.lang.reflect.InvocationTargetException;
+import java.sql.*;
+import java.util.Arrays;
+
+public class ConnectionTest {
+
+    public static void main(String[] args) throws SQLException {
+        Connection connection = Connections.get();
+        System.out.println(connection);
+        System.out.println(connection.getClientInfo());
+        DatabaseMetaData metadata = connection.getMetaData();
+
+        Arrays.stream(metadata.getClass().getMethods()).forEach((m) -> {
+            try {
+                System.out.printf("%s: %s\n", m.getName(), m.invoke(metadata));
+            } catch (Exception ignored) {
+                System.out.printf("%s: NEED PARAMETERS\n", m.getName());
+            }
+        });
+
+        try (Statement statement = connection.createStatement()) {
+            statement.execute("create table tablename (message varchar(255));");
+            statement.execute("insert into tablename values('a'), ('b'), ('c');");
+
+            try (ResultSet result = statement.executeQuery("select * from tablename;")) {
+                while (result.next()) {
+                    System.out.println(result.getString(1));
+                }
+            }
+
+            statement.executeUpdate("drop table tablename;");
+        }
+
+    }
+
+}
