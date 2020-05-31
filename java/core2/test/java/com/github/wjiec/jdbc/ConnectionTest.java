@@ -21,16 +21,17 @@ public class ConnectionTest {
         });
 
         try (Statement statement = connection.createStatement()) {
-            statement.execute("create table tablename (message varchar(255));");
-            statement.execute("insert into tablename values('a'), ('b'), ('c');");
+            statement.execute("create table tablename (name varchar(255), age int);");
+            statement.execute("insert into tablename values('a', 1), ('b', 2), ('c', 3);");
 
             try (ResultSet result = statement.executeQuery("select * from tablename;")) {
                 while (result.next()) {
                     System.out.println(result.getString(1));
+                    System.out.println(result.getInt(2));
                 }
             }
 
-            statement.executeUpdate("drop table tablename;");
+            System.out.println(statement.executeUpdate("drop table tablename;"));
         }
 
     }
