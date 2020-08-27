@@ -6,6 +6,7 @@ import org.springframework.boot.autoconfigure.jdbc.JdbcTemplateAutoConfiguration
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.context.support.PropertySourcesPlaceholderConfigurer;
 import org.springframework.core.io.ClassPathResource;
+import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.lang.NonNull;
 
@@ -33,6 +34,8 @@ public class BoilerPlateCodeApplication {
 
         System.out.println(simple(context.getBean(DataSource.class)));
         System.out.println(boilerPlate(context.getBean(JdbcTemplate.class)));
+        System.out.println(boilerPlateUsername(context.getBean(JdbcTemplate.class)));
+        System.out.println(boilerPlateBeanRowMapper(context.getBean(JdbcTemplate.class)));
     }
 
     private static List<User> simple(@NonNull DataSource dataSource) {
@@ -76,14 +79,19 @@ public class BoilerPlateCodeApplication {
     }
 
     private static List<User> boilerPlate(@NonNull JdbcTemplate jdbcTemplate) {
-        List<User> users = new LinkedList<>();
-        jdbcTemplate.query("select * from users;", (rs, i) -> users.add(User.builder()
+        return jdbcTemplate.query("select * from users;", (rs, i) -> User.builder()
             .id(rs.getLong(1))
             .username(rs.getString(2))
             .password(rs.getString(3))
-            .build()));
+            .build());
+    }
 
-        return users;
+    private static List<String> boilerPlateUsername(@NonNull JdbcTemplate jdbcTemplate) {
+        return jdbcTemplate.queryForList("select username from users;", String.class);
+    }
+
+    private static List<User> boilerPlateBeanRowMapper(@NonNull JdbcTemplate jdbcTemplate) {
+        return jdbcTemplate.query("select * from users;", new BeanPropertyRowMapper<>(User.class));
     }
 
 }
