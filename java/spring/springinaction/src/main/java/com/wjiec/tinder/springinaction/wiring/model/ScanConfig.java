@@ -1,7 +1,9 @@
 package com.wjiec.tinder.springinaction.wiring.model;
 
+import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 
 @Configuration
-public interface ModelConfig {
+@ComponentScan
+public interface ScanConfig {
 }

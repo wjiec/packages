@@ -1,18 +1,27 @@
 package com.wjiec.tinder.springinaction.di.wirng;
 
-import com.wjiec.tinder.springinaction.wiring.model.player.MediaPlayer;
+import com.wjiec.tinder.springinaction.wiring.model.ScanConfig;
+import com.wjiec.tinder.springinaction.wiring.model.player.CDPlayer;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 
-@SpringBootTest
-public class CDPlayerTest {
+@ExtendWith(SpringExtension.class)
+@ContextConfiguration(classes = ScanConfig.class)
+class CDPlayerTest {
 
     @Autowired
-    private MediaPlayer player;
+    private CDPlayer player;
 
     @Test
-    public void cdShouldNotBeNUll() {
+    void contextLoads() {}
+
+    @Test
+    void cdShouldNotBeNUll() {
+        Assertions.assertNotNull(player);
     }
 
 }
