@@ -1,5 +1,10 @@
 package com.wjiec.tinder.springinaction.wiring.wireway;
 
+import com.wjiec.tinder.springinaction.wiring.model.admin.Admin;
+import com.wjiec.tinder.springinaction.wiring.model.admin.SuperMan;
+import com.wjiec.tinder.springinaction.wiring.model.draw.Palette;
+import com.wjiec.tinder.springinaction.wiring.model.food.Food;
+import com.wjiec.tinder.springinaction.wiring.model.food.Meat;
 import com.wjiec.tinder.springinaction.wiring.model.media.CompactDisc;
 import com.wjiec.tinder.springinaction.wiring.model.media.SgtPeppers;
 import com.wjiec.tinder.springinaction.wiring.model.player.CDPlayer;
@@ -18,6 +23,15 @@ public class XmlWiringApplication {
         System.out.println(context.getBean(SgtPeppers.class));
         System.out.println(context.getBean(MediaPlayer.class));
         System.out.println(context.getBean(CDPlayer.class));
+        System.out.println(context.getBean(SuperMan.class));
+        context.getBean(SuperMan.class).dance();
+
+        System.out.println(context.getBean(Meat.class));
+        System.out.println(context.getBean(Food.class));
+
+        System.out.println(context.getBean(Palette.class));
+        System.out.println(context.getBean(Palette.class).getColors());
+        System.out.println(context.getBean(Palette.class).getPrimaryColors());
     }
 
 }
