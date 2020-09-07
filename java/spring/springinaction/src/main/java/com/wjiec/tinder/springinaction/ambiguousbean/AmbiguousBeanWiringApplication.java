@@ -1,7 +1,6 @@
 package com.wjiec.tinder.springinaction.ambiguousbean;
 
 import com.wjiec.tinder.springinaction.ambiguousbean.annotation.Fluffy;
-import com.wjiec.tinder.springinaction.ambiguousbean.annotation.Soft;
 import com.wjiec.tinder.springinaction.ambiguousbean.dessert.Dessert;
 import com.wjiec.tinder.springinaction.ambiguousbean.fruit.Fruit;
 import lombok.extern.slf4j.Slf4j;
