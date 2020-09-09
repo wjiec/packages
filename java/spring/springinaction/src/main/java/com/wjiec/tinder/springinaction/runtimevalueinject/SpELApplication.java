@@ -2,11 +2,9 @@ package com.wjiec.tinder.springinaction.runtimevalueinject;
 
 import com.wjiec.tinder.springinaction.runtimevalueinject.spel.Literal;
 import org.springframework.context.annotation.*;
-import org.springframework.expression.spel.SpelParserConfiguration;
-import org.springframework.expression.spel.standard.SpelExpressionParser;
 
 @Configuration
-@ComponentScan
+@ComponentScan(lazyInit = true)
 @PropertySource("classpath:/runtimevalueinject/spel.properties")
 public class SpELApplication {
 
@@ -15,13 +13,11 @@ public class SpELApplication {
         context.register(SpELApplication.class);
         context.refresh();
 
-        System.out.println(context.getBean(Literal.class));
-    }
+        for (var s : context.getEnvironment().getPropertySources()) {
+            System.out.println(s);
+        }
 
-    @Bean
-    public SpelExpressionParser spelExpressionParser() {
-        SpelParserConfiguration configuration = new SpelParserConfiguration(true, true);
-        return new SpelExpressionParser(configuration);
+        System.out.println(context.getBean(Literal.class));
     }
 
 }

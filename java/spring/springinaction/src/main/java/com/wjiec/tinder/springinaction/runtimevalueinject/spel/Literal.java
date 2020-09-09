@@ -15,10 +15,10 @@ public class Literal {
     private boolean bool;
     private String s;
 
-    public Literal(@Value("#{systemProperties('spel.start')}") int start,
-                   @Value("#{systemProperties('spel.end')}") Integer end,
-                   @Value("#{systemProperties('spel.tips')}") String tips,
-                   @Value("#{1})}") int number,
+    public Literal(@Value("#{systemProperties['range.start']}") int start,
+                   @Value("#{systemProperties['range.end']}") int end,
+                   @Value("#{systemProperties['range.alert']}") String tips,
+                   @Value("#{1}") int number,
                    @Value("#{true}") boolean bool,
                    @Value("#{'string'}") String s) {
         this.start = start;
