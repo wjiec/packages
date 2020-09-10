@@ -1,8 +1,10 @@
 package com.wjiec.tinder.springinaction.ambiguousbean;
 
-import com.wjiec.tinder.springinaction.ambiguousbean.annotation.Fluffy;
+import com.wjiec.tinder.springinaction.ambiguousbean.annotation.Crispy;
+import com.wjiec.tinder.springinaction.ambiguousbean.annotation.Hot;
 import com.wjiec.tinder.springinaction.ambiguousbean.dessert.Dessert;
 import com.wjiec.tinder.springinaction.ambiguousbean.fruit.Fruit;
+import com.wjiec.tinder.springinaction.ambiguousbean.staple.Staple;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -45,9 +47,10 @@ public class AmbiguousBeanWiringApplication {
     @Component
     private static class CustomAnnotationWiring {
         @Autowired
-        @Fluffy
-        public void setDessert(Dessert dessert) {
-            log.info(dessert.toString());
+        @Hot
+        @Crispy
+        public void setStaple(Staple staple) {
+            log.info(staple.toString());
         }
     }
 

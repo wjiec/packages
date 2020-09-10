@@ -15,9 +15,9 @@ public class Literal {
     private boolean bool;
     private String s;
 
-    public Literal(@Value("#{systemProperties['range.start']}") int start,
-                   @Value("#{systemProperties['range.end']}") int end,
-                   @Value("#{systemProperties['range.alert']}") String tips,
+    public Literal(@Value("${spel.start}") int start,
+                   @Value("${spel.end}") int end,
+                   @Value("${spel.tips}") String tips,
                    @Value("#{1}") int number,
                    @Value("#{true}") boolean bool,
                    @Value("#{'string'}") String s) {
