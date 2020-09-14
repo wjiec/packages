@@ -1,5 +1,6 @@
 package com.wjiec.tinder.springinaction.moreaop;
 
+import com.wjiec.tinder.springinaction.moreaop.encore.Encoreable;
 import com.wjiec.tinder.springinaction.moreaop.performance.Concert;
 import com.wjiec.tinder.springinaction.moreaop.performance.Movie;
 import com.wjiec.tinder.springinaction.moreaop.performance.Performance;
@@ -29,6 +30,14 @@ public class AnnotationAopApplication {
         System.out.println();
         Performance movie = (Performance) context.getBean("movie");
         movie.perform();
+
+        System.out.println();
+        Encoreable encoreConcert = (Encoreable) context.getBean("concert");
+        encoreConcert.performEncore("concert", 10);
+
+        System.out.println();
+        Encoreable encoreMovie = (Encoreable) context.getBean("movie");
+        encoreMovie.performEncore("movie", 20);
     }
 
 }

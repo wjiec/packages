@@ -1,5 +1,6 @@
 package com.wjiec.tinder.springinaction.moreaop.audience;
 
+import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.*;
 import org.springframework.stereotype.Service;
 
@@ -12,6 +13,9 @@ public class Audience {
 
     @Pointcut("execution(* com.wjiec.tinder.springinaction.moreaop.performance.Performance.perform(..)) && bean(movie)")
     public void performanceMovie() {}
+
+    @Pointcut("execution(* com.wjiec.tinder.springinaction.moreaop.performance.Performance.perform()) && bean(concert)")
+    public void performanceConcert() {}
 
     @Before("performance()")
     public void silenceMobile() {
@@ -41,6 +45,20 @@ public class Audience {
     @After("performance()")
     public void goHome() {
         System.out.println(">> Go home");
+    }
+
+    @Around("performanceConcert()")
+    public void watchPerformance(ProceedingJoinPoint point) {
+        try {
+            System.out.println("-- Around start");
+            point.proceed();
+            System.out.println("-- Around success");
+        } catch (Throwable e) {
+            e.printStackTrace();
+            System.out.println("-- Around failure");
+        }
+
+        System.out.println("-- Around end");
     }
 
 }
