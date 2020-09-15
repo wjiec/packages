@@ -2,24 +2,14 @@ package com.wjiec.tinder.springinaction.moreaop;
 
 import com.wjiec.tinder.springinaction.moreaop.encore.Encoreable;
 import com.wjiec.tinder.springinaction.moreaop.performance.Performance;
-import org.springframework.context.annotation.AnnotationConfigApplicationContext;
-import org.springframework.context.annotation.ComponentScan;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.EnableAspectJAutoProxy;
+import org.springframework.context.support.ClassPathXmlApplicationContext;
 
-@Configuration
-@ComponentScan
-@EnableAspectJAutoProxy
-public class AnnotationAopApplication {
+public class XmlAopApplication {
 
     public static void main(String[] args) {
-        AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext();
-        context.register(AnnotationAopApplication.class);
+        ClassPathXmlApplicationContext context = new ClassPathXmlApplicationContext();
+        context.setConfigLocation("classpath:/moreaop/performance-aop.xml");
         context.refresh();
-
-        for (var name : context.getBeanDefinitionNames()) {
-            System.out.printf("%s\n\t%s\n", name, context.getBean(name).getClass().getName());
-        }
 
         System.out.println();
         Performance concert = (Performance) context.getBean("concert");

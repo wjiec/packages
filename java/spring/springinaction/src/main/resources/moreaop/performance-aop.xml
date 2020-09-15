@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:aop="http://www.springframework.org/schema/aop"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd http://www.springframework.org/schema/aop https://www.springframework.org/schema/aop/spring-aop.xsd">
+
+    <bean class="com.wjiec.tinder.springinaction.moreaop.performance.Movie" id="movie"/>
+    <bean class="com.wjiec.tinder.springinaction.moreaop.performance.Concert" id="concert"/>
+    <bean class="com.wjiec.tinder.springinaction.moreaop.audience.Audience" id="audience"/>
+    <bean class="com.wjiec.tinder.springinaction.moreaop.encore.EncoreAspect" id="encoreAspect"/>
+    <bean class="com.wjiec.tinder.springinaction.moreaop.encore.DefaultEncoreableImpl" id="defaultEncoreable"/>
+
+<!--    <aop:aspectj-autoproxy/>-->
+    <aop:config>
+        <aop:pointcut id="performance" expression="execution(* com.wjiec.tinder.springinaction.moreaop.performance.Performance.perform(..))"/>
+
+        <aop:aspect ref="audience">
+            <aop:before method="takSeats" pointcut-ref="performance"/>
+            <aop:before method="silenceMobile" pointcut-ref="performance"/>
+            <aop:after-returning method="applause" pointcut-ref="performance"/>
+            <aop:after-throwing method="demandRefund" pointcut-ref="performance"/>
+            <aop:after method="goHome" pointcut-ref="performance"/>
+
+            <aop:pointcut id="performanceMovie"
+                          expression="execution(* com.wjiec.tinder.springinaction.moreaop.performance.Performance.perform(..)) and bean(movie)"/>
+            <aop:before method="wearGlasses" pointcut-ref="performanceMovie"/>
+
+            <aop:around method="watchPerformance"
+                        pointcut="execution(* com.wjiec.tinder.springinaction.moreaop.performance.Performance.perform(..)) and bean(concert)"/>
+        </aop:aspect>
+
+        <aop:aspect ref="encoreAspect">
+            <aop:declare-parents types-matching="com.wjiec.tinder.springinaction.moreaop.performance.Performance+"
+                                 implement-interface="com.wjiec.tinder.springinaction.moreaop.encore.Encoreable"
+                                 default-impl="com.wjiec.tinder.springinaction.moreaop.encore.DefaultEncoreableImpl"/>
+            <aop:before method="performanceEncore"
+                        pointcut="execution(* com.wjiec.tinder.springinaction.moreaop.encore.Encoreable.performEncore(String, int)) and args(name, count)"/>
+        </aop:aspect>
+    </aop:config>
+
+</beans>
