@@ -1,5 +1,7 @@
-package com.wjiec.tinder.springinaction.spittr.config;
+package com.wjiec.tinder.springinaction.spittr;
 
+import com.wjiec.tinder.springinaction.spittr.config.RootConfig;
+import com.wjiec.tinder.springinaction.spittr.config.WebConfig;
 import org.springframework.web.servlet.support.AbstractAnnotationConfigDispatcherServletInitializer;
 
 public class SpittrWebAppInitializer extends AbstractAnnotationConfigDispatcherServletInitializer {
