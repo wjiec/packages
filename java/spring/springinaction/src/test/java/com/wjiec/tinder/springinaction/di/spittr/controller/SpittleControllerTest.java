@@ -23,7 +23,8 @@ class SpittleControllerTest {
         List<Spittle> spittles = new ArrayList<>();
         for (int i = 0; i < 20; i++) {
             spittles.add(Spittle.builder()
-                .id(i).name("Spittle-" + i)
+                .id(i)
+                .content("Spittle-" + i)
                 .createdAt(new Date())
                 .latitude(Math.random())
                 .longitude(Math.random())
@@ -43,6 +44,23 @@ class SpittleControllerTest {
             .andExpect(MockMvcResultMatchers.model().attributeExists("spittleList"))
             .andExpect(MockMvcResultMatchers.model().attribute("spittleList",
                 Matchers.hasItems(spittles.toArray())));
+    }
+
+    @Test
+    void testSpittle() throws Exception {
+        Spittle spittle = Spittle.builder().id(12345).content("Spittlr-12345").build();
+        SpittleRepository mockRepository = Mockito.mock(SpittleRepository.class);
+        Mockito.when(mockRepository.findOne(12345)).thenReturn(spittle);
+
+        SpittleController controller = new SpittleController(mockRepository);
+        MockMvc mockMvc = MockMvcBuilders.standaloneSetup(controller)
+            .setSingleView(new InternalResourceView("/WEB-INF/views/spittle.jsp"))
+            .build();
+
+        mockMvc.perform(MockMvcRequestBuilders.get("/spittle/12345"))
+            .andExpect(MockMvcResultMatchers.view().name("spittle"))
+            .andExpect(MockMvcResultMatchers.model().attributeExists("spittle"))
+            .andExpect(MockMvcResultMatchers.model().attribute("spittle", spittle));
     }
 
 }

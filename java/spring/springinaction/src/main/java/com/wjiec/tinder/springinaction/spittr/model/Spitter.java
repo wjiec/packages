@@ -11,12 +11,11 @@ import java.util.Date;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class Spittle {
+public class Spitter {
 
     private long id;
-    private String content;
+    private String username;
+    private String password;
     private Date createdAt;
-    private double latitude;
-    private double longitude;
 
 }
