@@ -1,0 +1,145 @@
+//
+// Source code recreated from a .class file by IntelliJ IDEA
+// (powered by Fernflower decompiler)
+//
+
+package com.wjiec.tinder.springinaction.lombok.constructor;
+
+public class LomokConstructorDecompile {
+    public LomokConstructorDecompile() {
+    }
+
+    public static void main(String[] args) {
+        System.out.println(LomokConstructorDecompile.BuilderObject.builder().build());
+        System.out.println(new LomokConstructorDecompile.NoArgsConstructorObject());
+        System.out.println(new LomokConstructorDecompile.AllArgsConstructorObject(-1L, "--"));
+    }
+
+    static class AllArgsConstructorObject {
+        private long id;
+        private String name;
+
+        public AllArgsConstructorObject(final long id, final String name) {
+            this.id = id;
+            this.name = name;
+        }
+    }
+
+    static class NoArgsConstructorObject {
+        private long id;
+        private String name;
+
+        public NoArgsConstructorObject() {
+        }
+    }
+
+    static class BuilderObject {
+        private long id;
+        private String name;
+
+        BuilderObject(final long id, final String name) {
+            this.id = id;
+            this.name = name;
+        }
+
+        public static LomokConstructorDecompile.BuilderObject.BuilderObjectBuilder builder() {
+            return new LomokConstructorDecompile.BuilderObject.BuilderObjectBuilder();
+        }
+
+        public static class BuilderObjectBuilder {
+            private long id;
+            private String name;
+
+            BuilderObjectBuilder() {
+            }
+
+            public LomokConstructorDecompile.BuilderObject.BuilderObjectBuilder id(final long id) {
+                this.id = id;
+                return this;
+            }
+
+            public LomokConstructorDecompile.BuilderObject.BuilderObjectBuilder name(final String name) {
+                this.name = name;
+                return this;
+            }
+
+            public LomokConstructorDecompile.BuilderObject build() {
+                return new LomokConstructorDecompile.BuilderObject(this.id, this.name);
+            }
+
+            public String toString() {
+                return "LomokConstructorDecompile.BuilderObject.BuilderObjectBuilder(id=" + this.id + ", name=" + this.name + ")";
+            }
+        }
+    }
+
+    static class DataObject {
+        private long id;
+        private String name;
+
+        public DataObject() {
+        }
+
+        public long getId() {
+            return this.id;
+        }
+
+        public String getName() {
+            return this.name;
+        }
+
+        public void setId(final long id) {
+            this.id = id;
+        }
+
+        public void setName(final String name) {
+            this.name = name;
+        }
+
+        public boolean equals(final Object o) {
+            if (o == this) {
+                return true;
+            } else if (!(o instanceof LomokConstructorDecompile.DataObject)) {
+                return false;
+            } else {
+                LomokConstructorDecompile.DataObject other = (LomokConstructorDecompile.DataObject)o;
+                if (!other.canEqual(this)) {
+                    return false;
+                } else if (this.getId() != other.getId()) {
+                    return false;
+                } else {
+                    Object this$name = this.getName();
+                    Object other$name = other.getName();
+                    if (this$name == null) {
+                        if (other$name != null) {
+                            return false;
+                        }
+                    } else if (!this$name.equals(other$name)) {
+                        return false;
+                    }
+
+                    return true;
+                }
+            }
+        }
+
+        protected boolean canEqual(final Object other) {
+            return other instanceof LomokConstructorDecompile.DataObject;
+        }
+
+        public int hashCode() {
+            int PRIME = true;
+            int result = 1;
+            long $id = this.getId();
+            int result = result * 59 + (int)($id >>> 32 ^ $id);
+            Object $name = this.getName();
+            result = result * 59 + ($name == null ? 43 : $name.hashCode());
+            return result;
+        }
+
+        public String toString() {
+            long var10000 = this.getId();
+            return "LomokConstructorDecompile.DataObject(id=" + var10000 + ", name=" + this.getName() + ")";
+        }
+    }
+}
