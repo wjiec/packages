@@ -12,8 +12,6 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 
-import javax.validation.Valid;
-
 @Controller
 @RequestMapping("/spitter")
 public class SpitterController {
@@ -26,7 +24,8 @@ public class SpitterController {
     }
 
     @RequestMapping(value = "/register", method = RequestMethod.GET)
-    public String registerForm() {
+    public String registerForm(Model model) {
+        model.addAttribute("spitterDTO", new SpitterDTO());
         return "registerForm";
     }
 

@@ -1,4 +1,5 @@
 <%@ taglib uri="http://www.springframework.org/tags" prefix="c" %>
+<%@ taglib prefix="sp" uri="http://www.springframework.org/tags/form" %>
 <%@ page session="false" %>
 <!doctype html>
 <html lang="en">
@@ -10,17 +11,20 @@
     <link rel="stylesheet" href="<c:url value="/style/style.css"/>">
 </head>
 <body>
-<form method="post">
+<%--@elvariable id="spitterDTO" type="com.wjiec.tinder.springinaction.spittr.dto.SpitterDTO"--%>
+<sp:form modelAttribute="spitterDTO" method="post">
     <div class="control-item">
-        <label for="username">Username</label>
+        <sp:label path="username">Username</sp:label>
         <div class="control-content">
-            <input type="text" id="username" name="username">
+            <sp:input path="username" cssErrorClass="error-control"/>
+            <sp:errors path="username" cssClass="error-message" />
         </div>
     </div>
     <div class="control-item">
-        <label for="password">Password</label>
+        <sp:label path="password">Password</sp:label>
         <div class="control-content">
-            <input type="text" id="password" name="password">
+            <sp:password path="password" cssErrorClass="error-control"/>
+            <sp:errors path="password" cssClass="error-message" />
         </div>
     </div>
     <div class="control-item">
@@ -28,6 +32,6 @@
             <button class="submit">Submit</button>
         </div>
     </div>
-</form>
+</sp:form>
 </body>
 </html>

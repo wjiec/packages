@@ -1,3 +1,12 @@
 body {
     margin: 0;
 }
+
+.error-control {
+    border: 1px solid #ffcccc;
+}
+
+.error-message {
+    color: red;
+    background: #ffcccc;
+}

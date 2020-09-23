@@ -17,12 +17,12 @@ public class SpitterDTO {
 
     @NotNull
     @NotBlank
-    @Size(min = 5, max = 16)
+    @Size(min = 5, max = 16, message = "{username.message}")
     private String username;
 
     @NotNull
     @NotBlank
-    @Size(min = 6, max = 18)
+    @Size(min = 6, max = 18, message = "{password.message}")
     private String password;
 
 }
