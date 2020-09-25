@@ -1,0 +1,20 @@
+<!doctype html>
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Home | Spittr</title>
+    <link rel="stylesheet" th:href="@{/style/style.css}">
+</head>
+<body>
+
+<h1 th:text="#{spittr.welcome}">Welcome</h1>
+
+<div>
+    <a th:href="@{/spittles}">Spittles</a> |
+    <a th:href="@{/spitter/register}">Register</a>
+</div>
+
+</body>
+</html>

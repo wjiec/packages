@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Home | Spittr</title>
+    <link rel="stylesheet" th:href="@{/style/style.css}">
+</head>
+<body>
+
+<!--/*@thymesVar id="spitterDTO" type="com.wjiec.tinder.springinaction.spittr.dto.SpitterDTO"*/-->
+<form method="post" th:object="${spitterDTO}">
+    <div class="errors" th:if="${#fields.hasErrors()}">
+        <ul>
+            <li th:each="err : ${#fields.errors()}" th:text="${err}">Input is incorrect</li>
+        </ul>
+    </div>
+
+    <div class="control-item">
+        <label th:field="*{username}">Username</label>
+        <div class="control-content">
+            <input th:field="*{username}" th:class="${#fields.hasErrors('username')}? 'error-control'"/>
+        </div>
+    </div>
+    <div class="control-item">
+        <label th:field="password">Password</label>
+        <div class="control-content">
+            <input type="password" th:field="*{password}" th:class="${#fields.hasErrors('password')}? 'error-control'">
+        </div>
+    </div>
+    <div class="control-item">
+        <div class="control-content">
+            <button class="submit">Submit</button>
+        </div>
+    </div>
+</form>
+
+</body>
+</html>

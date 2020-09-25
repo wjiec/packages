@@ -7,13 +7,16 @@ import org.springframework.web.servlet.ViewResolver;
 import org.springframework.web.servlet.config.annotation.DefaultServletHandlerConfigurer;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
+import org.springframework.web.servlet.view.InternalResourceViewResolver;
 import org.springframework.web.servlet.view.JstlView;
 import org.springframework.web.servlet.view.tiles3.TilesConfigurer;
 import org.springframework.web.servlet.view.tiles3.TilesViewResolver;
+import org.thymeleaf.spring5.SpringTemplateEngine;
+import org.thymeleaf.spring5.view.ThymeleafViewResolver;
+import org.thymeleaf.templateresolver.ITemplateResolver;
+import org.thymeleaf.templateresolver.ServletContextTemplateResolver;
 
-import java.io.IOException;
-import java.util.Arrays;
-import java.util.Locale;
+import javax.servlet.ServletContext;
 
 @Configuration
 @EnableWebMvc
@@ -26,33 +29,60 @@ public class WebConfig implements WebMvcConfigurer {
         configurer.enable();
     }
 
-//    @Bean
-//    public ViewResolver viewResolver() {
-//        InternalResourceViewResolver viewResolver = new InternalResourceViewResolver();
-//        viewResolver.setPrefix("/WEB-INF/views/");
-//        viewResolver.setSuffix(".jsp");
-//        viewResolver.setExposeContextBeansAsAttributes(true);
-//        viewResolver.setViewClass(JstlView.class);
-//
-//        return viewResolver;
-//    }
+    /* jsp view */
 
     @Bean
-    public ViewResolver viewResolver() {
-        TilesViewResolver viewResolver = new TilesViewResolver();
-        viewResolver.setPrefix("/WEB-INF/tiles");
+    public ViewResolver jspViewResolver() {
+        InternalResourceViewResolver viewResolver = new InternalResourceViewResolver();
+        viewResolver.setPrefix("/WEB-INF/views/");
         viewResolver.setSuffix(".jsp");
         viewResolver.setExposeContextBeansAsAttributes(true);
+        viewResolver.setViewClass(JstlView.class);
 
         return viewResolver;
+    }
+
+    /* tiles view */
+
+    @Bean
+    public ViewResolver tilesViewResolver() {
+        return new TilesViewResolver();
     }
 
     @Bean
     public TilesConfigurer tilesConfigurer() {
         TilesConfigurer configurer = new TilesConfigurer();
-        configurer.setDefinitions("/WEB-INF/layouts/**/tiles.xml");
+        configurer.setDefinitions("/WEB-INF/**/tiles.xml");
         configurer.setCheckRefresh(true);
         return configurer;
+    }
+
+    /* thymeleaf view */
+
+    @Bean
+    public ViewResolver thymeleafViewResolver(SpringTemplateEngine engine) {
+        ThymeleafViewResolver viewResolver = new ThymeleafViewResolver();
+        viewResolver.setTemplateEngine(engine);
+
+        return viewResolver;
+    }
+
+    @Bean
+    public SpringTemplateEngine springTemplateEngine(ITemplateResolver templateResolver) {
+        SpringTemplateEngine engine = new SpringTemplateEngine();
+        engine.setTemplateResolver(templateResolver);
+
+        return engine;
+    }
+
+    @Bean
+    public ITemplateResolver templateResolver(ServletContext context) {
+        ServletContextTemplateResolver templateResolver = new ServletContextTemplateResolver(context);
+        templateResolver.setPrefix("/WEB-INF/thymeleaf/");
+        templateResolver.setSuffix(".html");
+        templateResolver.setTemplateMode("HTML5");
+
+        return templateResolver;
     }
 
     @Bean
