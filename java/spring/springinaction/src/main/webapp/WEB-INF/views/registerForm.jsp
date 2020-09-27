@@ -12,7 +12,7 @@
 </head>
 <body>
 <%--@elvariable id="spitterDTO" type="com.wjiec.tinder.springinaction.spittr.dto.SpitterDTO"--%>
-<sf:form modelAttribute="spitterDTO" method="post">
+<sf:form modelAttribute="spitterDTO" method="post" enctype="multipart/form-data">
     <div class="control-item">
         <sf:label path="username">Username</sf:label>
         <div class="control-content">
@@ -25,6 +25,12 @@
         <div class="control-content">
             <sf:password path="password" cssErrorClass="error-control"/>
             <sf:errors path="password" cssClass="error-message" />
+        </div>
+    </div>
+    <div class="control-item">
+        <label for="avatar">Avatar</label>
+        <div class="control-content">
+            <input type="file" id="avatar" name="avatar"/>
         </div>
     </div>
     <div class="control-item">

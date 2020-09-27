@@ -11,6 +11,9 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestPart;
+
+import javax.servlet.http.Part;
 
 @Controller
 @RequestMapping("/spitter")
@@ -30,10 +33,17 @@ public class SpitterController {
     }
 
     @RequestMapping(value = "/register", method = RequestMethod.POST)
-    public String processRegistration(@Validated SpitterDTO spitterDTO, BindingResult result) {
+    public String processRegistration(@Validated SpitterDTO spitterDTO, BindingResult result,
+                                      @RequestPart("avatar") Part part) {
         if (result.hasErrors()) {
             return "registerForm";
         }
+
+        System.out.println(System.getProperty("java.io.tmpdir"));
+        System.out.println(part.getName());
+        System.out.println(part.getContentType());
+        System.out.println(part.getSize());
+        System.out.println(part.getSubmittedFileName());
 
         Spitter spitter = spitterRepository.save(spitterDTO);
         return "redirect:/spitter/" + spitter.getUsername();
