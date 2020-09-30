@@ -4,6 +4,7 @@ import com.wjiec.tinder.spring.security.dto.UserDTO;
 import com.wjiec.tinder.spring.security.exception.UserAlreadyExistsException;
 import com.wjiec.tinder.spring.security.mode.User;
 import com.wjiec.tinder.spring.security.service.UserService;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -11,6 +12,7 @@ import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+@Slf4j
 @Controller
 @RequestMapping("/user")
 public class UserController {
@@ -34,6 +36,10 @@ public class UserController {
                                BindingResult result,
                                Model model) throws UserAlreadyExistsException {
         if (result.hasErrors()) {
+            for (var e : result.getGlobalErrors()) {
+                System.out.println(e.getObjectName());
+            }
+
             return "user/registrationForm";
         }
 

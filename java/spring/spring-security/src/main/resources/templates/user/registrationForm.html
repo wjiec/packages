@@ -33,6 +33,9 @@
         <div class="form-control">
             <input type="text" th:field="*{confirmPassword}" id="confirmPassword"/>
         </div>
+        <p th:if="${#fields.hasGlobalErrors()}">
+            <span th:each="e : ${#fields.globalErrors()}" th:text="${e}">error message</span>
+        </p>
     </div>
     <div class="form-item">
         <label th:text="#{label.form.email}" for="email">email</label>

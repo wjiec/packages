@@ -24,6 +24,9 @@ public class UserService {
         if (repository.findByEmail(userDTO.getEmail()) != null) {
             throw new UserAlreadyExistsException();
         }
+        if (repository.findByUsername(userDTO.getUsername()) != null) {
+            throw new UserAlreadyExistsException();
+        }
 
         User user = new User();
         BeanUtils.copyProperties(userDTO, user);

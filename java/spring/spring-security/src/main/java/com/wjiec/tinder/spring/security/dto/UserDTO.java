@@ -15,7 +15,7 @@ import javax.validation.constraints.Size;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@ValidMatchedPassword
+@ValidMatchedPassword(message = "{registration.confirmPassword}")
 public class UserDTO {
 
     @NotNull

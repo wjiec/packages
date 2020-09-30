@@ -9,8 +9,16 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
+        // Disabled X-Frame-Options: deny
+        http.regexMatcher("/h2-console/.*").headers().frameOptions().sameOrigin();
+
+        // Disabled CSRF check
         http.csrf().disable();
+
+        // Disabled CORS check
         http.cors().disable();
+
+        // Permit all request
         http.authorizeRequests()
             .anyRequest().permitAll();
     }
