@@ -1,0 +1,16 @@
+package com.wjiec.barn.api.controller.v1;
+
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+@RestController
+@RequestMapping("/v1/tips")
+public class TipsController {
+
+    @GetMapping("/random")
+    public String random() {
+        return "random";
+    }
+
+}

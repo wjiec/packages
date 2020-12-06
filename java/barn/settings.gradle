@@ -1,0 +1,7 @@
+/**
+ * Barn-web application with api and admin modules
+ */
+
+rootProject.name = 'barn-web'
+include 'barn-core'
+include 'barn-api'

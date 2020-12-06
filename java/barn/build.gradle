@@ -1,0 +1,58 @@
+buildscript {
+    ext {
+        springbootVersion = '2.4.0'
+        dependencyManagementVersion = '1.0.10.RELEASE'
+    }
+    repositories {
+        mavenCentral()
+    }
+    dependencies {
+        classpath("org.springframework.boot:spring-boot-gradle-plugin:${springbootVersion}")
+        classpath("io.spring.gradle:dependency-management-plugin:${dependencyManagementVersion}")
+    }
+}
+
+allprojects {
+    group = 'com.wjiec.barn'
+    version = '1.0.0-SNAPSHOT'
+}
+
+subprojects {
+    apply plugin: 'org.springframework.boot'
+    apply plugin: 'io.spring.dependency-management'
+    apply plugin: 'java'
+
+    sourceCompatibility = JavaVersion.VERSION_11
+    targetCompatibility = JavaVersion.VERSION_11
+
+    repositories {
+        mavenCentral()
+    }
+
+    configurations {
+        compileOnly {
+            extendsFrom annotationProcessor
+        }
+    }
+
+    dependencies {
+        compileOnly group: 'org.projectlombok', name: 'lombok'
+        annotationProcessor group: 'org.projectlombok', name: 'lombok'
+
+        developmentOnly group: 'org.springframework.boot', name: 'spring-boot-devtools'
+        implementation group: 'org.springframework.boot', name: 'spring-boot-starter-web'
+        implementation group: 'org.springframework.boot', name: 'spring-boot-starter-actuator'
+        implementation group: 'org.springframework.boot', name: 'spring-boot-starter-validation'
+
+        testImplementation group: 'org.springframework.boot', name: 'spring-boot-starter-test'
+        testImplementation group: 'de.flapdoodle.embed', name: 'de.flapdoodle.embed.mongo'
+    }
+
+    test {
+        useJUnitPlatform()
+    }
+
+    tasks.withType(JavaCompile) {
+        options.encoding = "UTF-8"
+    }
+}
