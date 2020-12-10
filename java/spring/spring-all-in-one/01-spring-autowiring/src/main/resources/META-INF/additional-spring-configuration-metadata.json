@@ -1,0 +1,18 @@
+{
+  "properties": [
+    {
+      "name": "keyboard.name",
+      "type": "java.lang.String",
+      "description": "The name of the keyboard."
+    },
+    {
+      "name": "mouse.name",
+      "type": "java.lang.String",
+      "description": "The name of the mouse."
+    },
+    {
+      "name": "calculator.name",
+      "type": "java.lang.String",
+      "description": "The name of the calculator."
+    }
+  ] }
