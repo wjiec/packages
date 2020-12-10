@@ -19,7 +19,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 class ApplicationTest {
 
     @Test
-    void contextLoaded() { }
+    void contextLoaded() {}
 
     @Autowired
     private Programmer programmer;

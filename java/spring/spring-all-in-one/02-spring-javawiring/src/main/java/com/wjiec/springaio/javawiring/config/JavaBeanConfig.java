@@ -1,22 +1,28 @@
 package com.wjiec.springaio.javawiring.config;
 
+import com.wjiec.springaio.javawiring.model.Address;
+import com.wjiec.springaio.javawiring.model.User;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-
-import java.util.concurrent.ThreadLocalRandom;
 
 @Configuration
 public class JavaBeanConfig {
 
-    @Bean("random")
-    public ThreadLocalRandom threadLocalRandom() {
-        return ThreadLocalRandom.current();
+    @Bean
+    public Address address() {
+        return Address.builder()
+            .province("192")
+            .city("168")
+            .district("1.1")
+            .build();
     }
 
-    @Bean
-    public String tempDir(ThreadLocalRandom random) {
-        System.out.println(random);
-        return "/tmp/" + random.nextInt(Integer.MAX_VALUE);
+    @Bean("jayson")
+    public User user(Address address) {
+        return User.builder()
+            .name("Jayson")
+            .address(address)
+            .build();
     }
 
 }

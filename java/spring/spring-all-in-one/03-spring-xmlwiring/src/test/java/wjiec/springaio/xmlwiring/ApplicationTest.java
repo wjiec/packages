@@ -1,7 +1,8 @@
-package com.wjiec.springaio.javawiring;
+package wjiec.springaio.xmlwiring;
 
-import com.wjiec.springaio.javawiring.model.Address;
-import com.wjiec.springaio.javawiring.model.User;
+import com.wjiec.springaio.xmlwiring.Application;
+import com.wjiec.springaio.xmlwiring.model.Author;
+import com.wjiec.springaio.xmlwiring.model.Music;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,31 +13,31 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 @ExtendWith(SpringExtension.class)
-@ContextConfiguration(classes = Application.class)
+@ContextConfiguration("/beans.xml")
 class ApplicationTest {
 
     @Test
     void contextLoaded() {}
 
     @Autowired
-    private Address address;
+    private Author author;
 
     @Test
-    void addressShouldNotBeNull() {
-        assertNotNull(address);
+    void authorShouldNotBeNull() {
+        assertNotNull(author);
     }
 
     @Autowired
-    private User user;
+    private Music music;
 
     @Test
-    void userShouldNotBeNull() {
-        assertNotNull(user);
+    void musicShouldNotBeNull() {
+        assertNotNull(music);
     }
 
     @Test
-    void addressShouldBeEquals() {
-        assertEquals(address, user.getAddress());
+    void authorShouldEquals() {
+        assertEquals(author, music.getAuthor());
     }
 
 }
