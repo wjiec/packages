@@ -1,13 +1,14 @@
-package com.wjiec.advanced.javawiring.shopping;
+package com.wjiec.springaio.advanced.javawiring.shopping;
 
-import com.wjiec.advanced.javawiring.annotation.Cold;
-import com.wjiec.advanced.javawiring.annotation.Hot;
-import com.wjiec.advanced.javawiring.person.Person;
+import com.wjiec.springaio.advanced.javawiring.annotation.Cold;
+import com.wjiec.springaio.advanced.javawiring.annotation.Hot;
 import lombok.AllArgsConstructor;
 import lombok.ToString;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.*;
 import org.springframework.core.type.AnnotatedTypeMetadata;
+
+import java.util.concurrent.ThreadLocalRandom;
 
 @Configuration
 public class Food {
@@ -47,19 +48,19 @@ public class Food {
 
     public static class Vegetable implements Item {}
 
+    public static final int age = Math.abs(ThreadLocalRandom.current().nextInt());
+
     public static class AdultCondition implements Condition {
         @Override
         public boolean matches(ConditionContext context, AnnotatedTypeMetadata metadata) {
-            Person person = context.getBeanFactory().getBean(Person.class);
-            return person.getAge() >= 18;
+            return age % 2 == 0;
         }
     }
 
     public static class ChildrenCondition implements Condition {
         @Override
         public boolean matches(ConditionContext context, AnnotatedTypeMetadata metadata) {
-            Person person = context.getBeanFactory().getBean(Person.class);
-            return person.getAge() < 18;
+            return age % 2 == 1;
         }
     }
 

@@ -1,4 +1,4 @@
-package com.wjiec.advanced.javawiring.annotation;
+package com.wjiec.springaio.advanced.javawiring.annotation;
 
 import org.springframework.beans.factory.annotation.Qualifier;
 

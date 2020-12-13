@@ -1,4 +1,4 @@
-package com.wjiec.advanced.javawiring.person;
+package com.wjiec.springaio.advanced.javawiring.person;
 
 public interface Person {
 

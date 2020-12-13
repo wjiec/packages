@@ -1,4 +1,4 @@
-package com.wjiec.advanced.javawiring.person;
+package com.wjiec.springaio.advanced.javawiring.person;
 
 import lombok.Data;
 import org.springframework.beans.factory.annotation.Value;
@@ -7,13 +7,13 @@ import org.springframework.stereotype.Component;
 
 @Data
 @Component
-@Profile("children")
-public class Children implements Person {
+@Profile("father")
+public class Father implements Person {
 
-    @Value("${children.name}")
+    @Value("${father.name}")
     private String name;
 
-    @Value("${children.age}")
+    @Value("${father.age}")
     private int age;
 
 }

@@ -1,7 +1,7 @@
-package com.wjiec.advanced.javawiring.shopping;
+package com.wjiec.springaio.advanced.javawiring.shopping;
 
-import com.wjiec.advanced.javawiring.annotation.Cold;
-import com.wjiec.advanced.javawiring.annotation.Hot;
+import com.wjiec.springaio.advanced.javawiring.annotation.Cold;
+import com.wjiec.springaio.advanced.javawiring.annotation.Hot;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

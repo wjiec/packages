@@ -1,7 +1,7 @@
-package com.wjiec.advanced.javawiring;
+package com.wjiec.springaio.advanced.javawiring;
 
-import com.wjiec.advanced.javawiring.person.Person;
-import com.wjiec.advanced.javawiring.shopping.Item;
+import com.wjiec.springaio.advanced.javawiring.person.Person;
+import com.wjiec.springaio.advanced.javawiring.shopping.Item;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.PropertySource;
