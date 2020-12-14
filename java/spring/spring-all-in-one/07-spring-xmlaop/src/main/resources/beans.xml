@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:aop="http://www.springframework.org/schema/aop"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd http://www.springframework.org/schema/aop https://www.springframework.org/schema/aop/spring-aop.xsd">
+
+    <aop:aspectj-autoproxy/>
+
+    <bean id="mysql" class="com.wjiec.springaio.xmlaop.database.Mysql"/>
+    <bean id="postgresql" class="com.wjiec.springaio.xmlaop.database.Postgresql"/>
+
+    <bean id="logger" class="com.wjiec.springaio.xmlaop.listener.ExecuteLogger"/>
+    <aop:config>
+        <aop:pointcut id="anyExecute" expression="execution(* com.wjiec.springaio.xmlaop.database.Database.execute(..))"/>
+        <aop:pointcut id="mysqlExecute" expression="execution(* com.wjiec.springaio.xmlaop.database.Database.execute(String, ..)) and args(sql)"/>
+
+        <aop:aspect ref="logger">
+            <aop:before method="prepare" pointcut="execution(* com.wjiec.springaio.xmlaop.database.Database.execute(..))"/>
+
+            <aop:after method="logging" pointcut-ref="anyExecute"/>
+            <aop:before method="buildCache" pointcut-ref="mysqlExecute" arg-names="sql"/>
+            <aop:around method="mysqlDumper" pointcut="execution(* com.wjiec.springaio.xmlaop.database.Database.execute(..)) and bean(mysql)"/>
+
+            <aop:declare-parents types-matching="com.wjiec.springaio.xmlaop.database.Database+"
+                                 implement-interface="com.wjiec.springaio.xmlaop.database.closer.Closer"
+                                 default-impl="com.wjiec.springaio.xmlaop.database.closer.DefaultCloserImpl"/>
+        </aop:aspect>
+    </aop:config>
+
+</beans>

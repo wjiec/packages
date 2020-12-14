@@ -36,6 +36,8 @@
         <module>03-spring-xmlwiring</module>
         <module>04-spring-advanced-javawiring</module>
         <module>05-spring-advanced-xmlwiring</module>
+        <module>06-spring-javaaop</module>
+        <module>07-spring-xmlaop</module>
     </modules>
 
 </project>
