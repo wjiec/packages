@@ -13,12 +13,18 @@ import org.springframework.web.servlet.config.annotation.DefaultServletHandlerCo
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 import org.springframework.web.servlet.view.InternalResourceViewResolver;
 import org.springframework.web.servlet.view.JstlView;
+import org.thymeleaf.spring5.SpringTemplateEngine;
+import org.thymeleaf.spring5.view.ThymeleafViewResolver;
+import org.thymeleaf.templateresolver.ITemplateResolver;
+import org.thymeleaf.templateresolver.ServletContextTemplateResolver;
+
+import javax.servlet.ServletContext;
 
 @Configuration
 public class ServletConfig implements WebMvcConfigurer {
 
     public ServletConfig(ConfigurableApplicationContext context) {
-        context.getEnvironment().setActiveProfiles("jsp");
+        context.getEnvironment().setActiveProfiles("thymeleaf");
     }
 
     @Override
@@ -36,6 +42,35 @@ public class ServletConfig implements WebMvcConfigurer {
         viewResolver.setViewClass(JstlView.class);
 
         return viewResolver;
+    }
+
+    @Bean
+    @Profile("thymeleaf")
+    public ViewResolver thymeleafViewResolve(SpringTemplateEngine templateEngine) {
+        ThymeleafViewResolver viewResolver = new ThymeleafViewResolver();
+        viewResolver.setTemplateEngine(templateEngine);
+
+        return viewResolver;
+    }
+
+    @Bean
+    @Profile("thymeleaf")
+    public SpringTemplateEngine templateEngine(ITemplateResolver templateResolver) {
+        SpringTemplateEngine templateEngine = new SpringTemplateEngine();
+        templateEngine.setTemplateResolver(templateResolver);
+
+        return templateEngine;
+    }
+
+    @Bean
+    @Profile("thymeleaf")
+    public ITemplateResolver templateResolver(ServletContext context) {
+        ServletContextTemplateResolver templateResolver = new ServletContextTemplateResolver(context);
+        templateResolver.setPrefix("/WEB-INF/views/thymeleaf/");
+        templateResolver.setSuffix(".html");
+        templateResolver.setTemplateMode("HTML");
+
+        return templateResolver;
     }
 
     @Bean
