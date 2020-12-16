@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<flow xmlns="http://www.springframework.org/schema/webflow"
+      xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+      xsi:schemaLocation="http://www.springframework.org/schema/webflow
+      http://www.springframework.org/schema/webflow/spring-webflow-2.3.xsd">
+
+    <var class="com.wjiec.springaio.webflow.domain.Order" name="order"/>
+    <global-transitions>
+        <transition on="cancel" to="endState"></transition>
+    </global-transitions>
+
+    <view-state id="welcome"/>
+
+    <subflow-state id="identifyCustomer" subflow="pizza/customer">
+        <output name="customer" value="order.customer"/>
+        <transition on="customerReady" to="buildOrder"/>
+    </subflow-state>
+
+    <subflow-state id="buildOrder" subflow="pizza/order">
+        <input name="order" value="order"/>
+        <transition on="orderCreated" to="saveOrder"/>
+    </subflow-state>
+
+    <subflow-state id="takePayment" subflow="pizza/payment">
+        <input name="order" value="order"/>
+        <transition on="paymentTaken" to="saveOrder"/>
+    </subflow-state>
+
+    <action-state id="saveOrder">
+        <evaluate expression="T(System).out.println(order)"/>
+        <transition to="thankCustomer"/>
+    </action-state>
+
+    <view-state id="thankCustomer">
+        <transition to="endState"/>
+    </view-state>
+
+    <end-state id="endState"/>
+
+</flow>
