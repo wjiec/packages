@@ -57,7 +57,10 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 
 //        auth.ldapAuthentication()
 //            .userSearchFilter("uid={0}")
-//            .groupSearchFilter("member={0}");
+//            .groupSearchFilter("member={0}")
+//            .contextSource()
+//                // embedded ldap
+//                .root("dc=xxx,dc=yyy");
     }
 
 }
