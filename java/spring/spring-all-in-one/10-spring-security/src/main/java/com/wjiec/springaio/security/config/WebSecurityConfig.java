@@ -1,13 +1,23 @@
 package com.wjiec.springaio.security.config;
 
+import lombok.Data;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.data.mongodb.core.mapping.Document;
+import org.springframework.data.mongodb.core.query.Criteria;
+import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.builders.WebSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.User;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 
-import javax.sql.DataSource;
+import java.util.List;
 
 @EnableWebSecurity
 public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
@@ -18,6 +28,9 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 //    public WebSecurityConfig(DataSource dataSource) {
 //        this.dataSource = dataSource;
 //    }
+
+//    @Autowired
+//    private MongoTemplate mongoTemplate;
 
     /**
      * 配置SpringSecurity的Filter链
@@ -61,6 +74,33 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 //            .contextSource()
 //                // embedded ldap
 //                .root("dc=xxx,dc=yyy");
+
+//        auth.userDetailsService(new MongoUserService(mongoTemplate));
+    }
+
+    private static class MongoUserService implements UserDetailsService {
+
+        private final MongoTemplate mongoTemplate;
+
+        public MongoUserService(MongoTemplate mongoTemplate) {
+            this.mongoTemplate = mongoTemplate;
+        }
+
+        @Override
+        public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+            AdminUser adminUser = mongoTemplate.findOne(Query.query(Criteria.where("username").is(username)), AdminUser.class);
+
+            return new User(adminUser.username, adminUser.password,
+                List.of(new SimpleGrantedAuthority("ROLE_"+adminUser.role)));
+        }
+
+        @Data
+        @Document
+        static class AdminUser {
+            private String username;
+            private String password;
+            private String role;
+        }
     }
 
 }
