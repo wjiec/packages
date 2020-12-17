@@ -14,6 +14,7 @@ public class ServletConfig {
     public FlowHandlerMapping flowHandlerMapping(FlowDefinitionRegistry registry) {
         FlowHandlerMapping flowHandlerMapping = new FlowHandlerMapping();
         flowHandlerMapping.setFlowRegistry(registry);
+        flowHandlerMapping.setInterceptors();
 
         return flowHandlerMapping;
     }
