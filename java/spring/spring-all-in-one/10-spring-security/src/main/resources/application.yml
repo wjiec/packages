@@ -1,0 +1,6 @@
+security:
+  datasource:
+    url: jdbc:h2:mem:security
+    username: sa
+    password: ""
+    schema: database/schema.sql
