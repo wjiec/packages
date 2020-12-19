@@ -55,6 +55,17 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 .antMatchers("/internal").access("hasRole('STAFF') and hasIpAddress('192.168.1.0/16')")
                 .antMatchers("/interval").access("principal.username.equals('_CRONTAB')")
                 .anyRequest().permitAll()
+            .and()
+            .requiresChannel()
+                .antMatchers("/credit-card/**").requiresSecure()
+                .antMatchers("/").requiresInsecure()
+            .and()
+            .csrf()
+                .disable()
+            .formLogin()
+                .loginPage("/custom-login")
+            .and()
+            .httpBasic()
         ;
     }
 
