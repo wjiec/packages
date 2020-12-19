@@ -64,8 +64,18 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 .disable()
             .formLogin()
                 .loginPage("/custom-login")
+                .usernameParameter("username")
+                .passwordParameter("password")
             .and()
             .httpBasic()
+                .realmName("spring")
+            .and()
+            .rememberMe()
+                .tokenValiditySeconds(86400) // one day
+                .key("rememberLogin")
+            .and()
+            .logout()
+                .logoutSuccessUrl("/")
         ;
     }
 
