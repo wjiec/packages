@@ -1,11 +1,11 @@
 package com.wjiec.springaio.security.config;
 
 import lombok.Data;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.builders.WebSecurity;
@@ -45,7 +45,17 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
      */
     @Override
     protected void configure(HttpSecurity http) throws Exception {
-        super.configure(http);
+        http
+            .authorizeRequests()
+                .antMatchers("/profile").authenticated()
+                .antMatchers(HttpMethod.POST, "/comment").authenticated()
+                .antMatchers("/manage/**").hasRole("ADMIN")
+                .antMatchers("/product/**").hasAnyRole("VISITOR", "STAFF")
+                .antMatchers("/reconfigure").hasIpAddress("127.0.0.1")
+                .antMatchers("/internal").access("hasRole('STAFF') and hasIpAddress('192.168.1.0/16')")
+                .antMatchers("/interval").access("principal.username.equals('_CRONTAB')")
+                .anyRequest().permitAll()
+        ;
     }
 
     /**
@@ -54,6 +64,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     @Override
     protected void configure(AuthenticationManagerBuilder auth) throws Exception {
         auth.inMemoryAuthentication()
+            // how {noop} working?
             .withUser("admin").password("{noop}admin").roles("ADMIN", "USER")
             .and()
             .withUser("user").password("{noop}user").roles("USER");

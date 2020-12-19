@@ -34,7 +34,7 @@ public class ServletConfig {
         ServletContextTemplateResolver templateResolver = new ServletContextTemplateResolver(context);
         templateResolver.setPrefix("/WEB-INF/view/");
         templateResolver.setSuffix(".html");
-        templateResolver.setTemplateMode("HTML");
+        templateResolver.setTemplateMode("HTML5");
 
         return templateResolver;
     }
