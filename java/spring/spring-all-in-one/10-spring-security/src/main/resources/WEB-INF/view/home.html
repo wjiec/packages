@@ -1,5 +1,6 @@
 <!doctype html>
-<html lang="en">
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0">
@@ -8,5 +9,11 @@
 </head>
 <body>
     <h1>Home page</h1>
+    <div sec:authorize="hasRole('ROLE_ADMIN')">
+        Hello <span sec:authentication="name">someone</span>
+    </div>
+    <div sec:authorize-url="/profile">
+        Hello <span sec:authentication="name">someone</span>
+    </div>
 </body>
 </html>
