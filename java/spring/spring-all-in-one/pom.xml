@@ -46,6 +46,7 @@
         <module>08-spring-web</module>
         <module>09-spring-webflow</module>
         <module>10-spring-security</module>
+        <module>11-spring-jdbc</module>
     </modules>
 
 </project>
