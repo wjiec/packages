@@ -2,9 +2,8 @@ package com.wjiec.springaio.nosql;
 
 import com.mongodb.client.MongoClient;
 import com.wjiec.springaio.nosql.model.Book;
+import com.wjiec.springaio.nosql.model.Customer;
 import com.wjiec.springaio.nosql.repository.BookRepository;
-import org.neo4j.driver.Driver;
-import org.neo4j.driver.GraphDatabase;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
@@ -15,14 +14,20 @@ import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.repository.config.EnableMongoRepositories;
-import org.springframework.data.neo4j.repository.config.EnableNeo4jRepositories;
+import org.springframework.data.redis.connection.RedisConnection;
+import org.springframework.data.redis.connection.RedisConnectionFactory;
+import org.springframework.data.redis.connection.lettuce.LettuceConnectionFactory;
+import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.core.StringRedisTemplate;
+import org.springframework.data.redis.core.ZSetOperations;
+import org.springframework.data.redis.serializer.Jackson2JsonRedisSerializer;
 
 import java.util.List;
 
 @ComponentScan
 @Configuration
 @EnableMongoRepositories
-@EnableNeo4jRepositories
+//@EnableNeo4jRepositories
 public class Application {
 
     public static void main(String[] args) {
@@ -53,6 +58,21 @@ public class Application {
                 mongoTemplate.remove(books.get(i));
             }
         }
+
+        RedisConnectionFactory connectionFactory = context.getBean(RedisConnectionFactory.class);
+        System.out.println(connectionFactory);
+
+        RedisConnection connection = connectionFactory.getConnection();
+        System.out.println(connection);
+        connection.set("hello".getBytes(), "world".getBytes());
+
+        StringRedisTemplate redisTemplate = context.getBean(StringRedisTemplate.class);
+        redisTemplate.setValueSerializer(new Jackson2JsonRedisSerializer<>(String.class));
+        ZSetOperations<String, String> operations = redisTemplate.opsForZSet();
+        operations.add("k", "v", 2);
+        operations.add("k", "v", 3);
+        operations.add("k", "v", 1);
+        System.out.println(operations.rangeByScore("k", 0, Integer.MAX_VALUE));
     }
 
     @Bean
@@ -67,9 +87,42 @@ public class Application {
         return new MongoTemplate(mongoClient, "spring");
     }
 
+//    @Bean
+//    public Neo4jMappingContext neo4jMappingContext() {
+//        return new Neo4jMappingContext();
+//    }
+//
+//    @Bean
+//    public Driver driver() {
+//        return GraphDatabase.driver("bolt://localhost:7687");
+//    }
+//
+//    @Bean
+//    public Neo4jClient neo4jClient(Driver driver) {
+//        return Neo4jClient.create(driver);
+//    }
+//
+//    @Bean
+//    public Neo4jTemplate neo4jTemplate(Neo4jClient client) {
+//        return new Neo4jTemplate(client);
+//    }
+
     @Bean
-    public Driver driver() {
-        return GraphDatabase.driver("bolt://localhost:7687");
+    public RedisConnectionFactory redisConnectionFactory() {
+        return new LettuceConnectionFactory();
+    }
+
+    @Bean
+    public RedisTemplate<String, Object> redisTemplate(RedisConnectionFactory connectionFactory) {
+        RedisTemplate<String, Object> template = new RedisTemplate<>();
+        template.setConnectionFactory(connectionFactory);
+
+        return template;
+    }
+
+    @Bean
+    public StringRedisTemplate stringRedisTemplate(RedisConnectionFactory connectionFactory) {
+        return new StringRedisTemplate(connectionFactory);
     }
 
 }
