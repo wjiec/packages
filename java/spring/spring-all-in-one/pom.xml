@@ -48,6 +48,7 @@
         <module>10-spring-security</module>
         <module>11-spring-jdbc</module>
         <module>12-spring-orm</module>
+        <module>13-spring-nosql</module>
     </modules>
 
 </project>
