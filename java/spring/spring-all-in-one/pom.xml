@@ -49,6 +49,7 @@
         <module>11-spring-jdbc</module>
         <module>12-spring-orm</module>
         <module>13-spring-nosql</module>
+        <module>14-spring-cache</module>
     </modules>
 
 </project>
