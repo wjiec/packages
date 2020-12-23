@@ -1,13 +1,11 @@
 package com.wjiec.springaio.cache;
 
 import com.wjiec.springaio.cache.service.TimeService;
+import org.springframework.cache.CacheManager;
 import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.cache.concurrent.ConcurrentMapCacheManager;
 import org.springframework.cache.support.CompositeCacheManager;
 import org.springframework.context.annotation.*;
-import org.springframework.data.redis.cache.RedisCacheManager;
-import org.springframework.data.redis.connection.RedisConnectionFactory;
-import org.springframework.data.redis.connection.lettuce.LettuceConnectionFactory;
 
 import java.util.List;
 
@@ -20,6 +18,9 @@ public class Application {
         AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext();
         context.register(Application.class);
         context.refresh();
+
+        CacheManager cacheManager = context.getBean(CacheManager.class);
+        System.out.println(cacheManager);
 
         TimeService timeService = context.getBean(TimeService.class);
         System.out.println(timeService.now());

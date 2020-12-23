@@ -10,7 +10,7 @@ import java.time.LocalDateTime;
 @Service
 public class TimeService {
 
-    @Cacheable(value = "cacheName", key = "#result.year")
+    @Cacheable(value = "cacheName", key = "2020")
     public LocalDateTime now() {
         System.out.println("call now");
         return LocalDateTime.now();
