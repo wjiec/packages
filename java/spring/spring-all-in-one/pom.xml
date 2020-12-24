@@ -50,6 +50,7 @@
         <module>12-spring-orm</module>
         <module>13-spring-nosql</module>
         <module>14-spring-cache</module>
+        <module>15-spring-method-security</module>
     </modules>
 
 </project>
