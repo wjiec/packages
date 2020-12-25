@@ -51,6 +51,7 @@
         <module>13-spring-nosql</module>
         <module>14-spring-cache</module>
         <module>15-spring-method-security</module>
+        <module>16-spring-rpc</module>
     </modules>
 
 </project>
