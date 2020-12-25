@@ -1,5 +1,6 @@
 package com.wjiec.springaio.method.security;
 
+import com.wjiec.springaio.method.security.model.Setting;
 import com.wjiec.springaio.method.security.service.SystemService;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.context.annotation.ComponentScan;
@@ -9,6 +10,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.context.SecurityContextHolder;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @ComponentScan
@@ -50,21 +52,18 @@ public class Application {
 
         System.out.println("------------ systemService.stat() ------------");
         wrap("admin", "admin", () -> System.out.println(systemService.stat()));
-        wrap("admin", "admin", () -> System.out.println(systemService.stat()));
         wrap("user", "user", () -> System.out.println(systemService.stat()));
-        wrap("user", "user", () -> System.out.println(systemService.stat()));
-        wrap("guest", "guest", () -> System.out.println(systemService.stat()));
         wrap("guest", "guest", () -> System.out.println(systemService.stat()));
 
         System.out.println("------------ systemService.update() ------------");
-        wrap("admin", "admin", () -> systemService.update(List.of()));
-        wrap("user", "user", () -> systemService.update(List.of()));
-        wrap("guest", "guest", () -> systemService.update(List.of()));
+        wrap("admin", "admin", () -> systemService.update(getSettings()));
+        wrap("user", "user", () -> systemService.update(getSettings()));
+        wrap("guest", "guest", () -> systemService.update(getSettings()));
 
         System.out.println("------------ systemService.delete() ------------");
-        wrap("admin", "admin", () -> systemService.delete(List.of()));
-        wrap("user", "user", () -> systemService.delete(List.of()));
-        wrap("guest", "guest", () -> systemService.delete(List.of()));
+        wrap("admin", "admin", () -> systemService.delete(getSettings()));
+        wrap("user", "user", () -> systemService.delete(getSettings()));
+        wrap("guest", "guest", () -> systemService.delete(getSettings()));
     }
 
     private static void wrap(String username, String password, Action action) {
@@ -86,6 +85,15 @@ public class Application {
     @FunctionalInterface
     private interface Action {
         void action();
+    }
+
+    private static List<Setting> getSettings() {
+        List<Setting> settings = new ArrayList<>();
+        settings.add(Setting.builder().id(0L).name("opening").value("on").build());
+        settings.add(Setting.builder().id(1L).name("customer").value("spring").build());
+        settings.add(Setting.builder().id(10L).name("profit").value("123").build());
+
+        return settings;
     }
 
 }

@@ -44,7 +44,7 @@ public class SystemService {
             .build();
     }
 
-    @PostFilter("hasRole('ROLE_ADMIN') or (hasRole('ROLE_USER') and #filterObject.id < 10) or (#filterObject.id == 0)")
+    @PostFilter("hasRole('ROLE_ADMIN') or (hasRole('ROLE_USER') and filterObject.id < 10) or (filterObject.id == 0)")
     public List<Setting> stat() {
         return new ArrayList<>(List.of(
             Setting.builder().id(0L).name("opening").value("on").build(),
@@ -59,7 +59,7 @@ public class SystemService {
         System.out.println("Update setting : " + settings);
     }
 
-    @RolesAllowed({"ROLE_ADMIN", "ROLE_USER"})
+    @PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_USER')")
     @PreFilter("hasPermission(filterObject, 'delete')")
     public void delete(List<Setting> settings) {
         System.out.println("Delete setting : " + settings);
@@ -72,18 +72,19 @@ public class SystemService {
         @Override
         public boolean hasPermission(Authentication authentication, Object targetDomainObject, Object permission) {
             if (targetDomainObject instanceof Setting) {
-                return isROLE_ADMIN(authentication) || ((Setting) targetDomainObject).getId() < 10;
+                return isAdmin(authentication) || ((Setting) targetDomainObject).getId() < 10;
             }
 
             throw new UnsupportedOperationException();
         }
 
         @Override
-        public boolean hasPermission(Authentication authentication, Serializable targetId, String targetType, Object permission) {
+        public boolean hasPermission(Authentication authentication, Serializable targetId,
+                                     String targetType, Object permission) {
             throw new UnsupportedOperationException();
         }
 
-        private boolean isROLE_ADMIN(Authentication authentication) {
+        private boolean isAdmin(Authentication authentication) {
             return authentication.getAuthorities().contains(ROLE_ADMIN_AUTHORITY);
         }
 
