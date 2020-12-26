@@ -52,6 +52,7 @@
         <module>14-spring-cache</module>
         <module>15-spring-method-security</module>
         <module>16-spring-rpc</module>
+        <module>17-spring-rest</module>
     </modules>
 
 </project>
