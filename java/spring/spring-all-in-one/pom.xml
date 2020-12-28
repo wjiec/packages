@@ -54,6 +54,7 @@
         <module>16-spring-rpc</module>
         <module>17-spring-rest</module>
         <module>19-spring-message</module>
+        <module>20-spring-websocket</module>
     </modules>
 
 </project>
