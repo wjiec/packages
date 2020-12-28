@@ -24,7 +24,7 @@ import java.util.HashMap;
 
 @SuppressWarnings("deprecation")
 @Configuration
-@ComponentScan
+@ComponentScan(basePackages = "com.wjiec.sprngaio.message.service")
 public class ActiveMqApplication {
 
     public static void main(String[] args) throws InterruptedException {
