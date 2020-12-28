@@ -55,6 +55,7 @@
         <module>17-spring-rest</module>
         <module>19-spring-message</module>
         <module>20-spring-websocket</module>
+        <module>21-spring-stomp</module>
     </modules>
 
 </project>
