@@ -57,6 +57,7 @@
         <module>20-spring-websocket</module>
         <module>21-spring-stomp</module>
         <module>22-spring-email</module>
+        <module>23-spring-jmx</module>
     </modules>
 
 </project>
