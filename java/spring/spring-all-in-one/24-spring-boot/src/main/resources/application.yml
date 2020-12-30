@@ -1,0 +1,8 @@
+server:
+  port: 8809
+spring:
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+    show-sql: on
+
