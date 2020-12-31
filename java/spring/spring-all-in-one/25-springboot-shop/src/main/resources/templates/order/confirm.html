@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Confirm Order</title>
+</head>
+<body>
+    <h1>Confirm Order</h1>
+
+    <form method="post" th:object="${order}">
+        <div>
+            <label>Name: <input type="text" th:field="*{name}"></label>
+            <span th:if="${#fields.hasErrors('name')}" th:errors="*{name}"></span>
+        </div>
+        <div>
+            <label>Address: <input type="text" th:field="*{address}"></label>
+            <span th:if="${#fields.hasErrors('address')}" th:errors="*{address}"></span>
+        </div>
+        <div>
+            <label>Credit Card: <input type="text" th:field="*{ccNumber}"></label>
+            <span th:if="${#fields.hasErrors('ccNumber')}" th:errors="*{ccNumber}"></span>
+        </div>
+        <div>
+            <label>Credit Card CVV: <input type="text" th:field="*{ccCvv}"></label>
+            <span th:if="${#fields.hasErrors('ccCvv')}" th:errors="*{ccCvv}"></span>
+        </div>
+        <div>
+            <button>Submit</button>
+        </div>
+    </form>
+
+</body>
+</html>

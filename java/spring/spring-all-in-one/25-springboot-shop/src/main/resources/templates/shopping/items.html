@@ -1,0 +1,25 @@
+<!doctype html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Shopping List</title>
+</head>
+<body>
+
+    <h1>Shopping List</h1>
+
+    <form method="post" th:object="${cart}">
+        <ul>
+            <li th:each="item : ${items}">
+                <label><input type="checkbox" name="itemIds" th:value="${item.id}">
+                    <span th:text="${item.title}"></span> (<span th:text="${item.price}"></span>)</label>
+            </li>
+        </ul>
+        <span th:if="${#fields.hasErrors('itemIds')}" th:errors="${#fields.errors('itemIds')}"></span>
+        <button>Submit</button>
+    </form>
+
+</body>
+</html>
