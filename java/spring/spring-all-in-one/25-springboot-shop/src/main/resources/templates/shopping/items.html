@@ -10,14 +10,14 @@
 
     <h1>Shopping List</h1>
 
-    <form method="post" th:object="${cart}">
+    <form method="post">
         <ul>
             <li th:each="item : ${items}">
                 <label><input type="checkbox" name="itemIds" th:value="${item.id}">
                     <span th:text="${item.title}"></span> (<span th:text="${item.price}"></span>)</label>
             </li>
         </ul>
-        <span th:if="${#fields.hasErrors('itemIds')}" th:errors="${#fields.errors('itemIds')}"></span>
+        <span th:if="${#fields.hasErrors('cart.itemIds')}" th:text="${#fields.errors('cart.itemIds').get(0)}"></span>
         <button>Submit</button>
     </form>
 

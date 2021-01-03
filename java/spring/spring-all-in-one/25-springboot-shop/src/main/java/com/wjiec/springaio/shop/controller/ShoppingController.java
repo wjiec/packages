@@ -29,9 +29,9 @@ public class ShoppingController {
     }
 
     @PostMapping
-    public String createCart(Model model, @Validated Cart cart, Errors errors) {
+    public String createCart(@Validated Cart cart, Errors errors, Model model) {
         if (errors.hasErrors()) {
-            model.addAttribute("cart", new Cart());
+            model.addAttribute("cart", cart);
             model.addAttribute("items", getItems());
 
             return "shopping/items";

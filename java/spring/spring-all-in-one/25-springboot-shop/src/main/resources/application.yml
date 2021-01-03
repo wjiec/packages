@@ -1,0 +1,4 @@
+debug: false
+spring:
+  thymeleaf:
+    cache: false
