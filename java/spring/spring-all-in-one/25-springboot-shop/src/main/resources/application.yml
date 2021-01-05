@@ -2,3 +2,24 @@ debug: false
 spring:
   thymeleaf:
     cache: false
+  jpa:
+    show-sql: true
+    open-in-view: false
+    properties:
+      hibernate:
+        format_sql: true
+#
+# https://docs.spring.io/spring-boot/docs/2.1.18.RELEASE/reference/html/howto-database-initialization.html
+#
+# In a JPA-based app, you can choose to let Hibernate create the schema or use schema.sql,
+# but you cannot do both. Make sure to disable spring.jpa.hibernate.ddl-auto if you use schema.sql.
+#
+    hibernate:
+      ddl-auto: none
+  datasource:
+    schema: classpath:/database/schema.sql
+    data: classpath:/database/data.sql
+    initialization-mode: always
+#logging:
+#  level:
+#    root: debug

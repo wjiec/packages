@@ -8,6 +8,16 @@
 </head>
 <body>
     <h1>Confirm Order</h1>
+    <div>
+        <h3>Items</h3>
+        <ul>
+            <li th:each="item : ${items}">
+                <span th:text="${item.id}">1</span>:
+                <span th:text="${item.title}">title</span>
+                (<span th:text="${item.price}">1.00</span>)
+            </li>
+        </ul>
+    </div>
 
     <form method="post" th:object="${order}">
         <div>

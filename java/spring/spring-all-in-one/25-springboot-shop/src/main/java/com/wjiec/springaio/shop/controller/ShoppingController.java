@@ -1,38 +1,39 @@
 package com.wjiec.springaio.shop.controller;
 
 import com.wjiec.springaio.shop.domain.Cart;
-import com.wjiec.springaio.shop.domain.Item;
+import com.wjiec.springaio.shop.repository.ItemRepository;
 import lombok.extern.slf4j.Slf4j;
-import org.joda.money.CurrencyUnit;
-import org.joda.money.Money;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.Errors;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-
-import java.util.List;
+import org.springframework.web.bind.annotation.*;
 
 @Slf4j
 @Controller
 @RequestMapping("/shopping")
+@SessionAttributes("cart")
 public class ShoppingController {
 
+    private final ItemRepository itemRepository;
+
+    public ShoppingController(ItemRepository itemRepository) {
+        this.itemRepository = itemRepository;
+    }
+
     @GetMapping
-    public String getItems(Model model) {
-        model.addAttribute("cart", new Cart());
-        model.addAttribute("items", getItems());
+    public String getItems(Model model, @ModelAttribute Cart cart) {
+        model.addAttribute("cart", cart);
+        model.addAttribute("items", itemRepository.findAll());
 
         return "shopping/items";
     }
 
     @PostMapping
-    public String createCart(@Validated Cart cart, Errors errors, Model model) {
+    public String createCart(@ModelAttribute @Validated Cart cart, Errors errors, Model model) {
         if (errors.hasErrors()) {
             model.addAttribute("cart", cart);
-            model.addAttribute("items", getItems());
+            model.addAttribute("items", itemRepository.findAll());
 
             return "shopping/items";
         }
@@ -41,13 +42,9 @@ public class ShoppingController {
         return "redirect:/order/confirm";
     }
 
-    private List<Item> getItems() {
-        return List.of(
-            Item.builder().id(1L).title("Pen").price(Money.of(CurrencyUnit.of("CNY"), 2)).build(),
-            Item.builder().id(1L).title("Clothes").price(Money.of(CurrencyUnit.of("CNY"), 500)).build(),
-            Item.builder().id(1L).title("iPhone").price(Money.of(CurrencyUnit.of("CNY"), 6799)).build(),
-            Item.builder().id(1L).title("Sony A7III").price(Money.of(CurrencyUnit.of("CNY"), 16999)).build()
-        );
+    @ModelAttribute("cart")
+    public Cart cart() {
+        return new Cart();
     }
 
 }
