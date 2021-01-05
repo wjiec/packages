@@ -17,3 +17,12 @@ create table if not exists spring_order (
     created_at datetime not null default now(),
     updated_at datetime not null default now()
 );
+
+drop table if exists spring_order_item;
+create table if not exists spring_order_item (
+    id identity primary key auto_increment,
+    item_id bigint not null default 0,
+    order_id bigint not null default 0,
+    created_at datetime not null default now(),
+    updated_at datetime not null default now()
+);

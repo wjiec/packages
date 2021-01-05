@@ -9,8 +9,10 @@ import org.hibernate.validator.constraints.CreditCardNumber;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Table;
+import javax.persistence.Transient;
 import javax.validation.constraints.Digits;
 import javax.validation.constraints.NotEmpty;
+import java.util.List;
 
 @Data
 @Entity
@@ -33,5 +35,8 @@ public class Order extends BaseEntity {
     @Column(name = "cc_cvv")
     @Digits(fraction = 3, message = "invalid cvv number", integer = 0)
     private String ccCvv;
+
+    @Transient
+    private List<Item> items;
 
 }
