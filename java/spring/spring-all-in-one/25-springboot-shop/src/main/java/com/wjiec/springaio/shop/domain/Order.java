@@ -1,9 +1,9 @@
 package com.wjiec.springaio.shop.domain;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
-import lombok.NoArgsConstructor;
+import lombok.*;
+import org.hibernate.annotations.Parameter;
+import org.hibernate.annotations.Type;
+import org.joda.money.Money;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -15,6 +15,7 @@ import java.util.List;
 
 @Data
 @Entity
+@Builder
 @NoArgsConstructor
 @AllArgsConstructor
 @Table(name = "spring_order")
@@ -34,6 +35,12 @@ public class Order extends BaseEntity {
     @Column(name = "cc_cvv")
     @Digits(integer = 3, message = "invalid cvv number", fraction = 0)
     private String ccCvv;
+
+    @Type(type = "org.jadira.usertype.moneyandcurrency.joda.PersistentMoneyMinorAmount", parameters = {
+        @Parameter(name = "currencyCode", value = "CNY")
+    })
+    @Column(name = "final_price")
+    private Money finalPrice;
 
     @Transient
     private List<Item> items;

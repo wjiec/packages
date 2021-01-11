@@ -1,13 +1,15 @@
 package com.wjiec.springaio.shop.controller;
 
 import com.wjiec.springaio.shop.domain.Cart;
+import com.wjiec.springaio.shop.domain.Item;
 import com.wjiec.springaio.shop.repository.ItemRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
 import org.springframework.validation.Errors;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @Slf4j
 @Controller
@@ -22,19 +24,13 @@ public class ShoppingController {
     }
 
     @GetMapping
-    public String getItems(Model model, @ModelAttribute Cart cart) {
-        model.addAttribute("cart", cart);
-        model.addAttribute("items", itemRepository.findAll());
-
+    public String getItems(@ModelAttribute Cart cart) {
         return "shopping/items";
     }
 
     @PostMapping
-    public String createCart(@ModelAttribute @Validated Cart cart, Errors errors, Model model) {
+    public String createCart(@ModelAttribute @Validated Cart cart, Errors errors) {
         if (errors.hasErrors()) {
-            model.addAttribute("cart", cart);
-            model.addAttribute("items", itemRepository.findAll());
-
             return "shopping/items";
         }
 
@@ -45,6 +41,11 @@ public class ShoppingController {
     @ModelAttribute("cart")
     public Cart cart() {
         return new Cart();
+    }
+
+    @ModelAttribute("items")
+    public List<Item> items() {
+        return itemRepository.findAll();
     }
 
 }

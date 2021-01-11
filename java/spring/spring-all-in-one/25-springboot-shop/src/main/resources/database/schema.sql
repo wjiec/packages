@@ -14,6 +14,7 @@ create table if not exists spring_order (
     address varchar not null default '',
     cc_number varchar not null default '',
     cc_cvv varchar not null default '',
+    final_price int not null default 0,
     created_at datetime not null default now(),
     updated_at datetime not null default now()
 );
