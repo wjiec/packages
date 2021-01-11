@@ -3,7 +3,9 @@ package com.wjiec.springaio.shop.controller;
 import com.wjiec.springaio.shop.domain.Cart;
 import com.wjiec.springaio.shop.domain.Item;
 import com.wjiec.springaio.shop.domain.Order;
+import com.wjiec.springaio.shop.domain.OrderItem;
 import com.wjiec.springaio.shop.repository.ItemRepository;
+import com.wjiec.springaio.shop.repository.OrderItemRepository;
 import com.wjiec.springaio.shop.repository.OrderRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.joda.money.CurrencyUnit;
@@ -22,15 +24,18 @@ import java.util.List;
 @Slf4j
 @Controller
 @RequestMapping("/order")
-@SessionAttributes("cart")
+@SessionAttributes({"cart", "order"})
 public class OrderController {
 
     private final ItemRepository itemRepository;
     private final OrderRepository orderRepository;
+    private final OrderItemRepository orderItemRepository;
 
-    public OrderController(ItemRepository itemRepository, OrderRepository orderRepository) {
+    public OrderController(ItemRepository itemRepository, OrderRepository orderRepository,
+                           OrderItemRepository orderItemRepository) {
         this.itemRepository = itemRepository;
         this.orderRepository = orderRepository;
+        this.orderItemRepository = orderItemRepository;
     }
 
     @GetMapping("/confirm")
@@ -60,6 +65,7 @@ public class OrderController {
         log.info("create order: {}", order);
         orderRepository.save(order);
         for (var item : order.getItems()) {
+            orderItemRepository.save(OrderItem.builder().itemId(item.getId()).orderId(order.getId()).build());
         }
 
         sessionStatus.setComplete();

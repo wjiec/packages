@@ -4,7 +4,6 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
-import org.hibernate.validator.constraints.CreditCardNumber;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -29,11 +28,11 @@ public class Order extends BaseEntity {
     private String address;
 
     @Column(name = "cc_number")
-    @CreditCardNumber(message = "the credit card number invalid")
+//    @CreditCardNumber(message = "the credit card number invalid")
     private String ccNumber;
 
     @Column(name = "cc_cvv")
-    @Digits(fraction = 3, message = "invalid cvv number", integer = 0)
+    @Digits(integer = 3, message = "invalid cvv number", fraction = 0)
     private String ccCvv;
 
     @Transient
