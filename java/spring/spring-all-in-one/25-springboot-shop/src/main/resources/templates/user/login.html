@@ -1,0 +1,28 @@
+<!doctype html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Login</title>
+</head>
+<body>
+
+    <h1>Welcome back</h1>
+    <form th:action="@{/session}" method="post">
+        <div>
+            <label>Username: <input type="text" name="username"></label>
+            <span th:if="${#fields.hasErrors('username')}" th:errors="*{username}"></span>
+        </div>
+        <div>
+            <label>Passcode: <input type="text" name="passcode"></label>
+            <span th:if="${#fields.hasErrors('passcode')}" th:errors="*{passcode}"></span>
+        </div>
+        <div>
+            <input type="hidden" name="_csrf" th:value="${_csrf.getToken()}">
+            <button>Submit</button>
+        </div>
+    </form>
+
+</body>
+</html>

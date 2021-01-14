@@ -27,3 +27,12 @@ create table if not exists spring_order_item (
     created_at datetime not null default now(),
     updated_at datetime not null default now()
 );
+
+drop table if exists spring_user;
+create table if not exists spring_user (
+   id identity primary key auto_increment,
+   username varchar not null default '',
+   password varchar not null default '',
+   created_at datetime not null default now(),
+   updated_at datetime not null default now()
+);
