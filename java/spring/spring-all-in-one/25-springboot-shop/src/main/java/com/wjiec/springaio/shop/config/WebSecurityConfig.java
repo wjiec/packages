@@ -6,6 +6,7 @@ import com.wjiec.springaio.shop.type.Session;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.builders.WebSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -32,10 +33,15 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     }
 
     @Override
+    public void configure(WebSecurity web) {
+        web.ignoring().antMatchers("/css/**", "/h2-console/**");
+    }
+
+    @Override
     protected void configure(HttpSecurity http) throws Exception {
         http
             .authorizeRequests()
-                .antMatchers("/", "/register", "/login", "/css/**")
+                .antMatchers("/", "/register", "/login")
                     .permitAll()
                 .anyRequest()
                     .authenticated()
@@ -46,6 +52,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 .usernameParameter("username")
                 .passwordParameter("passcode")
                 .successForwardUrl("/")
+                .defaultSuccessUrl("/", true)
             .and()
             .logout()
                 .logoutUrl("/drop")
@@ -94,7 +101,10 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 MessageDigest md5 = MessageDigest.getInstance("MD5");
 
                 md5.update(rawPassword.toString().getBytes());
-                return new String(new BigInteger(md5.digest()).toByteArray());
+
+                BigInteger value = new BigInteger(1, md5.digest());
+                String hash = value.toString(16);
+                return "0".repeat(32 - hash.length()) + hash;
             } catch (NoSuchAlgorithmException e) {
                 return rawPassword.toString();
             }

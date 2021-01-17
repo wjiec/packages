@@ -22,6 +22,9 @@ import java.util.List;
 @EqualsAndHashCode(callSuper = true)
 public class Order extends BaseEntity {
 
+    @Column(name = "user_id")
+    private Long userId;
+
     @NotEmpty(message = "the name must not be empty")
     private String name;
 

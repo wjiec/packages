@@ -1,6 +1,7 @@
 package com.wjiec.springaio.shop.type;
 
 import com.wjiec.springaio.shop.domain.User;
+import lombok.Data;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -8,6 +9,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import java.util.Collection;
 import java.util.List;
 
+@Data
 public class Session implements UserDetails {
 
     private final User user;
@@ -23,12 +25,18 @@ public class Session implements UserDetails {
 
     @Override
     public String getPassword() {
-        return user.getPassword();
+        if (user != null) {
+            return user.getPassword();
+        }
+        return null;
     }
 
     @Override
     public String getUsername() {
-        return user.getUsername();
+        if (user != null) {
+            return user.getUsername();
+        }
+        return null;
     }
 
     @Override

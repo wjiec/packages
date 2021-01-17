@@ -8,18 +8,19 @@
 </head>
 <body>
 
-    <h1>Welcome back</h1>
-    <form th:action="@{/session}" method="post">
+    <h1>Welcome back - <a th:href="@{/register}">JOIN US</a></h1>
+    <form th:action="@{/session}" method="post" th:object="${login}">
+        <div th:if="${error}"><h3 th:text="${error}"></h3></div>
+
         <div>
-            <label>Username: <input type="text" name="username"></label>
+            <label>Username: <input type="text" th:field="*{username}"></label>
             <span th:if="${#fields.hasErrors('username')}" th:errors="*{username}"></span>
         </div>
         <div>
-            <label>Passcode: <input type="text" name="passcode"></label>
+            <label>Passcode: <input type="text" th:field="*{passcode}"></label>
             <span th:if="${#fields.hasErrors('passcode')}" th:errors="*{passcode}"></span>
         </div>
         <div>
-            <input type="hidden" name="_csrf" th:value="${_csrf.getToken()}">
             <button>Submit</button>
         </div>
     </form>

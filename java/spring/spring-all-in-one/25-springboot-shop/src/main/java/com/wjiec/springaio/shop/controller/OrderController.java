@@ -7,9 +7,11 @@ import com.wjiec.springaio.shop.domain.OrderItem;
 import com.wjiec.springaio.shop.repository.ItemRepository;
 import com.wjiec.springaio.shop.repository.OrderItemRepository;
 import com.wjiec.springaio.shop.repository.OrderRepository;
+import com.wjiec.springaio.shop.type.Session;
 import lombok.extern.slf4j.Slf4j;
 import org.joda.money.CurrencyUnit;
 import org.joda.money.Money;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.Errors;
 import org.springframework.validation.annotation.Validated;
@@ -51,12 +53,14 @@ public class OrderController {
 
     @Transactional
     @PostMapping("/confirm")
-    public String createOrder(@Validated Order order, Errors errors, @ModelAttribute("finalPrice") Money finalPrice,
-                              SessionStatus sessionStatus) {
+    public String createOrder(@Validated Order order, Errors errors,
+                              @ModelAttribute("finalPrice") Money finalPrice,
+                              SessionStatus sessionStatus, @AuthenticationPrincipal Session session) {
         if (errors.hasErrors()) {
             return "order/confirm";
         }
 
+        order.setUserId(session.getUser().getId());
         order.setFinalPrice(finalPrice);
         orderRepository.save(order);
         for (var item : order.getItems()) {
@@ -76,8 +80,8 @@ public class OrderController {
     }
 
     @ModelAttribute("order")
-    public Order order() {
-        return new Order();
+    public Order order(@AuthenticationPrincipal Session session) {
+        return Order.builder().name(session.getUsername()).build();
     }
 
     @ModelAttribute("items")

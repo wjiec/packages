@@ -10,6 +10,7 @@ create table if not exists spring_item (
 drop table if exists spring_order;
 create table if not exists spring_order (
     id identity primary key auto_increment,
+    user_id bigint not null default 0,
     name varchar not null default '',
     address varchar not null default '',
     cc_number varchar not null default '',

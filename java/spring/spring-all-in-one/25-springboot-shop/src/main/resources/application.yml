@@ -20,6 +20,7 @@ spring:
     schema: classpath:/database/schema.sql
     data: classpath:/database/data.sql
     initialization-mode: always
-#logging:
-#  level:
-#    root: debug
+    url: jdbc:h2:mem:spring_shop
+logging:
+  level:
+    root: debug

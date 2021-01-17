@@ -9,12 +9,15 @@ import javax.validation.constraints.Size;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class LoginParam {
+public class RegisterParam {
 
     @Size(min = 6, max = 18, message = "The length of username must be between {min} and {max}")
     private String username;
 
     @Size(min = 6, max = 18, message = "The length of passcode must be between {min} and {max}")
     private String passcode;
+
+    @Size(min = 6, max = 18, message = "The length of passcode must be between {min} and {max}")
+    private String checkedPasscode;
 
 }

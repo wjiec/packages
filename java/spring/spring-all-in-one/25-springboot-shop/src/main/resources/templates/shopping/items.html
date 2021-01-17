@@ -10,7 +10,7 @@
 
     <h1>Shopping List</h1>
 
-    <form method="post">
+    <form th:action="@{/shopping}" method="post">
         <ul>
             <li th:each="item : ${items}">
                 <label><input type="checkbox" name="itemIds" th:value="${item.id}">

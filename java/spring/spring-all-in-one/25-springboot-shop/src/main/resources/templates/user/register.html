@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="en">
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0">
@@ -9,6 +9,23 @@
 <body>
 
     <h1>Welcome join us</h1>
+    <form th:action="@{/register}" method="post" th:object="${register}">
+        <div>
+            <label>Username: <input type="text" th:field="*{username}"></label>
+            <span th:if="${#fields.hasErrors('username')}" th:errors="*{username}"></span>
+        </div>
+        <div>
+            <label>Passcode: <input type="text" th:field="*{passcode}"></label>
+            <span th:if="${#fields.hasErrors('passcode')}" th:errors="*{passcode}"></span>
+        </div>
+        <div>
+            <label>checkedPasscode: <input type="text" th:field="*{checkedPasscode}"></label>
+            <span th:if="${#fields.hasErrors('checkedPasscode')}" th:errors="*{checkedPasscode}"></span>
+        </div>
+        <div>
+            <button>Submit</button>
+        </div>
+    </form>
 
 </body>
 </html>
