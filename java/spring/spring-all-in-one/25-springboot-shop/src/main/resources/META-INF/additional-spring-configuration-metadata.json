@@ -1,0 +1,11 @@
+{
+  "properties": [{
+    "name": "shop.server.listen",
+    "type": "java.lang.String",
+    "description": "the server listen on."
+  }, {
+    "name": "shop.pagination.size",
+    "type": "java.lang.Integer",
+    "description": "the pagination size."
+  }]
+}

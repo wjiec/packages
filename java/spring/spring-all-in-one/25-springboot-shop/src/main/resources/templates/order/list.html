@@ -1,0 +1,21 @@
+<!doctype html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Order List</title>
+</head>
+<body>
+
+    <h1>Order List</h1>
+    <ul>
+        <li th:each="order in ${orders}">
+            <span th:text="${order.id}">1</span>
+            :&nbsp;
+            <span th:text="${order.finalPrice}">0.00</span>
+        </li>
+    </ul>
+
+</body>
+</html>

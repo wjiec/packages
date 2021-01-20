@@ -1,5 +1,6 @@
 package com.wjiec.springaio.shop.controller;
 
+import com.wjiec.springaio.shop.config.ShopProperties;
 import com.wjiec.springaio.shop.domain.Cart;
 import com.wjiec.springaio.shop.domain.Item;
 import com.wjiec.springaio.shop.domain.Order;
@@ -11,8 +12,11 @@ import com.wjiec.springaio.shop.type.Session;
 import lombok.extern.slf4j.Slf4j;
 import org.joda.money.CurrencyUnit;
 import org.joda.money.Money;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.validation.Errors;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.HttpSessionRequiredException;
@@ -37,6 +41,20 @@ public class OrderController {
         this.itemRepository = itemRepository;
         this.orderRepository = orderRepository;
         this.orderItemRepository = orderItemRepository;
+    }
+
+    @GetMapping
+    public String orderList(Model model, ShopProperties properties, Authentication authentication) {
+        if (!authentication.isAuthenticated()) {
+            return "redirect:/login";
+        }
+
+        model.addAttribute("orders", orderRepository.findByUserIdOrderByCreatedAtDesc(
+            ((Session) authentication.getDetails()).getUser().getId(),
+            PageRequest.of(0, properties.getPagination().getSize())
+        ));
+
+        return "order/list";
     }
 
     @GetMapping("/confirm")
