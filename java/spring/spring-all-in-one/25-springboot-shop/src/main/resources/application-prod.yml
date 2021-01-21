@@ -1,0 +1,8 @@
+spring:
+  datasource:
+    url: jdbc:mysql://mysql/spring-shop
+    username: spring_rw
+    password: (^pass$W0rd..
+logging:
+  level:
+    root: warn
