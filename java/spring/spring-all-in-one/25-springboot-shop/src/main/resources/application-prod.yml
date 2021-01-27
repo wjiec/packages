@@ -6,3 +6,9 @@ spring:
 logging:
   level:
     root: warn
+server:
+  port: 8443
+  ssl:
+    key-store: classpath:spring-shop.jks
+    key-store-password: spring
+    key-password: spring

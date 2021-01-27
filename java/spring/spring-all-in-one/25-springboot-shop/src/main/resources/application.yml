@@ -24,11 +24,7 @@ spring:
     initialization-mode: always
     url: jdbc:h2:mem:spring_shop
 server:
-  port: 8443
-  ssl:
-    key-store: classpath:spring-shop.jks
-    key-store-password: spring
-    key-password: spring
+  port: 8080
 logging:
   level:
     org:
