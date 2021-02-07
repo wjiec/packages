@@ -336,6 +336,7 @@ func (b *Bucket) Delete(key []byte) error {
 	return nil
 }
 
+// 该方法获取该 Bucket 的序列号, 但是不会递增序列号
 // Sequence returns the current integer for the bucket without incrementing it.
 func (b *Bucket) Sequence() uint64 { return b.bucket.sequence }
 

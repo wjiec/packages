@@ -104,10 +104,13 @@ func (m *Main) Run(args ...string) error {
 		// 执行性能测试
 		return newBenchCommand(m).Run(args[1:]...)
 	case "check":
+		// 执行一致性检查, 并打印结果
 		return newCheckCommand(m).Run(args[1:]...)
 	case "compact":
+		// 将一个数据库文件压缩另存到一个新数据库文件中, 并打印压缩率
 		return newCompactCommand(m).Run(args[1:]...)
 	case "dump":
+		// 以十六进制方式打印指定页面内容
 		return newDumpCommand(m).Run(args[1:]...)
 	case "info":
 		return newInfoCommand(m).Run(args[1:]...)
@@ -163,31 +166,37 @@ func newCheckCommand(m *Main) *CheckCommand {
 
 // Run executes the command.
 func (cmd *CheckCommand) Run(args ...string) error {
+	// 解析参数, 判断是否需要显示帮助信息
 	// Parse flags.
 	fs := flag.NewFlagSet("", flag.ContinueOnError)
 	help := fs.Bool("h", false, "")
 	if err := fs.Parse(args); err != nil {
 		return err
 	} else if *help {
-		fmt.Fprintln(cmd.Stderr, cmd.Usage())
+		_, _ = fmt.Fprintln(cmd.Stderr, cmd.Usage())
 		return ErrUsage
 	}
 
+	// 在命令行参数后的第一个位置参数为数据库文件的路径
 	// Require database path.
 	path := fs.Arg(0)
 	if path == "" {
+		// 未指定文件直接报错
 		return ErrPathRequired
 	} else if _, err := os.Stat(path); os.IsNotExist(err) {
+		// 文件不存在也直接报错
 		return ErrFileNotFound
 	}
 
+	// 打开数据库文件
 	// Open database.
 	db, err := bolt.Open(path, 0666, nil)
 	if err != nil {
 		return err
 	}
-	defer db.Close()
+	defer func() { _ = db.Close() }()
 
+	// 执行一致性检查
 	// Perform consistency check.
 	return db.View(func(tx *bolt.Tx) error {
 		var count int
@@ -199,19 +208,21 @@ func (cmd *CheckCommand) Run(args ...string) error {
 				if !ok {
 					break loop
 				}
-				fmt.Fprintln(cmd.Stdout, err)
+				_, _ = fmt.Fprintln(cmd.Stdout, err)
 				count++
 			}
 		}
 
+		// 有错误的情况下, 最后打印一共检查到多少次错误
 		// Print summary of errors.
 		if count > 0 {
-			fmt.Fprintf(cmd.Stdout, "%d errors found\n", count)
+			_, _ = fmt.Fprintf(cmd.Stdout, "%d errors found\n", count)
 			return ErrCorrupt
 		}
 
+		// 没错误的情况下直接返回 OK
 		// Notify user that database is valid.
-		fmt.Fprintln(cmd.Stdout, "OK")
+		_, _ = fmt.Fprintln(cmd.Stdout, "OK")
 		return nil
 	})
 }
@@ -307,16 +318,18 @@ func newDumpCommand(m *Main) *DumpCommand {
 
 // Run executes the command.
 func (cmd *DumpCommand) Run(args ...string) error {
+	// 解析命令行参数, 检查是否需要打印帮助信息
 	// Parse flags.
 	fs := flag.NewFlagSet("", flag.ContinueOnError)
 	help := fs.Bool("h", false, "")
 	if err := fs.Parse(args); err != nil {
 		return err
 	} else if *help {
-		fmt.Fprintln(cmd.Stderr, cmd.Usage())
+		_, _ = fmt.Fprintln(cmd.Stderr, cmd.Usage())
 		return ErrUsage
 	}
 
+	// 读取第一个位置参数作为数据库文件路径, 并检查是否存在
 	// Require database path and page id.
 	path := fs.Arg(0)
 	if path == "" {
@@ -325,20 +338,24 @@ func (cmd *DumpCommand) Run(args ...string) error {
 		return ErrFileNotFound
 	}
 
+	// 在第一个位置参数之后的为需要 dump 的页面Id
 	// Read page ids.
 	pageIDs, err := atois(fs.Args()[1:])
 	if err != nil {
 		return err
 	} else if len(pageIDs) == 0 {
+		// 如果不指定页面Id , 则直接报错
 		return ErrPageIDRequired
 	}
 
+	// 读取数据库的页面大小
 	// Open database to retrieve page size.
 	pageSize, err := ReadPageSize(path)
 	if err != nil {
 		return err
 	}
 
+	// 直接以文件方式打开数据库文件
 	// Open database file handler.
 	f, err := os.Open(path)
 	if err != nil {
@@ -346,11 +363,12 @@ func (cmd *DumpCommand) Run(args ...string) error {
 	}
 	defer func() { _ = f.Close() }()
 
+	// 打印每一个指定页面Id的页面数据
 	// Print each page listed.
 	for i, pageID := range pageIDs {
 		// Print a separator.
 		if i > 0 {
-			fmt.Fprintln(cmd.Stdout, "===============================================")
+			_, _ = fmt.Fprintln(cmd.Stdout, "===============================================")
 		}
 
 		// Print page to stdout.
@@ -362,6 +380,7 @@ func (cmd *DumpCommand) Run(args ...string) error {
 	return nil
 }
 
+// 以十六进制的方式打印每个给定页面的内容
 // PrintPage prints a given page as hexadecimal.
 func (cmd *DumpCommand) PrintPage(w io.Writer, r io.ReaderAt, pageID int, pageSize int) error {
 	const bytesPerLineN = 16
@@ -369,29 +388,33 @@ func (cmd *DumpCommand) PrintPage(w io.Writer, r io.ReaderAt, pageID int, pageSi
 	// Read page into buffer.
 	buf := make([]byte, pageSize)
 	addr := pageID * pageSize
+	// 从指定位置开始读取一个页面的数据到缓存区中
 	if n, err := r.ReadAt(buf, int64(addr)); err != nil {
 		return err
 	} else if n != pageSize {
 		return io.ErrUnexpectedEOF
 	}
 
+	// 以16个直接为一行写到标准输出中
 	// Write out to writer in 16-byte lines.
 	var prev []byte
 	var skipped bool
 	for offset := 0; offset < pageSize; offset += bytesPerLineN {
 		// Retrieve current 16-byte line.
 		line := buf[offset : offset+bytesPerLineN]
-		isLastLine := (offset == (pageSize - bytesPerLineN))
+		isLastLine := offset == (pageSize - bytesPerLineN)
 
+		// 如果当前行的内容与前一行的内容相应, 则只打印一行数据, 并跳过剩余的所有相同数据
 		// If it's the same as the previous line then print a skip.
 		if bytes.Equal(line, prev) && !isLastLine {
 			if !skipped {
-				fmt.Fprintf(w, "%07x *\n", addr+offset)
+				_, _ = fmt.Fprintf(w, "%07x *\n", addr+offset)
 				skipped = true
 			}
 		} else {
+			// 2个直接一组以十六进制打印所有的数据
 			// Print line as hexadecimal in 2-byte groups.
-			fmt.Fprintf(w, "%07x %04x %04x %04x %04x %04x %04x %04x %04x\n", addr+offset,
+			_, _ = fmt.Fprintf(w, "%07x %04x %04x %04x %04x %04x %04x %04x %04x\n", addr+offset,
 				line[0:2], line[2:4], line[4:6], line[6:8],
 				line[8:10], line[10:12], line[12:14], line[14:16],
 			)
@@ -399,10 +422,11 @@ func (cmd *DumpCommand) PrintPage(w io.Writer, r io.ReaderAt, pageID int, pageSi
 			skipped = false
 		}
 
+		// 保存前一行数据方便做相等判断
 		// Save the previous line.
 		prev = line
 	}
-	fmt.Fprint(w, "\n")
+	_, _ = fmt.Fprint(w, "\n")
 
 	return nil
 }
@@ -1498,6 +1522,7 @@ func ReadPage(path string, pageID int) (*page, []byte, error) {
 	return p, buf, nil
 }
 
+// 直接打开文件并且读取文件头, 获取页面大小
 // ReadPageSize reads page size a path.
 // This is not transactionally safe.
 func ReadPageSize(path string) (int, error) {
@@ -1506,19 +1531,22 @@ func ReadPageSize(path string) (int, error) {
 	if err != nil {
 		return 0, err
 	}
-	defer f.Close()
+	defer func() { _ = f.Close() }()
 
+	// 读取 4kb 的文件头内容
 	// Read 4KB chunk.
 	buf := make([]byte, 4096)
 	if _, err := io.ReadFull(f, buf); err != nil {
 		return 0, err
 	}
 
+	// 从文件头中指定位置读取元数据(16字节处)
 	// Read page size from metadata.
 	m := (*meta)(unsafe.Pointer(&buf[PageHeaderSize]))
 	return int(m.pageSize), nil
 }
 
+// 将一个字符串数组转换为一个 int 数组
 // atois parses a slice of strings into integers.
 func atois(strs []string) ([]int, error) {
 	var a []int
@@ -1660,13 +1688,14 @@ func newCompactCommand(m *Main) *CompactCommand {
 
 // Run executes the command.
 func (cmd *CompactCommand) Run(args ...string) (err error) {
+	// 解析命令行参数, 但是不打印错误信息
 	// Parse flags.
 	fs := flag.NewFlagSet("", flag.ContinueOnError)
 	fs.SetOutput(ioutil.Discard)
 	fs.StringVar(&cmd.DstPath, "o", "", "")
 	fs.Int64Var(&cmd.TxMaxSize, "tx-max-size", 65536, "")
 	if err := fs.Parse(args); err == flag.ErrHelp {
-		fmt.Fprintln(cmd.Stderr, cmd.Usage())
+		_, _ = fmt.Fprintln(cmd.Stderr, cmd.Usage())
 		return ErrUsage
 	} else if err != nil {
 		return err
@@ -1674,12 +1703,14 @@ func (cmd *CompactCommand) Run(args ...string) (err error) {
 		return fmt.Errorf("output file required")
 	}
 
+	// 获取位置参数作为源数据库文件路径
 	// Require database paths.
 	cmd.SrcPath = fs.Arg(0)
 	if cmd.SrcPath == "" {
 		return ErrPathRequired
 	}
 
+	// 检查源数据库文件是否存在
 	// Ensure source file exists.
 	fi, err := os.Stat(cmd.SrcPath)
 	if os.IsNotExist(err) {
@@ -1687,27 +1718,32 @@ func (cmd *CompactCommand) Run(args ...string) (err error) {
 	} else if err != nil {
 		return err
 	}
+	// 获取初始文件的大小
 	initialSize := fi.Size()
 
+	// 打开源数据库文件
 	// Open source database.
 	src, err := bolt.Open(cmd.SrcPath, 0444, nil)
 	if err != nil {
 		return err
 	}
-	defer src.Close()
+	defer func() { _ = src.Close() }()
 
+	// 打开目标数据库文件, 通过命令行参数提供
 	// Open destination database.
 	dst, err := bolt.Open(cmd.DstPath, fi.Mode(), nil)
 	if err != nil {
 		return err
 	}
-	defer dst.Close()
+	defer func() { _ = dst.Close() }()
 
+	// 执行压缩
 	// Run compaction.
 	if err := cmd.compact(dst, src); err != nil {
 		return err
 	}
 
+	// 检查目标数据库文件是否存在, 并检查目标文件的大小是否为0
 	// Report stats on new size.
 	fi, err = os.Stat(cmd.DstPath)
 	if err != nil {
@@ -1715,51 +1751,71 @@ func (cmd *CompactCommand) Run(args ...string) (err error) {
 	} else if fi.Size() == 0 {
 		return fmt.Errorf("zero db size")
 	}
-	fmt.Fprintf(cmd.Stdout, "%d -> %d bytes (gain=%.2fx)\n", initialSize, fi.Size(), float64(initialSize)/float64(fi.Size()))
+
+	// 打印压缩比例
+	_, _ = fmt.Fprintf(cmd.Stdout, "%d -> %d bytes (gain=%.2fx)\n",
+		initialSize, fi.Size(), float64(initialSize)/float64(fi.Size()))
 
 	return nil
 }
 
 func (cmd *CompactCommand) compact(dst, src *bolt.DB) error {
+	// 执行定期提交, 不然在一个大数据集中执行事务将会耗尽内存
 	// commit regularly, or we'll run out of memory for large datasets if using one transaction.
 	var size int64
 	tx, err := dst.Begin(true)
 	if err != nil {
 		return err
 	}
-	defer tx.Rollback()
+	defer func() { _ = tx.Rollback() }()
 
+	// 遍历源数据库中的所有键值对
+	// keys - Bucket 的访问路径
+	// k, v - 键值对
+	// seq - Bucket 的序列号
 	if err := cmd.walk(src, func(keys [][]byte, k, v []byte, seq uint64) error {
+		// 对每个键值对需要判断是否有足够的事务大小来提交
 		// On each key/value, check if we have exceeded tx size.
 		sz := int64(len(k) + len(v))
+		// 如果指定了最大事务大小, 并且当前剩余的事务空间不足, 则直接提交数据库事务
 		if size+sz > cmd.TxMaxSize && cmd.TxMaxSize != 0 {
+			// 提交前一个数据库事务
 			// Commit previous transaction.
 			if err := tx.Commit(); err != nil {
 				return err
 			}
 
+			// 然后再新开一个可写事务
 			// Start new transaction.
 			tx, err = dst.Begin(true)
 			if err != nil {
 				return err
 			}
+
+			// 重置事务大小为0
 			size = 0
 		}
+
+		// 增加当前事务的大小
 		size += sz
 
+		// 当前非嵌套 Bucket 时, 在根下创建 Bucket
 		// Create bucket on the root transaction if this is the first level.
 		nk := len(keys)
 		if nk == 0 {
+			// 在根下创建 Bucket
 			bkt, err := tx.CreateBucket(k)
 			if err != nil {
 				return err
 			}
+			// 设置 Bucket 的序列号
 			if err := bkt.SetSequence(seq); err != nil {
 				return err
 			}
 			return nil
 		}
 
+		// 循环到实际需要的嵌套 Bucket
 		// Create buckets on subsequent levels, if necessary.
 		b := tx.Bucket(keys[0])
 		if nk > 1 {
@@ -1768,6 +1824,7 @@ func (cmd *CompactCommand) compact(dst, src *bolt.DB) error {
 			}
 		}
 
+		// 如果当前值为 nil , 这表示需要创建一个 Bucket
 		// If there is no value then this is a bucket call.
 		if v == nil {
 			bkt, err := b.CreateBucket(k)
@@ -1780,12 +1837,14 @@ func (cmd *CompactCommand) compact(dst, src *bolt.DB) error {
 			return nil
 		}
 
+		// 否则直接在 Bucket 中设置一个键值对
 		// Otherwise treat it as a key/value pair.
 		return b.Put(k, v)
 	}); err != nil {
 		return err
 	}
 
+	// 最后提交事务
 	return tx.Commit()
 }
 
@@ -1794,33 +1853,44 @@ func (cmd *CompactCommand) compact(dst, src *bolt.DB) error {
 // owning the discovered key/value pair k/v.
 type walkFunc func(keys [][]byte, k, v []byte, seq uint64) error
 
+// 递归遍历所有的数据库Bucket, 针对每个找到的 key 执行 walkFn 方法
 // walk walks recursively the bolt database db, calling walkFn for each key it finds.
 func (cmd *CompactCommand) walk(db *bolt.DB, walkFn walkFunc) error {
+	// 开启只读事务遍历所有的键值对
 	return db.View(func(tx *bolt.Tx) error {
+		// 遍历根下的所有 Bucket
 		return tx.ForEach(func(name []byte, b *bolt.Bucket) error {
+			// 遍历每个 Bucket 下的所有键值对
 			return cmd.walkBucket(b, nil, name, nil, b.Sequence(), walkFn)
 		})
 	})
 }
 
+// 遍历 Bucket 下的所有键值对
 func (cmd *CompactCommand) walkBucket(b *bolt.Bucket, keypath [][]byte, k, v []byte, seq uint64, fn walkFunc) error {
+	// 处理所有根下的 Bucket , keypath = nil
 	// Execute callback.
 	if err := fn(keypath, k, v, seq); err != nil {
 		return err
 	}
 
+	// 如果当前值不为空, 表示当前不是一个嵌套 Bucket , 就直接退出
 	// If this is not a bucket then stop.
 	if v != nil {
 		return nil
 	}
 
+	// 迭代嵌套 Bucket 中的所有键值对
 	// Iterate over each child key/value.
 	keypath = append(keypath, k)
 	return b.ForEach(func(k, v []byte) error {
+		// 再深一层的嵌套 Bucket , 递归遍历
 		if v == nil {
 			bkt := b.Bucket(k)
 			return cmd.walkBucket(bkt, keypath, k, nil, bkt.Sequence(), fn)
 		}
+
+		// 键值对直接返回遍历当前 Bucket
 		return cmd.walkBucket(b, keypath, k, v, b.Sequence(), fn)
 	})
 }
