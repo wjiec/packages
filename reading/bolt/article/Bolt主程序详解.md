@@ -125,7 +125,6 @@ bench子命令的主体执行流程如下：
  - 根据profile-mode参数决定是否关闭运行时信息收集（只分析读取或者分析读取写入的运行时数据）
  - 打印结果
 
-
 ##### 1、解析bench命令的命令行参数
 
 在这里使用的是`flag`包中提供的`FlagSet`来解析命令行参数。
@@ -349,6 +348,163 @@ _, _ = fmt.Fprintf(os.Stderr, "# Read\t%v\t(%v/op)\t(%v op/sec)\n",
     results.ReadDuration, results.ReadOpDuration(), results.ReadOpsPerSecond())
 ```
 
+#### check子命令
+
+这个子命令是对数据库进行一致性检查，并打印检查结果。
+
+打开第一个位置参数指定的数据库之后，获取只读事务并调用`tx.Check()`方法获得一个错误的通道，然后打印
+其中的错误并统计次数输出即可。
+
+在实际代码中，对于`ch`的循环这里做复杂了，可以直接使用`for range`来循环实现。
+```go
+db.View(func(tx *bolt.Tx) error {
+    var count int
+    for err := range tx.Check() {
+    	_, _ = fmt.Fprintln(cmd.Stdout, err)
+        count++
+    }
+    // ...
+}
+```
+
+#### compact子命令
+
+该命令是遍历指定的数据库文件并将其数据转存到一个新数据库文件中, 并打印转存完之后文件缩小的比例。
+
+该命令使用`-o`参数指定输入的数据库文件名，使用第一个位置参数指定输入数据库文件名。`-tx-max-size`
+参数用于指定事务的数据量大小，默认为`65536`表示每 64k 提交一次事务（键和值的长度累加）
+
+主要逻辑遍历源数据库中的所有键值对，然后检查事务中的数据量加上当前键值对是否超出参数指定的最大值。
+如果超过，则先提交事务后再新开事务，再执行插入。如果未超过，就直接执行插入操作，并增加计数。
+```go
+// keys - Bucket 的访问路径, k, v - 键值对, seq - Bucket 的序列号
+cmd.walk(src, func(keys [][]byte, k, v []byte, seq uint64) error {
+    // 对每个键值对需要判断是否有足够的事务大小来提交
+    sz := int64(len(k) + len(v))
+    // 如果指定了最大事务大小, 并且当前剩余的事务空间不足, 则直接提交数据库事务
+    if size+sz > cmd.TxMaxSize && cmd.TxMaxSize != 0 {
+        // 提交前一个数据库事务
+        _ =  tx.Commit()
+        // 然后再新开一个可写事务
+        tx, _ = dst.Begin(true)
+        // 重置事务大小为0
+        size = 0
+    }
+
+    // 增加当前事务的大小
+    size += sz
+
+    // 当前非嵌套 Bucket 时, 在根下创建 Bucket
+    if len(keys) == 0 {
+        // 在根下创建 Bucket
+        bkt, _ := tx.CreateBucket(k)
+        // 设置 Bucket 的序列号
+        err := bkt.SetSequence(seq)
+    }
+
+    // 循环到实际需要的嵌套 Bucket
+    b := tx.Bucket(keys[0])
+    if len(keys) > 1 {
+        for _, k := range keys[1:] {
+            b = b.Bucket(k)
+        }
+    }
+
+    // 如果当前值为 nil , 这表示需要创建一个 Bucket
+    if v == nil {
+        bkt, _ = b.CreateBucket(k)
+        _ = bkt.SetSequence(seq)
+    }
+
+    // 否则直接在 Bucket 中设置一个键值对
+    return b.Put(k, v)
+})
+```
+
+转存完所有数据之后，再根据文件大小打印压缩率。
+```go
+_, _ = fmt.Fprintf(cmd.Stdout, "%d -> %d bytes (gain=%.2fx)\n",
+    initialSize, dstFile.Size(), float64(initialSize)/float64(dstFile.Size()))
+```
+
+#### dump子命令
+
+该子命令将以十六进制打印指定数据库的指定页面号的十六进制数据。该命令的第一个位置参数将作为
+数据库文件路径，后续参数将作为需要打印的页面号。
+
+首先将直接打开文件读取前 4k 的数据，并从其中读取元数据，其中有每个页面的大小。
+```go
+f, err := os.Open(path)
+
+// 读取 4kb 的文件头内容
+buf := make([]byte, 4096)
+_, err := io.ReadFull(f, buf)
+
+// 从文件头中指定位置读取元数据(16字节处)
+m := (*meta)(unsafe.Pointer(&buf[PageHeaderSize]))
+return int(m.pageSize), nil
+```
+
+注意最后的一个转换操作，这里相当于直接将这个缓存区的内容当做一个变量来使用。可以类比C语言中的
+```c
+char *buf = {0x1, 0x2, 0x3, 0x4};
+int *num = (int*)buf;
+```
+
+这里`*num`的值根据系统字节序可以有，如果是大端字节序，则为`0x01020304`；如果是小端字节序，
+则为`0x04030201`。
+
+话题回来，之后就是根据页面号读取每个页面的数据，并将其以十六进制方式输出。
+```go
+for i, pageID := range pageIDs {
+    _ = cmd.PrintPage(cmd.Stdout, f, pageID, pageSize)
+}
+
+// 以十六进制的方式打印每个给定页面的内容
+PrintPage(w io.Writer, r io.ReaderAt, pageID int, pageSize int) error {
+	const bytesPerLineN = 16
+
+	// Read page into buffer.
+	buf := make([]byte, pageSize)
+	addr := pageID * pageSize
+	// 从指定位置开始读取一个页面的数据到缓存区中
+	n, err := r.ReadAt(buf, int64(addr))
+
+	// 以16个直接为一行写到标准输出中
+	// Write out to writer in 16-byte lines.
+	var prev []byte
+	var skipped bool
+	for offset := 0; offset < pageSize; offset += bytesPerLineN {
+		// 每16个直接为一行数据
+		line := buf[offset : offset+bytesPerLineN]
+		isLastLine := offset == (pageSize - bytesPerLineN)
+
+		// 如果当前行的内容与前一行的内容相应, 则只打印一行数据, 并跳过剩余的所有相同数据
+		if bytes.Equal(line, prev) && !isLastLine {
+			if !skipped {
+				_, _ = fmt.Fprintf(w, "%07x *\n", addr+offset)
+				skipped = true
+			}
+		} else {
+			// 2个直接一组以十六进制打印所有的数据
+			_, _ = fmt.Fprintf(w, "%07x %04x %04x %04x %04x %04x %04x %04x %04x\n", addr+offset,
+				line[0:2], line[2:4], line[4:6], line[6:8],
+				line[8:10], line[10:12], line[12:14], line[14:16],
+			)
+
+			skipped = false
+		}
+
+		// 保存前一行数据方便做相等判断
+		prev = line
+	}
+	_, _ = fmt.Fprint(w, "\n")
+
+	return nil
+}
+```
+
+#### info子命令
 
 
 
