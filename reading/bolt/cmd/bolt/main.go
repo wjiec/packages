@@ -113,12 +113,16 @@ func (m *Main) Run(args ...string) error {
 		// 以十六进制方式打印指定页面内容
 		return newDumpCommand(m).Run(args[1:]...)
 	case "info":
+		// 打印数据库文件的页面大小
 		return newInfoCommand(m).Run(args[1:]...)
 	case "page":
+		// 打印页面详细数据
 		return newPageCommand(m).Run(args[1:]...)
 	case "pages":
+		// 打印所有页面信息
 		return newPagesCommand(m).Run(args[1:]...)
 	case "stats":
+		//
 		return newStatsCommand(m).Run(args[1:]...)
 	default:
 		return ErrUnknownCommand
@@ -265,7 +269,7 @@ func (cmd *InfoCommand) Run(args ...string) error {
 	if err := fs.Parse(args); err != nil {
 		return err
 	} else if *help {
-		fmt.Fprintln(cmd.Stderr, cmd.Usage())
+		_, _ = fmt.Fprintln(cmd.Stderr, cmd.Usage())
 		return ErrUsage
 	}
 
@@ -282,11 +286,11 @@ func (cmd *InfoCommand) Run(args ...string) error {
 	if err != nil {
 		return err
 	}
-	defer db.Close()
+	defer func() { _ = db.Close() }()
 
 	// Print basic database info.
 	info := db.Info()
-	fmt.Fprintf(cmd.Stdout, "Page Size: %d\n", info.PageSize)
+	_, _ = fmt.Fprintf(cmd.Stdout, "Page Size: %d\n", info.PageSize)
 
 	return nil
 }
@@ -464,7 +468,7 @@ func (cmd *PageCommand) Run(args ...string) error {
 	if err := fs.Parse(args); err != nil {
 		return err
 	} else if *help {
-		fmt.Fprintln(cmd.Stderr, cmd.Usage())
+		_, _ = fmt.Fprintln(cmd.Stderr, cmd.Usage())
 		return ErrUsage
 	}
 
@@ -495,19 +499,21 @@ func (cmd *PageCommand) Run(args ...string) error {
 	for i, pageID := range pageIDs {
 		// Print a separator.
 		if i > 0 {
-			fmt.Fprintln(cmd.Stdout, "===============================================")
+			_, _ = fmt.Fprintln(cmd.Stdout, "===============================================")
 		}
 
+		// 读取整页数据
 		// Retrieve page info and page size.
 		p, buf, err := ReadPage(path, pageID)
 		if err != nil {
 			return err
 		}
 
+		// 打印页面信息，页面Id，页面类型，数据大小
 		// Print basic page info.
-		fmt.Fprintf(cmd.Stdout, "Page ID:    %d\n", p.id)
-		fmt.Fprintf(cmd.Stdout, "Page Type:  %s\n", p.Type())
-		fmt.Fprintf(cmd.Stdout, "Total Size: %d bytes\n", len(buf))
+		_, _ = fmt.Fprintf(cmd.Stdout, "Page ID:    %d\n", p.id)
+		_, _ = fmt.Fprintf(cmd.Stdout, "Page Type:  %s\n", p.Type())
+		_, _ = fmt.Fprintf(cmd.Stdout, "Total Size: %d bytes\n", len(buf))
 
 		// Print type-specific data.
 		switch p.Type() {
@@ -531,15 +537,15 @@ func (cmd *PageCommand) Run(args ...string) error {
 // PrintMeta prints the data from the meta page.
 func (cmd *PageCommand) PrintMeta(w io.Writer, buf []byte) error {
 	m := (*meta)(unsafe.Pointer(&buf[PageHeaderSize]))
-	fmt.Fprintf(w, "Version:    %d\n", m.version)
-	fmt.Fprintf(w, "Page Size:  %d bytes\n", m.pageSize)
-	fmt.Fprintf(w, "Flags:      %08x\n", m.flags)
-	fmt.Fprintf(w, "Root:       <pgid=%d>\n", m.root.root)
-	fmt.Fprintf(w, "Freelist:   <pgid=%d>\n", m.freelist)
-	fmt.Fprintf(w, "HWM:        <pgid=%d>\n", m.pgid)
-	fmt.Fprintf(w, "Txn ID:     %d\n", m.txid)
-	fmt.Fprintf(w, "Checksum:   %016x\n", m.checksum)
-	fmt.Fprintf(w, "\n")
+	_, _ = fmt.Fprintf(w, "Version:    %d\n", m.version)
+	_, _ = fmt.Fprintf(w, "Page Size:  %d bytes\n", m.pageSize)
+	_, _ = fmt.Fprintf(w, "Flags:      %08x\n", m.flags)
+	_, _ = fmt.Fprintf(w, "Root:       <pgid=%d>\n", m.root.root)
+	_, _ = fmt.Fprintf(w, "Freelist:   <pgid=%d>\n", m.freelist)
+	_, _ = fmt.Fprintf(w, "HWM:        <pgid=%d>\n", m.pgid)
+	_, _ = fmt.Fprintf(w, "Txn ID:     %d\n", m.txid)
+	_, _ = fmt.Fprintf(w, "Checksum:   %016x\n", m.checksum)
+	_, _ = fmt.Fprintf(w, "\n")
 	return nil
 }
 
@@ -548,8 +554,8 @@ func (cmd *PageCommand) PrintLeaf(w io.Writer, buf []byte) error {
 	p := (*page)(unsafe.Pointer(&buf[0]))
 
 	// Print number of items.
-	fmt.Fprintf(w, "Item Count: %d\n", p.count)
-	fmt.Fprintf(w, "\n")
+	_, _ = fmt.Fprintf(w, "Item Count: %d\n", p.count)
+	_, _ = fmt.Fprintf(w, "\n")
 
 	// Print each key/value.
 	for i := uint16(0); i < p.count; i++ {
@@ -574,9 +580,9 @@ func (cmd *PageCommand) PrintLeaf(w io.Writer, buf []byte) error {
 			v = fmt.Sprintf("%x", string(e.value()))
 		}
 
-		fmt.Fprintf(w, "%s: %s\n", k, v)
+		_, _ = fmt.Fprintf(w, "%s: %s\n", k, v)
 	}
-	fmt.Fprintf(w, "\n")
+	_, _ = fmt.Fprintf(w, "\n")
 	return nil
 }
 
@@ -585,8 +591,8 @@ func (cmd *PageCommand) PrintBranch(w io.Writer, buf []byte) error {
 	p := (*page)(unsafe.Pointer(&buf[0]))
 
 	// Print number of items.
-	fmt.Fprintf(w, "Item Count: %d\n", p.count)
-	fmt.Fprintf(w, "\n")
+	_, _ = fmt.Fprintf(w, "Item Count: %d\n", p.count)
+	_, _ = fmt.Fprintf(w, "\n")
 
 	// Print each key/value.
 	for i := uint16(0); i < p.count; i++ {
@@ -600,9 +606,9 @@ func (cmd *PageCommand) PrintBranch(w io.Writer, buf []byte) error {
 			k = fmt.Sprintf("%x", string(e.key()))
 		}
 
-		fmt.Fprintf(w, "%s: <pgid=%d>\n", k, e.pgid)
+		_, _ = fmt.Fprintf(w, "%s: <pgid=%d>\n", k, e.pgid)
 	}
-	fmt.Fprintf(w, "\n")
+	_, _ = fmt.Fprintf(w, "\n")
 	return nil
 }
 
@@ -611,18 +617,19 @@ func (cmd *PageCommand) PrintFreelist(w io.Writer, buf []byte) error {
 	p := (*page)(unsafe.Pointer(&buf[0]))
 
 	// Print number of items.
-	fmt.Fprintf(w, "Item Count: %d\n", p.count)
-	fmt.Fprintf(w, "\n")
+	_, _ = fmt.Fprintf(w, "Item Count: %d\n", p.count)
+	_, _ = fmt.Fprintf(w, "\n")
 
 	// Print each page in the freelist.
 	ids := (*[maxAllocSize]pgid)(unsafe.Pointer(&p.ptr))
 	for i := uint16(0); i < p.count; i++ {
-		fmt.Fprintf(w, "%d\n", ids[i])
+		_, _ = fmt.Fprintf(w, "%d\n", ids[i])
 	}
-	fmt.Fprintf(w, "\n")
+	_, _ = fmt.Fprintf(w, "\n")
 	return nil
 }
 
+// 未使用的方法，用于将页面以十六进制方式输出
 // PrintPage prints a given page as hexadecimal.
 func (cmd *PageCommand) PrintPage(w io.Writer, r io.ReaderAt, pageID int, pageSize int) error {
 	const bytesPerLineN = 16
@@ -642,17 +649,17 @@ func (cmd *PageCommand) PrintPage(w io.Writer, r io.ReaderAt, pageID int, pageSi
 	for offset := 0; offset < pageSize; offset += bytesPerLineN {
 		// Retrieve current 16-byte line.
 		line := buf[offset : offset+bytesPerLineN]
-		isLastLine := (offset == (pageSize - bytesPerLineN))
+		isLastLine := offset == (pageSize - bytesPerLineN)
 
 		// If it's the same as the previous line then print a skip.
 		if bytes.Equal(line, prev) && !isLastLine {
 			if !skipped {
-				fmt.Fprintf(w, "%07x *\n", addr+offset)
+				_, _ = fmt.Fprintf(w, "%07x *\n", addr+offset)
 				skipped = true
 			}
 		} else {
 			// Print line as hexadecimal in 2-byte groups.
-			fmt.Fprintf(w, "%07x %04x %04x %04x %04x %04x %04x %04x %04x\n", addr+offset,
+			_, _ = fmt.Fprintf(w, "%07x %04x %04x %04x %04x %04x %04x %04x %04x\n", addr+offset,
 				line[0:2], line[2:4], line[4:6], line[6:8],
 				line[8:10], line[10:12], line[12:14], line[14:16],
 			)
@@ -663,7 +670,7 @@ func (cmd *PageCommand) PrintPage(w io.Writer, r io.ReaderAt, pageID int, pageSi
 		// Save the previous line.
 		prev = line
 	}
-	fmt.Fprint(w, "\n")
+	_, _ = fmt.Fprint(w, "\n")
 
 	return nil
 }
@@ -701,7 +708,7 @@ func (cmd *PagesCommand) Run(args ...string) error {
 	if err := fs.Parse(args); err != nil {
 		return err
 	} else if *help {
-		fmt.Fprintln(cmd.Stderr, cmd.Usage())
+		_, _ = fmt.Fprintln(cmd.Stderr, cmd.Usage())
 		return ErrUsage
 	}
 
@@ -721,8 +728,8 @@ func (cmd *PagesCommand) Run(args ...string) error {
 	defer func() { _ = db.Close() }()
 
 	// Write header.
-	fmt.Fprintln(cmd.Stdout, "ID       TYPE       ITEMS  OVRFLW")
-	fmt.Fprintln(cmd.Stdout, "======== ========== ====== ======")
+	_, _ = fmt.Fprintln(cmd.Stdout, "ID       TYPE       ITEMS  OVRFLW")
+	_, _ = fmt.Fprintln(cmd.Stdout, "======== ========== ====== ======")
 
 	return db.Update(func(tx *bolt.Tx) error {
 		var id int
@@ -744,7 +751,7 @@ func (cmd *PagesCommand) Run(args ...string) error {
 			}
 
 			// Print table row.
-			fmt.Fprintf(cmd.Stdout, "%-8d %-10s %-6s %-6s\n", p.ID, p.Type, count, overflow)
+			_, _ = fmt.Fprintf(cmd.Stdout, "%-8d %-10s %-6s %-6s\n", p.ID, p.Type, count, overflow)
 
 			// Move to the next non-overflow page.
 			id += 1
@@ -795,7 +802,7 @@ func (cmd *StatsCommand) Run(args ...string) error {
 	if err := fs.Parse(args); err != nil {
 		return err
 	} else if *help {
-		fmt.Fprintln(cmd.Stderr, cmd.Usage())
+		_, _ = fmt.Fprintln(cmd.Stderr, cmd.Usage())
 		return ErrUsage
 	}
 
@@ -812,7 +819,7 @@ func (cmd *StatsCommand) Run(args ...string) error {
 	if err != nil {
 		return err
 	}
-	defer db.Close()
+	defer func() { _ = db.Close() }()
 
 	return db.View(func(tx *bolt.Tx) error {
 		var s bolt.BucketStats
@@ -827,44 +834,44 @@ func (cmd *StatsCommand) Run(args ...string) error {
 			return err
 		}
 
-		fmt.Fprintf(cmd.Stdout, "Aggregate statistics for %d buckets\n\n", count)
+		_, _ = fmt.Fprintf(cmd.Stdout, "Aggregate statistics for %d buckets\n\n", count)
 
-		fmt.Fprintln(cmd.Stdout, "Page count statistics")
-		fmt.Fprintf(cmd.Stdout, "\tNumber of logical branch pages: %d\n", s.BranchPageN)
-		fmt.Fprintf(cmd.Stdout, "\tNumber of physical branch overflow pages: %d\n", s.BranchOverflowN)
-		fmt.Fprintf(cmd.Stdout, "\tNumber of logical leaf pages: %d\n", s.LeafPageN)
-		fmt.Fprintf(cmd.Stdout, "\tNumber of physical leaf overflow pages: %d\n", s.LeafOverflowN)
+		_, _ = fmt.Fprintln(cmd.Stdout, "Page count statistics")
+		_, _ = fmt.Fprintf(cmd.Stdout, "\tNumber of logical branch pages: %d\n", s.BranchPageN)
+		_, _ = fmt.Fprintf(cmd.Stdout, "\tNumber of physical branch overflow pages: %d\n", s.BranchOverflowN)
+		_, _ = fmt.Fprintf(cmd.Stdout, "\tNumber of logical leaf pages: %d\n", s.LeafPageN)
+		_, _ = fmt.Fprintf(cmd.Stdout, "\tNumber of physical leaf overflow pages: %d\n", s.LeafOverflowN)
 
-		fmt.Fprintln(cmd.Stdout, "Tree statistics")
-		fmt.Fprintf(cmd.Stdout, "\tNumber of keys/value pairs: %d\n", s.KeyN)
-		fmt.Fprintf(cmd.Stdout, "\tNumber of levels in B+tree: %d\n", s.Depth)
+		_, _ = fmt.Fprintln(cmd.Stdout, "Tree statistics")
+		_, _ = fmt.Fprintf(cmd.Stdout, "\tNumber of keys/value pairs: %d\n", s.KeyN)
+		_, _ = fmt.Fprintf(cmd.Stdout, "\tNumber of levels in B+tree: %d\n", s.Depth)
 
-		fmt.Fprintln(cmd.Stdout, "Page size utilization")
-		fmt.Fprintf(cmd.Stdout, "\tBytes allocated for physical branch pages: %d\n", s.BranchAlloc)
+		_, _ = fmt.Fprintln(cmd.Stdout, "Page size utilization")
+		_, _ = fmt.Fprintf(cmd.Stdout, "\tBytes allocated for physical branch pages: %d\n", s.BranchAlloc)
 		var percentage int
 		if s.BranchAlloc != 0 {
 			percentage = int(float32(s.BranchInuse) * 100.0 / float32(s.BranchAlloc))
 		}
-		fmt.Fprintf(cmd.Stdout, "\tBytes actually used for branch data: %d (%d%%)\n", s.BranchInuse, percentage)
-		fmt.Fprintf(cmd.Stdout, "\tBytes allocated for physical leaf pages: %d\n", s.LeafAlloc)
+		_, _ = fmt.Fprintf(cmd.Stdout, "\tBytes actually used for branch data: %d (%d%%)\n", s.BranchInuse, percentage)
+		_, _ = fmt.Fprintf(cmd.Stdout, "\tBytes allocated for physical leaf pages: %d\n", s.LeafAlloc)
 		percentage = 0
 		if s.LeafAlloc != 0 {
 			percentage = int(float32(s.LeafInuse) * 100.0 / float32(s.LeafAlloc))
 		}
-		fmt.Fprintf(cmd.Stdout, "\tBytes actually used for leaf data: %d (%d%%)\n", s.LeafInuse, percentage)
+		_, _ = fmt.Fprintf(cmd.Stdout, "\tBytes actually used for leaf data: %d (%d%%)\n", s.LeafInuse, percentage)
 
-		fmt.Fprintln(cmd.Stdout, "Bucket statistics")
-		fmt.Fprintf(cmd.Stdout, "\tTotal number of buckets: %d\n", s.BucketN)
+		_, _ = fmt.Fprintln(cmd.Stdout, "Bucket statistics")
+		_, _ = fmt.Fprintf(cmd.Stdout, "\tTotal number of buckets: %d\n", s.BucketN)
 		percentage = 0
 		if s.BucketN != 0 {
 			percentage = int(float32(s.InlineBucketN) * 100.0 / float32(s.BucketN))
 		}
-		fmt.Fprintf(cmd.Stdout, "\tTotal number on inlined buckets: %d (%d%%)\n", s.InlineBucketN, percentage)
+		_, _ = fmt.Fprintf(cmd.Stdout, "\tTotal number on inlined buckets: %d (%d%%)\n", s.InlineBucketN, percentage)
 		percentage = 0
 		if s.LeafInuse != 0 {
 			percentage = int(float32(s.InlineBucketInuse) * 100.0 / float32(s.LeafInuse))
 		}
-		fmt.Fprintf(cmd.Stdout, "\tBytes used for inlined buckets: %d (%d%%)\n", s.InlineBucketInuse, percentage)
+		_, _ = fmt.Fprintf(cmd.Stdout, "\tBytes used for inlined buckets: %d (%d%%)\n", s.InlineBucketInuse, percentage)
 
 		return nil
 	})
@@ -1482,6 +1489,7 @@ func isPrintable(s string) bool {
 	return true
 }
 
+// 从文件中读取完整的页面数据
 // ReadPage reads page info & full page data from a path.
 // This is not transactionally safe.
 func ReadPage(path string, pageID int) (*page, []byte, error) {
@@ -1496,7 +1504,7 @@ func ReadPage(path string, pageID int) (*page, []byte, error) {
 	if err != nil {
 		return nil, nil, err
 	}
-	defer f.Close()
+	defer func() { _ = f.Close() }()
 
 	// Read one block into buffer.
 	buf := make([]byte, pageSize)
