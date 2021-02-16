@@ -1,0 +1,25 @@
+-
+  metric: alert_status
+  operator: eq
+  value: "OK"
+
+-
+  metric: bugs
+  operator: eq
+  value: "0"
+
+-
+  metric: code_smells
+  operator: eq
+  value: "0"
+
+-
+  metric: coverage
+  operator: ge
+  value: "80"
+
+-
+  metric: duplicated_lines_density
+  operator: le
+  value: "3"
+
