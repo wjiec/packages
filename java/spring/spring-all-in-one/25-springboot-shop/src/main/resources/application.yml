@@ -23,6 +23,9 @@ spring:
     data: classpath:/database/data.sql
     initialization-mode: always
     url: jdbc:h2:mem:spring_shop
+  data:
+    rest:
+      base-path: /data-rest
 server:
   port: 8080
 logging:
