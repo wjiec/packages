@@ -1,0 +1,7 @@
+spring:
+  jms:
+    template:
+      receive-timeout: 3s
+  artemis:
+    embedded:
+      enabled: true
