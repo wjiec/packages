@@ -5,7 +5,7 @@ import "github.com/spf13/cobra"
 func Compile() *cobra.Command {
 	return &cobra.Command{
 		Use:   "compile",
-		Short: "Compile Protobuf file",
+		Short: "Compile Protobuf files",
 		Run: func(cmd *cobra.Command, args []string) {
 		},
 	}

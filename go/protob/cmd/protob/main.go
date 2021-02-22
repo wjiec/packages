@@ -2,8 +2,10 @@ package main
 
 import (
 	"context"
+	"os/exec"
+	"protob/internal/home"
 	"protob/internal/subcommand"
-	"protob/pkg/logging"
+	"runtime"
 	"time"
 
 	"github.com/spf13/cobra"
@@ -22,11 +24,18 @@ func main() {
 	root.AddCommand(subcommand.Install())
 	root.AddCommand(subcommand.Version(Version, GitRevision, BuildTime))
 
-	root.PersistentFlags().StringP("config", "c", "~/.protob.json", "specify config file")
+	s := &home.State{GoogleDependency: home.ExpandDir("include")}
 	root.PersistentPreRun = func(cmd *cobra.Command, args []string) {
-		logging.Error("config file not found")
+		s.EmbeddedCompiler = home.ExpandDir("protoc")
+		if runtime.GOOS == "windows" {
+			s.EmbeddedCompiler += ".exe"
+		}
+
+		if path, err := exec.LookPath("protoc"); err == nil {
+			s.SysCompiler = path
+		}
 	}
 
-	ctx, _ := context.WithCancel(context.WithValue(context.Background(), "config", nil))
+	ctx, _ := context.WithCancel(context.WithValue(context.Background(), "home", s))
 	_ = root.ExecuteContext(ctx)
 }

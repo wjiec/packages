@@ -1,6 +1,7 @@
 package logging
 
 import (
+	"os"
 	"time"
 
 	"github.com/briandowns/spinner"
@@ -11,17 +12,35 @@ const (
 	loadingAnimationDuration = 80 * time.Millisecond
 )
 
-type loading struct {
-	bar *spinner.Spinner
+var (
+	bar           = spinner.New(spinner.CharSets[loadingCharacterIndex], loadingAnimationDuration)
+	loadingLogger = NewLogger(os.Stdout)
+)
+
+func init() {
+	bar.HideCursor = true
+	bar.Prefix = " "
 }
 
-func (l *loading) Start() {
-	l.bar.Start()
+type Status struct{}
+
+func (s *Status) LoadingText(text string) {
+	bar.Suffix = " " + text
 }
 
-func NewLoading() *loading {
-	bar := spinner.New(spinner.CharSets[loadingCharacterIndex], loadingAnimationDuration)
-	bar.Prefix = "  "
+func (s *Status) Success(format string, args ...interface{}) {
+	bar.Stop()
+	loadingLogger.Success(format, args...)
+}
 
-	return &loading{bar: bar}
+func (s *Status) Fatal(format string, args ...interface{}) {
+	bar.Stop()
+	loadingLogger.Fatal(format, args...)
+}
+
+func Loading(text string, action func(*Status)) {
+	bar.Suffix = " " + text
+	bar.Start()
+	action(&Status{})
+	bar.Stop()
 }

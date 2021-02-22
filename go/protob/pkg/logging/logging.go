@@ -8,22 +8,23 @@ import (
 )
 
 var (
-	errHeadColor = color.New(color.BgRed, color.FgWhite)
-	errTextColor = color.New(color.FgRed)
+	errHeadColor     = color.New(color.BgRed, color.FgWhite, color.Bold)
+	errTextColor     = color.New(color.FgRed)
+	successHeadColor = color.New(color.BgGreen, color.FgWhite, color.Bold)
+	successTextColor = color.New(color.FgGreen)
 )
 
 type Logger struct {
 	writer io.Writer
 }
 
-func (log *Logger) Info(format string, args ...interface{}) {
-}
-
 func (log *Logger) Success(format string, args ...interface{}) {
+	_, _ = successHeadColor.Fprint(log.writer, " SUCCESS ")
+	_, _ = successTextColor.Fprintf(log.writer, " "+format+"\n", args...)
 }
 
 func (log *Logger) Error(format string, args ...interface{}) {
-	_, _ = errHeadColor.Fprint(log.writer, " ERROR ")
+	_, _ = errHeadColor.Fprint(log.writer, "  ERROR  ")
 	_, _ = errTextColor.Fprintf(log.writer, " "+format+"\n", args...)
 }
 
