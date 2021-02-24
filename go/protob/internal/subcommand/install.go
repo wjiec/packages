@@ -144,6 +144,10 @@ const (
 	gogoGenFast   = "protoc-gen-gogofast"
 	gogoGenFaster = "protoc-gen-gogofaster"
 	gogoGenSlick  = "protoc-gen-gogoslick"
+
+	dirPerm  = 0744
+	execPerm = 0744
+	filePerm = 0644
 )
 
 func latestRelease(ctx context.Context, owner, repo string) (*github.RepositoryRelease, error) {
@@ -198,12 +202,12 @@ func extractCompilers(content []byte, dir string) error {
 	return visitCompressFiles(content, func(f *zip.File) error {
 		if strings.HasPrefix(f.Name, "bin/") {
 			filename := utils.NormalizePath(join(dir, filepath.Base(f.Name)))
-			if err := extractFileInto(f, filename, os.FileMode(0744)); err != nil {
+			if err := extractFileInto(f, filename, execPerm); err != nil {
 				return err
 			}
 		} else if strings.HasPrefix(f.Name, "include/") {
 			filename := utils.NormalizePath(join(dir, f.Name))
-			if err := extractFileInto(f, filename, os.FileMode(0644)); err != nil {
+			if err := extractFileInto(f, filename, filePerm); err != nil {
 				return err
 			}
 		}
@@ -215,7 +219,7 @@ func extractCompilers(content []byte, dir string) error {
 func extractGoGoProtobuf(content []byte, dir string) error {
 	return visitCompressFiles(content, func(f *zip.File) error {
 		filename := f.Name[strings.Index(f.Name, "/"):]
-		return extractFileInto(f, utils.NormalizePath(join(dir, filename)), os.FileMode(0644))
+		return extractFileInto(f, utils.NormalizePath(join(dir, filename)), filePerm)
 	})
 }
 
@@ -237,7 +241,7 @@ func visitCompressFiles(content []byte, action func(f *zip.File) error) error {
 
 func extractFileInto(f *zip.File, filename string, perm os.FileMode) error {
 	dirname := filepath.Dir(filename)
-	if err := os.MkdirAll(dirname, os.ModeDir); err != nil {
+	if err := os.MkdirAll(dirname, dirPerm); err != nil {
 		return err
 	}
 
@@ -247,7 +251,7 @@ func extractFileInto(f *zip.File, filename string, perm os.FileMode) error {
 	}
 	defer func() { _ = rd.Close() }()
 
-	fp, err := os.OpenFile(filename, os.O_CREATE|os.O_TRUNC, perm)
+	fp, err := os.OpenFile(filename, os.O_CREATE|os.O_WRONLY, perm)
 	if err != nil {
 		return err
 	}
@@ -286,7 +290,7 @@ func copyTree(src, dst string) error {
 }
 
 func copyFile(filename, from, to string) error {
-	if err := os.MkdirAll(filepath.Dir(join(to, filename)), os.ModeDir); err != nil {
+	if err := os.MkdirAll(filepath.Dir(join(to, filename)), dirPerm); err != nil {
 		return err
 	}
 

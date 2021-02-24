@@ -21,23 +21,31 @@ var (
 // State represents a home of the compiler and dependencies info
 type State struct {
 	// Path of the Protobuf compiler(system)
-	SysCompiler string
+	SystemCompiler string
 
 	// Path of the Protobuf compiler(embedded)
 	EmbeddedCompiler string
 
-	// Path of the Google dependencies
-	GoogleDependency string
+	// Path of the dependencies
+	DependencyPath string
 }
 
 // SysCompilerVersion returns the version string of the protobuf compiler(system)
 func (s *State) SysCompilerVersion() (string, error) {
-	return compilerVersion(s.SysCompiler)
+	return compilerVersion(s.SystemCompiler)
 }
 
 // EmbeddedCompilerVersion returns the version string of the protobuf compiler(embedded)
 func (s *State) EmbeddedCompilerVersion() (string, error) {
 	return compilerVersion(s.EmbeddedCompiler)
+}
+
+// UsableCompiler returns path of the usable compiler
+func (s *State) UsableCompiler(sys bool) string {
+	if sys || s.EmbeddedCompiler == "" {
+		return s.SystemCompiler
+	}
+	return s.EmbeddedCompiler
 }
 
 // BaseDir returns path of the protob home
@@ -48,8 +56,8 @@ func BaseDir() string {
 }
 
 // ExpandDir returns joined path based on protob home
-func ExpandDir(els ...string) string {
-	return utils.NormalizePath(filepath.Join(append([]string{BaseDir()}, els...)...))
+func ExpandDir(paths ...string) string {
+	return utils.NormalizePath(filepath.Join(append([]string{BaseDir()}, paths...)...))
 }
 
 // ExpandExecutable returns executable filename base on protob home

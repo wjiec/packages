@@ -47,7 +47,7 @@ func Version(version, revision, buildTime string) *cobra.Command {
 				"BaseDir":                 home.BaseDir(),
 				"SysCompilerVersion":      sysCompilerVersion,
 				"EmbeddedCompilerVersion": embeddedCompilerVersion,
-				"IncludePath":             s.GoogleDependency,
+				"IncludePath":             s.DependencyPath,
 			}
 
 			tpl, _ := template.New("version").Parse(versionTemplate)

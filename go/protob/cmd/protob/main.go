@@ -24,7 +24,7 @@ func main() {
 	root.AddCommand(subcommand.Install())
 	root.AddCommand(subcommand.Version(Version, GitRevision, BuildTime))
 
-	s := &home.State{GoogleDependency: home.ExpandDir("include")}
+	s := &home.State{DependencyPath: home.ExpandDir("include")}
 	root.PersistentPreRun = func(cmd *cobra.Command, args []string) {
 		s.EmbeddedCompiler = home.ExpandDir("protoc")
 		if runtime.GOOS == "windows" {
@@ -32,7 +32,7 @@ func main() {
 		}
 
 		if path, err := exec.LookPath("protoc"); err == nil {
-			s.SysCompiler = path
+			s.SystemCompiler = path
 		}
 	}
 
