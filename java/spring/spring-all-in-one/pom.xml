@@ -60,6 +60,9 @@
         <module>23-spring-jmx</module>
         <module>24-spring-boot</module>
         <module>25-springboot-shop</module>
+        <module>26-springboot-traveron</module>
+        <module>27-springboot-artemis</module>
+        <module>28-springboot-amqp</module>
     </modules>
 
 </project>
