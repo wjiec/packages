@@ -1,0 +1,12 @@
+spring:
+  kafka:
+    bootstrap-servers:
+      - localhost:9092
+    producer:
+      bootstrap-servers:
+        - localhost:9092
+    consumer:
+      bootstrap-servers:
+        - localhost:9092
+      group-id: group-c
+      auto-offset-reset: latest
