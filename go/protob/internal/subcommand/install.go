@@ -1,8 +1,6 @@
 package subcommand
 
 import (
-	"archive/zip"
-	"bytes"
 	"context"
 	"errors"
 	"fmt"
@@ -11,11 +9,13 @@ import (
 	"net/http"
 	"net/url"
 	"os"
-	"os/exec"
 	"path/filepath"
-	"protob/internal/home"
+	"protob/internal/protob"
 	"protob/pkg/logging"
-	"protob/pkg/utils"
+	"protob/pkg/os/fs"
+	"protob/pkg/protobuf"
+	"protob/pkg/protobuf/gogo"
+	"protob/pkg/zip"
 	"runtime"
 	"strings"
 
@@ -23,12 +23,15 @@ import (
 	"github.com/spf13/cobra"
 )
 
-var join = filepath.Join
+var (
+	httpClient   = &http.Client{}
+	githubClient = github.NewClient(httpClient)
+)
 
 func Install() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "install",
-		Short: "Install Protobuf compiler and google dependencies",
+		Short: "Install Protobuf compiler and dependencies",
 		PreRun: func(cmd *cobra.Command, args []string) {
 			if proxy, err := cmd.PersistentFlags().GetString("proxy"); err == nil && proxy != "" {
 				httpClient.Transport = &http.Transport{
@@ -39,154 +42,170 @@ func Install() *cobra.Command {
 			}
 		},
 		Run: func(cmd *cobra.Command, args []string) {
-			skipCompiler, _ := cmd.PersistentFlags().GetBool("skip-protobuf")
-			if !skipCompiler {
-				logging.Loading("fetch latest release", func(status *logging.Status) {
-					var err error
-					var release *github.RepositoryRelease
-					if release, err = latestRelease(cmd.Context(), compilerOwner, compilerRepo); err != nil {
-						status.Fatal(err.Error())
-						return
-					}
-
-					status.LoadingText(fmt.Sprintf("download latest release version %s", release.GetTagName()))
-					content, err := downloadRelease(cmd.Context(), release)
-					if err != nil {
-						status.Fatal(err.Error())
-					}
-
-					status.LoadingText(fmt.Sprintf("extract assert into %s", home.BaseDir()))
-					if err := extractCompilers(content, home.BaseDir()); err != nil {
-						status.Fatal(err.Error())
-						return
-					}
-
-					status.Success("protobuf installed")
-				})
+			if err := installProtobuf(cmd.Context()); err == nil {
+				_ = installGoGoProtobuf(cmd.Context())
 			}
 
-			skipGoGoCompiler, _ := cmd.PersistentFlags().GetBool("skip-gogo-protobuf")
-			if !skipGoGoCompiler {
-				logging.Loading("fetch gogo-protobuf latest release", func(status *logging.Status) {
-					if release, err := latestRelease(cmd.Context(), gogoOwner, gogoRepo); err != nil {
-						status.Fatal(err.Error())
-						return
-					} else {
-						status.LoadingText(fmt.Sprintf("download gogo-protobuf version %s", release.GetTagName()))
-						content, err := downloadContent(cmd.Context(), release.GetZipballURL())
-						if err != nil {
-							status.Fatal(err.Error())
-						}
-
-						tempDir := join(home.BaseDir(), ".temp")
-						status.LoadingText(fmt.Sprintf("extract gogo-protobuf into %s", tempDir))
-						if err := extractGoGoProtobuf(content, tempDir); err != nil {
-							status.Fatal(err.Error())
-							return
-						}
-
-						if err := copyGoGoProtobufFiles(tempDir, home.ExpandDir("include")); err != nil {
-							status.Fatal(err.Error())
-							return
-						}
-
-						status.LoadingText("compile protoc-gen-gogofast")
-						if err := compileCompilerGen(join(tempDir, gogoGenFast, "main.go"), home.ExpandExecutable(gogoGenFast)); err != nil {
-							status.Fatal(err.Error())
-							return
-						}
-
-						status.LoadingText("compile protoc-gen-gogofaster")
-						if err := compileCompilerGen(join(tempDir, gogoGenFaster, "main.go"), home.ExpandExecutable(gogoGenFaster)); err != nil {
-							status.Fatal(err.Error())
-							return
-						}
-
-						status.LoadingText("compile protoc-gen-gogoslick")
-						if err := compileCompilerGen(join(tempDir, gogoGenSlick, "main.go"), home.ExpandExecutable(gogoGenSlick)); err != nil {
-							status.Fatal(err.Error())
-							return
-						}
-
-						if err := os.RemoveAll(tempDir); err != nil {
-							status.Fatal(err.Error())
-							return
-						}
-
-						status.Success("gogo-protobuf installed")
-					}
-				})
-			}
+			//skipGoGoCompiler, _ := cmd.PersistentFlags().GetBool("skip-gogo-protobuf")
+			//if !skipGoGoCompiler {
+			//	logging.Loading("fetch gogo-protobuf latest release", func(status *logging.Bar) {
+			//		if release, err := latestRelease(cmd.Context(), gogoOwner, gogoRepo); err != nil {
+			//			status.Fatal(err.Error())
+			//			return
+			//		} else {
+			//			status.Text(fmt.Sprintf("download gogo-protobuf version %s", release.GetTagName()))
+			//			content, err := downloadContent(cmd.Context(), release.GetZipballURL())
+			//			if err != nil {
+			//				status.Fatal(err.Error())
+			//			}
+			//
+			//			tempDir := join(home.BaseDir(), ".temp")
+			//			status.Text(fmt.Sprintf("extract gogo-protobuf into %s", tempDir))
+			//			if err := extractGoGoProtobuf(content, tempDir); err != nil {
+			//				status.Fatal(err.Error())
+			//				return
+			//			}
+			//
+			//			if err := copyGoGoProtobufFiles(tempDir, home.ExpandDir("include")); err != nil {
+			//				status.Fatal(err.Error())
+			//				return
+			//			}
+			//
+			//			status.Text("compile protoc-gen-gogofast")
+			//			if err := compileCompilerGen(join(tempDir, gogoGenFast, "main.go"), home.ExpandExecutable(gogoGenFast)); err != nil {
+			//				status.Fatal(err.Error())
+			//				return
+			//			}
+			//
+			//			status.Text("compile protoc-gen-gogofaster")
+			//			if err := compileCompilerGen(join(tempDir, gogoGenFaster, "main.go"), home.ExpandExecutable(gogoGenFaster)); err != nil {
+			//				status.Fatal(err.Error())
+			//				return
+			//			}
+			//
+			//			status.Text("compile protoc-gen-gogoslick")
+			//			if err := compileCompilerGen(join(tempDir, gogoGenSlick, "main.go"), home.ExpandExecutable(gogoGenSlick)); err != nil {
+			//				status.Fatal(err.Error())
+			//				return
+			//			}
+			//
+			//			if err := os.RemoveAll(tempDir); err != nil {
+			//				status.Fatal(err.Error())
+			//				return
+			//			}
+			//
+			//			status.Success("gogo-protobuf installed")
+			//		}
+			//	})
+			//}
 		},
 	}
 
 	cmd.PersistentFlags().String("proxy", "", "proxy for http request")
-	cmd.PersistentFlags().Bool("skip-protobuf", false, "skip install protobuf")
-	cmd.PersistentFlags().Bool("skip-gogo-protobuf", false, "skip install gogo-protobuf")
 
 	return cmd
 }
 
-var (
-	httpClient        = &http.Client{}
-	githubClient      = github.NewClient(httpClient)
-	list1Options      = &github.ListOptions{PerPage: 1}
-	errAssertNotFound = errors.New("install: unable to matched assert")
-)
+// installProtobuf install protobuf compiler and google dependencies
+func installProtobuf(ctx context.Context) (err error) {
+	logging.Loading("fetch protobuf latest release", func(bar *logging.Bar) {
+		defer func() { bar.Error(err) }()
 
-const (
-	compilerOwner = "protocolbuffers"
-	compilerRepo  = "protobuf"
-	gogoOwner     = "gogo"
-	gogoRepo      = "protobuf"
+		var release *github.RepositoryRelease
+		// https://github.com/protocolbuffers/protobuf
+		if release, err = latestRelease(ctx, "protocolbuffers", "protobuf"); err != nil {
+			return
+		}
 
-	gogoNamespace = "github.com/gogo/protobuf"
-	gogoGenFast   = "protoc-gen-gogofast"
-	gogoGenFaster = "protoc-gen-gogofaster"
-	gogoGenSlick  = "protoc-gen-gogoslick"
+		var content []byte
+		bar.Text(fmt.Sprintf("downloading protobuf version %s", release.GetTagName()))
+		if content, err = downloadRelease(ctx, release); err != nil {
+			return
+		}
 
-	dirPerm  = 0744
-	execPerm = 0744
-	filePerm = 0644
-)
+		bar.Text(fmt.Sprintf("extracting resources into %s", protob.Home()))
+		if err := extractProtobuf(content, protob.Home()); err != nil {
+			bar.Fatal(err.Error())
+			return
+		}
 
+		bar.Success("protobuf installed")
+	})
+	return
+}
+
+// installGoGoProtobuf install gogo compiler plugins and gogo dependencies
+func installGoGoProtobuf(ctx context.Context) (err error) {
+	logging.Loading("fetch gogo latest release", func(bar *logging.Bar) {
+		defer func() { bar.Error(err) }()
+
+		var release *github.RepositoryRelease
+		// https://github.com/gogo/protobuf
+		if release, err = latestRelease(ctx, "gogo", "protobuf"); err != nil {
+			return
+		}
+
+		var content []byte
+		bar.Text(fmt.Sprintf("downloading gogo version %s", release.GetTagName()))
+		if content, err = downloadContent(ctx, release.GetZipballURL()); err != nil {
+			return
+		}
+
+		bar.Text(fmt.Sprintf("extracting resources into %s", protob.Temporary()))
+		if err = extractGoGoProtobuf(content, protob.Temporary(), protob.Dependency()); err != nil {
+			return
+		}
+
+		bar.Text(fmt.Sprintf("compiling gogo plugins"))
+		if err = compileGoGoPlugins(protob.Temporary(), protob.Home()); err != nil {
+			return
+		}
+
+		bar.Text(fmt.Sprintf("cleaning temporary directory"))
+		if err = os.RemoveAll(protob.Temporary()); err != nil {
+			return
+		}
+
+		bar.Success("gogo installed")
+	})
+	return
+}
+
+// latestRelease retrieve latest release info from github
 func latestRelease(ctx context.Context, owner, repo string) (*github.RepositoryRelease, error) {
-	releases, _, err := githubClient.Repositories.ListReleases(ctx, owner, repo, list1Options)
+	releases, _, err := githubClient.Repositories.ListReleases(ctx, owner, repo, &github.ListOptions{PerPage: 1})
 	if err != nil {
 		return nil, err
+	} else if len(releases) == 0 {
+		return nil, errors.New("download: release not found")
 	}
 
 	return releases[0], nil
 }
 
+// downloadRelease download compiler asset matched system
 func downloadRelease(ctx context.Context, release *github.RepositoryRelease) ([]byte, error) {
-	suffix := archAssertSuffix()
-	for _, assert := range release.Assets {
-		if strings.Contains(assert.GetName(), suffix) {
-			return downloadContent(ctx, assert.GetBrowserDownloadURL())
+	for _, asset := range release.Assets {
+		switch runtime.GOOS {
+		case "windows":
+			if strings.Contains(asset.GetName(), "win64") {
+				return downloadContent(ctx, asset.GetBrowserDownloadURL())
+			}
+		case "linux":
+			if strings.Contains(asset.GetName(), "linux-x86_64") {
+				return downloadContent(ctx, asset.GetBrowserDownloadURL())
+			}
+		case "darwin":
+			if strings.Contains(asset.GetName(), "osx-x86_64") {
+				return downloadContent(ctx, asset.GetBrowserDownloadURL())
+			}
 		}
 	}
 
-	return nil, errAssertNotFound
+	return nil, errors.New("install: unable to match assert")
 }
 
-func archAssertSuffix() string {
-	switch runtime.GOOS + "/" + runtime.GOARCH {
-	case "windows/amd64":
-		return "win64"
-	case "windows/386":
-		return "win32"
-	case "linux/amd64":
-		return "linux-x86_64"
-	case "linux/386":
-		return "linux-x86_32"
-	case "darwin/amd64":
-		return "osx-x86_64"
-	default:
-		return ""
-	}
-}
-
+// downloadContent download url into bytes buffer
 func downloadContent(ctx context.Context, url string) ([]byte, error) {
 	req, _ := http.NewRequestWithContext(ctx, http.MethodGet, url, nil)
 	resp, err := httpClient.Do(req)
@@ -198,114 +217,45 @@ func downloadContent(ctx context.Context, url string) ([]byte, error) {
 	return ioutil.ReadAll(resp.Body)
 }
 
-func extractCompilers(content []byte, dir string) error {
-	return visitCompressFiles(content, func(f *zip.File) error {
-		if strings.HasPrefix(f.Name, "bin/") {
-			filename := utils.NormalizePath(join(dir, filepath.Base(f.Name)))
-			if err := extractFileInto(f, filename, execPerm); err != nil {
-				return err
-			}
-		} else if strings.HasPrefix(f.Name, "include/") {
-			filename := utils.NormalizePath(join(dir, f.Name))
-			if err := extractFileInto(f, filename, filePerm); err != nil {
-				return err
-			}
+// extractProtobuf extract compiler/dependencies from zipball content into dir
+func extractProtobuf(content []byte, dir string) error {
+	return zip.VisitFiles(content, func(file *zip.File) error {
+		if strings.HasPrefix(file.Name, "bin/") {
+			return zip.AsReader(file, func(reader io.Reader) error {
+				return fs.WriteFile(fs.Join(dir, protobuf.CompilerExecutable), reader, fs.ExecutableFilePerm)
+			})
+		} else if strings.HasPrefix(file.Name, "include/") {
+			return zip.AsReader(file, func(reader io.Reader) error {
+				return fs.WriteFile(fs.Join(dir, file.Name), reader, fs.RegularFilePerm)
+			})
 		}
 
 		return nil
 	})
 }
 
-func extractGoGoProtobuf(content []byte, dir string) error {
-	return visitCompressFiles(content, func(f *zip.File) error {
-		filename := f.Name[strings.Index(f.Name, "/"):]
-		return extractFileInto(f, utils.NormalizePath(join(dir, filename)), filePerm)
+// extractGoGoProtobuf extract gogo sources from zipball content into temp and include
+func extractGoGoProtobuf(content []byte, temp string, include string) error {
+	return zip.VisitFiles(content, func(file *zip.File) error {
+		return zip.AsReader(file, func(reader io.Reader) error {
+			filename := fs.Children(file.Name)
+			if strings.HasPrefix(filename, "gogoproto") && strings.HasSuffix(filename, ".proto") {
+				if err := fs.WriteFile(fs.Join(include, gogo.Namespace, filename), reader, fs.RegularFilePerm); err != nil {
+					return err
+				}
+			}
+			return fs.WriteFile(fs.Join(temp, filename), reader, fs.RegularFilePerm)
+		})
 	})
 }
 
-func visitCompressFiles(content []byte, action func(f *zip.File) error) error {
-	rd, err := zip.NewReader(bytes.NewReader(content), int64(len(content)))
+// compileGoGoPlugins compile protoc-gen-gogo* plugin from source into dst
+func compileGoGoPlugins(source string, dst string) error {
+	matches, err := filepath.Glob(source + "/*/main.go")
 	if err != nil {
 		return err
 	}
 
-	for _, f := range rd.File {
-		if !f.FileInfo().IsDir() {
-			if err := action(f); err != nil {
-				return err
-			}
-		}
-	}
+	fmt.Println(matches)
 	return nil
-}
-
-func extractFileInto(f *zip.File, filename string, perm os.FileMode) error {
-	dirname := filepath.Dir(filename)
-	if err := os.MkdirAll(dirname, dirPerm); err != nil {
-		return err
-	}
-
-	rd, err := f.Open()
-	if err != nil {
-		return err
-	}
-	defer func() { _ = rd.Close() }()
-
-	fp, err := os.OpenFile(filename, os.O_CREATE|os.O_WRONLY, perm)
-	if err != nil {
-		return err
-	}
-	defer func() { _ = fp.Close() }()
-
-	_, err = io.Copy(fp, rd)
-	return err
-}
-
-func compileCompilerGen(main string, out string) error {
-	cmd := exec.Command("go", "build", "-o", out, main)
-	_, err := cmd.Output()
-
-	return err
-}
-
-func copyGoGoProtobufFiles(src, dst string) error {
-	if err := copyFile("gogoproto/gogo.proto", src, join(dst, gogoNamespace)); err != nil {
-		return err
-	}
-
-	return copyTree(join(src, "protobuf"), join(dst, gogoNamespace))
-}
-
-func copyTree(src, dst string) error {
-	return filepath.Walk(src, func(path string, info os.FileInfo, err error) error {
-		if err != nil {
-			return err
-		}
-
-		if !info.IsDir() {
-			return copyFile(path[len(src)+1:], src, dst)
-		}
-		return nil
-	})
-}
-
-func copyFile(filename, from, to string) error {
-	if err := os.MkdirAll(filepath.Dir(join(to, filename)), dirPerm); err != nil {
-		return err
-	}
-
-	src, err := os.Open(join(from, filename))
-	if err != nil {
-		return err
-	}
-	defer func() { _ = src.Close() }()
-
-	dst, err := os.Create(join(to, filename))
-	if err != nil {
-		return err
-	}
-	defer func() { _ = dst.Close() }()
-
-	_, err = io.Copy(dst, src)
-	return err
 }

@@ -2,8 +2,8 @@ package subcommand
 
 import (
 	"os"
-	"protob/internal/home"
-	"protob/pkg/logging"
+	"protob/internal/protob"
+	"protob/pkg/protobuf"
 	"runtime"
 	"text/template"
 
@@ -18,12 +18,16 @@ const versionTemplate = `CommandLine: protob
 
 Protobuf: protoc
 {{- if .SysCompilerVersion }}
- System Compiler: {{.SysCompilerVersion}}(system)
+ System Compiler: {{ .SysCompilerVersion }}(system)
 {{- end }}
 {{- if .EmbeddedCompilerVersion }}
- Embedded Compiler: {{.EmbeddedCompilerVersion}}(embedded)
+ Embedded Compiler: {{ .EmbeddedCompilerVersion }}(embedded)
 {{- end }}
- Include Path: {{.IncludePath}}
+ Include Path: {{ .IncludePath }}
+{{- if and (not .SysCompilerVersion) (not .EmbeddedCompilerVersion) }}
+
+Please run 'protob install' to install protobuf compiler
+{{- end}}
 `
 
 func Version(version, revision, buildTime string) *cobra.Command {
@@ -31,23 +35,20 @@ func Version(version, revision, buildTime string) *cobra.Command {
 		Use:   "version",
 		Short: "Print version info",
 		Run: func(cmd *cobra.Command, args []string) {
-			s := cmd.Context().Value("home").(*home.State)
-
-			sysCompilerVersion, sysErr := s.SysCompilerVersion()
-			embeddedCompilerVersion, embeddedErr := s.EmbeddedCompilerVersion()
-			if sysErr != nil && embeddedErr != nil {
-				logging.Fatal("%s(sys), %s(embedded)", sysErr, embeddedErr)
+			data := map[string]string{
+				"Version":     version,
+				"GoVersion":   runtime.Version(),
+				"BuildTime":   buildTime,
+				"GitRevision": revision,
+				"BaseDir":     protob.Home(),
+				"IncludePath": protob.Dependency(),
 			}
 
-			data := map[string]string{
-				"Version":                 version,
-				"GoVersion":               runtime.Version(),
-				"BuildTime":               buildTime,
-				"GitRevision":             revision,
-				"BaseDir":                 home.BaseDir(),
-				"SysCompilerVersion":      sysCompilerVersion,
-				"EmbeddedCompilerVersion": embeddedCompilerVersion,
-				"IncludePath":             s.DependencyPath,
+			if compiler, err := protobuf.NewSystemCompiler(); err == nil {
+				data["SysCompilerVersion"] = compiler.Version
+			}
+			if compiler, err := protobuf.NewCompiler(protob.Compiler()); err == nil {
+				data["EmbeddedCompilerVersion"] = compiler.Version
 			}
 
 			tpl, _ := template.New("version").Parse(versionTemplate)

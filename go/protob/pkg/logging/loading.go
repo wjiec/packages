@@ -22,25 +22,31 @@ func init() {
 	bar.Prefix = " "
 }
 
-type Status struct{}
+type Bar struct{}
 
-func (s *Status) LoadingText(text string) {
+func (b *Bar) Text(text string) {
 	bar.Suffix = " " + text
 }
 
-func (s *Status) Success(format string, args ...interface{}) {
+func (b *Bar) Success(format string, args ...interface{}) {
 	bar.Stop()
 	loadingLogger.Success(format, args...)
 }
 
-func (s *Status) Fatal(format string, args ...interface{}) {
+func (b *Bar) Fatal(format string, args ...interface{}) {
 	bar.Stop()
 	loadingLogger.Fatal(format, args...)
 }
 
-func Loading(text string, action func(*Status)) {
+func (b *Bar) Error(err error) {
+	if err != nil {
+		b.Fatal(err.Error())
+	}
+}
+
+func Loading(text string, action func(*Bar)) {
 	bar.Suffix = " " + text
 	bar.Start()
-	action(&Status{})
+	action(&Bar{})
 	bar.Stop()
 }
