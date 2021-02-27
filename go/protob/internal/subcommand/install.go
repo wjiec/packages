@@ -9,7 +9,7 @@ import (
 	"net/http"
 	"net/url"
 	"os"
-	"path/filepath"
+	"os/exec"
 	"protob/internal/protob"
 	"protob/pkg/logging"
 	"protob/pkg/os/fs"
@@ -26,6 +26,7 @@ import (
 var (
 	httpClient   = &http.Client{}
 	githubClient = github.NewClient(httpClient)
+	extensions   = []string{"protoc-gen-gogofast", "protoc-gen-gogofaster", "protoc-gen-gogoslick"}
 )
 
 func Install() *cobra.Command {
@@ -45,59 +46,6 @@ func Install() *cobra.Command {
 			if err := installProtobuf(cmd.Context()); err == nil {
 				_ = installGoGoProtobuf(cmd.Context())
 			}
-
-			//skipGoGoCompiler, _ := cmd.PersistentFlags().GetBool("skip-gogo-protobuf")
-			//if !skipGoGoCompiler {
-			//	logging.Loading("fetch gogo-protobuf latest release", func(status *logging.Bar) {
-			//		if release, err := latestRelease(cmd.Context(), gogoOwner, gogoRepo); err != nil {
-			//			status.Fatal(err.Error())
-			//			return
-			//		} else {
-			//			status.Text(fmt.Sprintf("download gogo-protobuf version %s", release.GetTagName()))
-			//			content, err := downloadContent(cmd.Context(), release.GetZipballURL())
-			//			if err != nil {
-			//				status.Fatal(err.Error())
-			//			}
-			//
-			//			tempDir := join(home.BaseDir(), ".temp")
-			//			status.Text(fmt.Sprintf("extract gogo-protobuf into %s", tempDir))
-			//			if err := extractGoGoProtobuf(content, tempDir); err != nil {
-			//				status.Fatal(err.Error())
-			//				return
-			//			}
-			//
-			//			if err := copyGoGoProtobufFiles(tempDir, home.ExpandDir("include")); err != nil {
-			//				status.Fatal(err.Error())
-			//				return
-			//			}
-			//
-			//			status.Text("compile protoc-gen-gogofast")
-			//			if err := compileCompilerGen(join(tempDir, gogoGenFast, "main.go"), home.ExpandExecutable(gogoGenFast)); err != nil {
-			//				status.Fatal(err.Error())
-			//				return
-			//			}
-			//
-			//			status.Text("compile protoc-gen-gogofaster")
-			//			if err := compileCompilerGen(join(tempDir, gogoGenFaster, "main.go"), home.ExpandExecutable(gogoGenFaster)); err != nil {
-			//				status.Fatal(err.Error())
-			//				return
-			//			}
-			//
-			//			status.Text("compile protoc-gen-gogoslick")
-			//			if err := compileCompilerGen(join(tempDir, gogoGenSlick, "main.go"), home.ExpandExecutable(gogoGenSlick)); err != nil {
-			//				status.Fatal(err.Error())
-			//				return
-			//			}
-			//
-			//			if err := os.RemoveAll(tempDir); err != nil {
-			//				status.Fatal(err.Error())
-			//				return
-			//			}
-			//
-			//			status.Success("gogo-protobuf installed")
-			//		}
-			//	})
-			//}
 		},
 	}
 
@@ -157,7 +105,7 @@ func installGoGoProtobuf(ctx context.Context) (err error) {
 		}
 
 		bar.Text(fmt.Sprintf("compiling gogo plugins"))
-		if err = compileGoGoPlugins(protob.Temporary(), protob.Home()); err != nil {
+		if err = compileGoGoExtensions(protob.Temporary(), protob.Home()); err != nil {
 			return
 		}
 
@@ -249,13 +197,23 @@ func extractGoGoProtobuf(content []byte, temp string, include string) error {
 	})
 }
 
-// compileGoGoPlugins compile protoc-gen-gogo* plugin from source into dst
-func compileGoGoPlugins(source string, dst string) error {
-	matches, err := filepath.Glob(source + "/*/main.go")
-	if err != nil {
-		return err
+// compileGoGoExtensions compile protoc-gen-gogo* extensions from source into dst
+func compileGoGoExtensions(source string, dst string) (err error) {
+	var compiler string
+	if compiler, err = exec.LookPath("go"); err != nil {
+		return errors.New("install: go compiler not found")
 	}
 
-	fmt.Println(matches)
+	for _, extension := range extensions {
+		binary, input := fs.Join(dst, extension), fs.Join(source, extension, "main.go")
+		if runtime.GOOS == "windows" {
+			binary += ".exe"
+		}
+
+		if _, err = exec.Command(compiler, "build", "-o", binary, input).Output(); err != nil {
+			return err
+		}
+	}
+
 	return nil
 }
