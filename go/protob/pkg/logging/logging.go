@@ -39,6 +39,10 @@ func NewLogger(w io.Writer) *Logger {
 	return &Logger{writer: w}
 }
 
+func Success(format string, args ...interface{}) {
+	defaultLogger.Success(format, args...)
+}
+
 func Error(format string, args ...interface{}) {
 	defaultLogger.Error(format, args...)
 }
