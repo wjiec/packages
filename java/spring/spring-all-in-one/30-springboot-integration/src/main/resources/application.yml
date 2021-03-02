@@ -1,0 +1,7 @@
+spring:
+  mail:
+    host: mail.example.com
+
+alarm:
+  receiver: tech@exampl.com
+  sender: alarm@eample.com

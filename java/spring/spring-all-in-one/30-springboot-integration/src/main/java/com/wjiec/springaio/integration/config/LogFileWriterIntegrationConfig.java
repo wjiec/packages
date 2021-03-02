@@ -9,6 +9,7 @@ import org.springframework.integration.dsl.IntegrationFlow;
 import org.springframework.integration.dsl.IntegrationFlows;
 import org.springframework.integration.file.dsl.Files;
 import org.springframework.integration.file.support.FileExistsMode;
+import org.springframework.messaging.Message;
 import org.springframework.messaging.MessageChannel;
 
 import java.io.File;
@@ -24,14 +25,20 @@ public class LogFileWriterIntegrationConfig {
     public IntegrationFlow logFileWriter(@Qualifier("loggingChannel") MessageChannel loggingChannel) {
         return IntegrationFlows
             .from(loggingChannel)
-            .route("headers['X-Logging-Level']", mapping -> mapping
-                .subFlowMapping(LoggingGateway.Level.DEBUG, subFlow -> subFlow
+            .route(Message.class, message -> {
+                LoggingGateway.Level level = (LoggingGateway.Level) message.getHeaders().get("X-Logging-Level");
+                if (level == LoggingGateway.Level.DEBUG || level == LoggingGateway.Level.INFO) {
+                    return "debug";
+                }
+                return "application";
+            }, mapping -> mapping
+                .subFlowMapping("debug", subFlow -> subFlow
                     .handle(Files
                         .outboundAdapter(new File("/tmp/spring/debug"))
                         .fileNameGenerator(message -> LocalDateTime.now().format(logFileNameFormatter) + ".log")
                         .fileExistsMode(FileExistsMode.APPEND)
                         .appendNewLine(true)))
-                .defaultSubFlowMapping(subFlow -> subFlow
+                .subFlowMapping("application", subFlow -> subFlow
                     .handle(Files
                         .outboundAdapter(new File("/tmp/spring/application"))
                         .fileNameGenerator(message -> LocalDateTime.now().format(logFileNameFormatter) + ".log")
