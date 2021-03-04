@@ -65,6 +65,7 @@
         <module>28-springboot-amqp</module>
         <module>29-springboot-kafka</module>
         <module>30-springboot-integration</module>
+        <module>31-reactor-quickstart</module>
     </modules>
 
 </project>
