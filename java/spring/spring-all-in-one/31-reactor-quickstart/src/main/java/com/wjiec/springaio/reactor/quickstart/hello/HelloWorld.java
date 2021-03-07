@@ -14,9 +14,9 @@ public class HelloWorld implements CommandLineRunner {
 
     @Override
     public void run(String... args) {
-        Mono.just(args[0])
+        Mono.just(HelloWorld.class.getName())
             .map(String::toUpperCase)
-            .map(s -> "Hello " + s)
+            .map(s -> "Class " + s)
             .subscribe(log::info);
 
         Flux.just(args)
