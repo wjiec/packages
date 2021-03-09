@@ -66,6 +66,7 @@
         <module>29-springboot-kafka</module>
         <module>30-springboot-integration</module>
         <module>31-reactor-quickstart</module>
+        <module>32-springboot-webflux</module>
     </modules>
 
 </project>
