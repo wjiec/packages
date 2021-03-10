@@ -11,7 +11,7 @@ public class ItemController {
 
     @GetMapping
     public Flux<Item> items() {
-        return Flux.just(Item.builder().build(), Item.builder().build());
+        return Flux.just(Item.builder().id(1L).build(), Item.builder().id(2L).build());
     }
 
     @PostMapping
