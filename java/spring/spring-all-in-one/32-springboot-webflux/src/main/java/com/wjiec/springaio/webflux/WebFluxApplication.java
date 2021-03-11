@@ -1,6 +1,9 @@
 package com.wjiec.springaio.webflux;
 
 import com.wjiec.springaio.webflux.model.Item;
+import com.wjiec.springaio.webflux.model.User;
+import com.wjiec.springaio.webflux.repository.ItemRepository;
+import com.wjiec.springaio.webflux.repository.UserRepository;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -15,9 +18,14 @@ import java.time.Duration;
 public class WebFluxApplication implements CommandLineRunner {
 
     private final WebClient webClient;
+    private final ItemRepository itemRepository;
+    private final UserRepository userRepository;
 
-    public WebFluxApplication() {
+    public WebFluxApplication(ItemRepository itemRepository, UserRepository userRepository) {
         this.webClient = WebClient.create("http://localhost:8080");
+
+        this.itemRepository = itemRepository;
+        this.userRepository = userRepository;
     }
 
     public static void main(String[] args) {
@@ -26,6 +34,8 @@ public class WebFluxApplication implements CommandLineRunner {
 
     @Override
     public void run(String... args) {
+        initMongoData();
+
         webClient.get().uri("/item")
             .retrieve()
             .bodyToFlux(Item.class)
@@ -61,6 +71,13 @@ public class WebFluxApplication implements CommandLineRunner {
                 return response.bodyToMono(String.class);
             })
             .subscribe((v) -> System.out.printf("get /hello : %s\n", v));
+    }
+
+    private void initMongoData() {
+        itemRepository.insert(Item.builder().title("hello").price(1.0).build())
+            .subscribe(v -> System.out.printf("insert item: %s\n", v));
+        userRepository.insert(User.builder().username("admin").password("{noop}admin").build())
+            .subscribe(v -> System.out.printf("insert user: %s\n", v));
     }
 
 }

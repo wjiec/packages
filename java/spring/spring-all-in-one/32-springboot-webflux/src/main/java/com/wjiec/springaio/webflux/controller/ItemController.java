@@ -1,6 +1,7 @@
 package com.wjiec.springaio.webflux.controller;
 
 import com.wjiec.springaio.webflux.model.Item;
+import com.wjiec.springaio.webflux.repository.ItemRepository;
 import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -9,14 +10,20 @@ import reactor.core.publisher.Mono;
 @RequestMapping("/item")
 public class ItemController {
 
+    private final ItemRepository itemRepository;
+
+    public ItemController(ItemRepository itemRepository) {
+        this.itemRepository = itemRepository;
+    }
+
     @GetMapping
     public Flux<Item> items() {
-        return Flux.just(Item.builder().id(1L).build(), Item.builder().id(2L).build());
+        return itemRepository.findAll().take(10);
     }
 
     @PostMapping
     public Mono<Item> create(@RequestBody Mono<Item> item) {
-        return item;
+        return itemRepository.insert(item).next();
     }
 
 }
