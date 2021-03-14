@@ -1,0 +1,13 @@
+plugins {
+    id 'java-library'
+    id 'maven-publish'
+}
+
+dependencies {
+    implementation group: 'org.springframework.boot', name: 'spring-boot-starter'
+
+    api group: 'com.google.guava', name: 'guava', version: '30.1-jre'
+
+    compileOnly group: 'org.springframework.boot', name: 'spring-boot-starter-web'
+    compileOnly group: 'org.springframework.boot', name: 'spring-boot-starter-validation'
+}
