@@ -4,13 +4,9 @@ plugins {
 }
 
 dependencies {
-    project(':better-spring-boot-autoconfigure')
+    annotationProcessor group: 'org.springframework.boot', name: 'spring-boot-autoconfigure-processor'
+    annotationProcessor group: 'org.springframework.boot', name: 'spring-boot-configuration-processor'
 
-    // ignored
     implementation group: 'org.springframework.boot', name: 'spring-boot-starter'
-
-    api group: 'com.google.guava', name: 'guava', version: '30.1-jre'
-
     compileOnly group: 'org.springframework.boot', name: 'spring-boot-starter-web'
-    compileOnly group: 'org.springframework.boot', name: 'spring-boot-starter-validation'
 }

@@ -19,10 +19,7 @@ public class UrlControllerTest {
 
     @Test
     public void shouldReturnBadRequest() throws Exception {
-        mockMvc.perform(post("/url/shorten")
-            .contentType(MediaType.APPLICATION_JSON)
-            .content("")
-        )
+        mockMvc.perform(post("/url/shorten").contentType(MediaType.APPLICATION_JSON).content(""))
             .andExpect(MockMvcResultMatchers.status().isBadRequest());
     }
 
