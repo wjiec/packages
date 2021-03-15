@@ -7,3 +7,8 @@ spring:
     consul:
       host: localhost
       port: 8500
+      discovery:
+        prefer-ip-address: true
+        instance-id: ${spring.application.name}-${spring.application.instance.id:${random.int}}
+        health-check-interval: 1s
+        health-check-critical-timeout: 1s
