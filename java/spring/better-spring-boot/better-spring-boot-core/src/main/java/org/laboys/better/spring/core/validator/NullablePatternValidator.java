@@ -1,7 +1,7 @@
-package org.laboys.better.spring.validation.validator;
+package org.laboys.better.spring.core.validator;
 
 import org.hibernate.validator.internal.constraintvalidators.bv.PatternValidator;
-import org.laboys.better.spring.annotation.constraints.NullablePattern;
+import org.laboys.better.spring.core.annotation.constraints.NullablePattern;
 
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;

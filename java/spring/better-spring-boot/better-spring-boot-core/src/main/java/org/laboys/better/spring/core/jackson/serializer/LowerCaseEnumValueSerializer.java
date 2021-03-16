@@ -1,4 +1,4 @@
-package org.laboys.better.spring.jackson.serializer;
+package org.laboys.better.spring.core.jackson.serializer;
 
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.SerializerProvider;

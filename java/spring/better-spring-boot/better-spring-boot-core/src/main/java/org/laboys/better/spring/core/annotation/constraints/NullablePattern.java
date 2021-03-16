@@ -1,6 +1,6 @@
-package org.laboys.better.spring.annotation.constraints;
+package org.laboys.better.spring.core.annotation.constraints;
 
-import org.laboys.better.spring.validation.validator.NullablePatternValidator;
+import org.laboys.better.spring.core.validator.NullablePatternValidator;
 import org.springframework.core.annotation.AliasFor;
 
 import javax.validation.Constraint;

@@ -1,0 +1,14 @@
+plugins {
+    id 'java-library'
+    id 'maven-publish'
+}
+
+dependencies {
+    implementation group: 'org.springframework.boot', name: 'spring-boot-starter'
+
+    api group: 'org.joda', name: 'joda-money', version: '1.0.1'
+    api group: 'cn.hutool', name: 'hutool-all', version: '5.5.1'
+
+    compileOnly group: 'org.springframework.boot', name: 'spring-boot-starter-web'
+    compileOnly group: 'org.springframework.boot', name: 'spring-boot-starter-validation'
+}

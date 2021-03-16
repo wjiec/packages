@@ -1,3 +1,7 @@
 {
-  "properties": []
+  "properties": [{
+    "name": "better.validation.message.basename",
+    "description": "逗号分隔的验证器资源文件名列表.",
+    "defaultValue": ["validation/messages", "ValidationMessages"]
+  }]
 }

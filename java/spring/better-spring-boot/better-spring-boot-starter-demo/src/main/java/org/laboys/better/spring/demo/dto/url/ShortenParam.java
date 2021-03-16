@@ -4,7 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.laboys.better.spring.annotation.constraints.NullablePattern;
+import org.laboys.better.spring.core.annotation.constraints.NullablePattern;
 
 import javax.validation.constraints.Pattern;
 

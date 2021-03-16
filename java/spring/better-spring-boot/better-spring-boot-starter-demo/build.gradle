@@ -2,6 +2,9 @@ plugins {
     id 'java'
 }
 
+bootJar.enabled(true)
+bootBuildImage.enabled(true)
+
 dependencies {
     implementation group: 'org.springframework.boot', name: 'spring-boot-starter'
     implementation group: 'org.springframework.boot', name: 'spring-boot-starter-web'

@@ -1,11 +1,14 @@
 package org.laboys.better.spring.autoconfigure.web;
 
+import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnWebApplication;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
+import org.springframework.web.servlet.DispatcherServlet;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
+import javax.servlet.Servlet;
 import java.util.Arrays;
 import java.util.stream.Collectors;
 
@@ -14,7 +17,9 @@ import java.util.stream.Collectors;
 public class WebAutoConfiguration {
 
     @Configuration(proxyBeanMethods = false)
-    public static class WebMvcConfigurationAdapter implements WebMvcConfigurer {
+    @ConditionalOnWebApplication(type = ConditionalOnWebApplication.Type.SERVLET)
+    @ConditionalOnClass({ Servlet.class, DispatcherServlet.class, WebMvcConfigurer.class })
+    public static class WebMvcConfiguration implements WebMvcConfigurer {
 
         @Override
         public void addCorsMappings(CorsRegistry registry) {

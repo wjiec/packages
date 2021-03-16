@@ -7,6 +7,9 @@ dependencies {
     annotationProcessor group: 'org.springframework.boot', name: 'spring-boot-autoconfigure-processor'
     annotationProcessor group: 'org.springframework.boot', name: 'spring-boot-configuration-processor'
 
+    implementation project(':better-spring-boot-core')
+
     implementation group: 'org.springframework.boot', name: 'spring-boot-starter'
     compileOnly group: 'org.springframework.boot', name: 'spring-boot-starter-web'
+    compileOnly group: 'org.springframework.boot', name: 'spring-boot-starter-validation'
 }
