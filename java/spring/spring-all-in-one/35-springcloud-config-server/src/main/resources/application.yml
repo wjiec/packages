@@ -1,0 +1,19 @@
+server:
+  port: 8888
+spring:
+  application:
+    name: config-server
+  cloud:
+    consul:
+      discovery:
+        prefer-ip-address: true
+        instance-id: ${spring.application.name}-${spring.application.instance.id:${random.int}}
+        health-check-interval: 1s
+        health-check-critical-timeout: 1s
+    config:
+      server:
+        git:
+          uri: file:///tmp/spring-config
+          search-paths:
+            - "*-service"
+      fail-fast: true

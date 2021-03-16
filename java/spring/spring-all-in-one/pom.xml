@@ -70,6 +70,8 @@
         <module>32-springboot-webflux</module>
         <module>33-springcloud-item-service</module>
         <module>34-springcloud-consumer-service</module>
+        <module>35-springcloud-config-server</module>
+        <module>36-springcloud-config-user-service</module>
     </modules>
 
 </project>
