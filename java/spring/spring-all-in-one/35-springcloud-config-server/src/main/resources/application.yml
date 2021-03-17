@@ -17,3 +17,5 @@ spring:
           search-paths:
             - "*-service"
       fail-fast: true
+encrypt:
+  key: springcloud
