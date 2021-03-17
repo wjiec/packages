@@ -1,11 +1,13 @@
 package org.laboys.better.spring.core.deploy;
 
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 
 /**
  * 部署环境名称
  */
-public enum Profile {
+@AllArgsConstructor
+public enum Environment {
 
     /**
      * 开发环境, 开发人员使用
@@ -37,9 +39,5 @@ public enum Profile {
      */
     @Getter
     private final String value;
-
-    Profile(String val) {
-        value = val;
-    }
 
 }

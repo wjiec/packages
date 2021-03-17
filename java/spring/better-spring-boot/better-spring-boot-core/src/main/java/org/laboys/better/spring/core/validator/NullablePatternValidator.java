@@ -14,16 +14,12 @@ public class NullablePatternValidator implements ConstraintValidator<NullablePat
     /**
      * 原始正则验证器实现
      */
-    private final PatternValidator validator;
+    private final PatternValidator validator = new PatternValidator();
 
     /**
      * 是否允许空值直接通过验证
      */
     private boolean nullable = false;
-
-    public NullablePatternValidator() {
-        validator = new PatternValidator();
-    }
 
     @Override
     public void initialize(NullablePattern parameter) {

@@ -2,5 +2,6 @@
 org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
   org.laboys.better.spring.autoconfigure.i18n.I18nAutoConfiguration,\
   org.laboys.better.spring.autoconfigure.jackson.Jackson2AutoConfiguration,\
+  org.laboys.better.spring.autoconfigure.mongo.MongoAutoConfiguration,\
   org.laboys.better.spring.autoconfigure.validation.SuperValidationAutoConfiguration,\
   org.laboys.better.spring.autoconfigure.web.WebAutoConfiguration

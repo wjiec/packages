@@ -5,10 +5,13 @@ plugins {
 
 dependencies {
     implementation group: 'org.springframework.boot', name: 'spring-boot-starter'
+    implementation group: 'com.google.guava', name: 'guava', version: '30.1-jre'
 
     api group: 'org.joda', name: 'joda-money', version: '1.0.1'
     api group: 'cn.hutool', name: 'hutool-all', version: '5.5.1'
 
     compileOnly group: 'org.springframework.boot', name: 'spring-boot-starter-web'
     compileOnly group: 'org.springframework.boot', name: 'spring-boot-starter-validation'
+
+    compileOnly group: 'io.springfox', name: 'springfox-boot-starter', version: '3.0.0'
 }
