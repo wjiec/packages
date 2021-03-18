@@ -6,7 +6,7 @@ import org.springframework.cloud.context.config.annotation.RefreshScope;
 
 @Data
 @RefreshScope
-@ConfigurationProperties(value = "service")
+@ConfigurationProperties(prefix = "service")
 public class ServiceProperties {
 
     private Hello hello = new Hello();

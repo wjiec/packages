@@ -11,6 +11,7 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 @EnableConfigurationProperties(ServiceProperties.class)
 public class ConfigUserServiceApplication {
 
+    // /actuator/refresh    =>  returns 500
     public static void main(String[] args) {
         SpringApplication.run(ConfigUserServiceApplication.class, args);
     }
