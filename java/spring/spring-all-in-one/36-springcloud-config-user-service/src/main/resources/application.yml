@@ -8,5 +8,11 @@ spring:
       discovery:
         enabled: true
         service-id: config-server
+      token: springcloud
 server:
   port: 0
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"

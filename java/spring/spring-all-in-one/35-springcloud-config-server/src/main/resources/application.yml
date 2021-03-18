@@ -1,6 +1,10 @@
 server:
   port: 8888
 spring:
+  profiles:
+    active:
+      - git
+      - vault
   application:
     name: config-server
   cloud:
@@ -16,6 +20,12 @@ spring:
           uri: file:///tmp/spring-config
           search-paths:
             - "*-service"
+          order: 2
+        vault:
+          order: 1
+          host: localhost
+          port: 8200
+          scheme: http
       fail-fast: true
 encrypt:
   key: springcloud
