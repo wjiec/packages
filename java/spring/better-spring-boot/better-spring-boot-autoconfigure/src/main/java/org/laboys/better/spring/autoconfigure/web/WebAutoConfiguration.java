@@ -9,4 +9,4 @@ import org.springframework.context.annotation.Import;
 @Configuration(proxyBeanMethods = false)
 @EnableConfigurationProperties(WebProperties.class)
 @Import({WebExceptionAutoConfiguration.class, WebMvcAutoConfiguration.class})
-public class WebAutoConfiguration { }
+public class WebAutoConfiguration {}
