@@ -1,0 +1,17 @@
+server:
+  port: 8090
+spring:
+  cloud:
+    consul:
+      discovery:
+        enabled: true
+        prefer-ip-address: true
+        health-check-timeout: 10s
+        health-check-critical-timeout: 1s
+  application:
+    name: order-service
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"
