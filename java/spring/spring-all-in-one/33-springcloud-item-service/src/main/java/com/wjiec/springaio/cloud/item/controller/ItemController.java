@@ -14,4 +14,9 @@ public class ItemController {
         return name;
     }
 
+    @GetMapping("/{name}/price")
+    public Integer price(@PathVariable String name) {
+        return name.hashCode();
+    }
+
 }
