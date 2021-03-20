@@ -74,6 +74,7 @@
         <module>36-springcloud-config-user-service</module>
         <module>37-springcloud-hystric-order-service</module>
         <module>38-springcloud-hystrix-dashboard</module>
+        <module>39-springboot-actuator</module>
     </modules>
 
 </project>

@@ -1,0 +1,24 @@
+server:
+  port: 8080
+management:
+  endpoint:
+    health:
+      show-details: always
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+  info:
+    git:
+      mode: full
+# /actuator/info
+info:
+  developer:
+    -
+      email: tech@example.com
+      name: Spring
+    -
+      email: i@example.com
+      name: Boot
+  contact:
+    phone: "9527"
