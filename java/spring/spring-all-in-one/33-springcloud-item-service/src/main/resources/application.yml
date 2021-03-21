@@ -12,3 +12,8 @@ spring:
         instance-id: ${spring.application.name}-${spring.application.instance.id:${random.int}}
         health-check-interval: 1s
         health-check-critical-timeout: 1s
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"
