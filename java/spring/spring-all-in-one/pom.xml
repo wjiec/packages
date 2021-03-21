@@ -75,6 +75,9 @@
         <module>37-springcloud-hystric-order-service</module>
         <module>38-springcloud-hystrix-dashboard</module>
         <module>39-springboot-actuator</module>
+        <module>40-springboot-admin-server</module>
+        <module>41-springboot-admin-client</module>
+        <module>42-springboot-jmx-notification</module>
     </modules>
 
 </project>
