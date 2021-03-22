@@ -18,5 +18,20 @@
     "description": "是否使用默认值替代未知的枚举值.",
     "type": "java.lang.Boolean",
     "defaultValue": "true"
+  }, {
+    "name": "barley.web.decoration.enabled",
+    "description": "是否开启接口装饰.",
+    "type": "java.lang.Boolean",
+    "defaultValue": "true"
+  }, {
+    "name": "barley.web.decoration.on-success",
+    "description": "是否在成功时进行接口装饰.",
+    "type": "java.lang.Boolean",
+    "defaultValue": "true"
+  }, {
+    "name": "barley.web.decoration.on-failure",
+    "description": "是否在异常时进行接口装饰.",
+    "type": "java.lang.Boolean",
+    "defaultValue": "true"
   }]
 }

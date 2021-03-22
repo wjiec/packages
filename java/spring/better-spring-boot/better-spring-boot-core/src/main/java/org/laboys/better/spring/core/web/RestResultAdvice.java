@@ -1,7 +1,7 @@
 package org.laboys.better.spring.core.web;
 
-import lombok.Setter;
 import org.laboys.better.spring.core.annotation.web.UndecoratedApi;
+import org.laboys.better.spring.core.web.decoration.DecorationResult;
 import org.springframework.boot.autoconfigure.AutoConfigurationPackages;
 import org.springframework.context.ApplicationContext;
 import org.springframework.core.MethodParameter;
@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseBodyAdvice;
 
 import java.lang.reflect.Method;
+import java.util.HashMap;
 import java.util.List;
 
 @RestControllerAdvice
@@ -25,12 +26,6 @@ public class RestResultAdvice implements ResponseBodyAdvice<Object> {
      */
     private final List<String> packages;
 
-    /**
-     * 是否开启包装器
-     */
-    @Setter
-    private boolean enabled;
-
     public RestResultAdvice(ApplicationContext context) {
         packages = AutoConfigurationPackages.get(context.getAutowireCapableBeanFactory());
     }
@@ -40,13 +35,11 @@ public class RestResultAdvice implements ResponseBodyAdvice<Object> {
      */
     @Override
     public boolean supports(MethodParameter parameter, Class<? extends HttpMessageConverter<?>> converter) {
-        if (enabled) {
-            Class<?> controller = parameter.getDeclaringClass();
-            if (controller.getAnnotation(UndecoratedApi.class) == null) {
-                Method handler = parameter.getMethod();
-                if (handler != null && handler.getAnnotation(UndecoratedApi.class) == null) {
-                    return packages.stream().anyMatch(s -> controller.getPackageName().startsWith(s));
-                }
+        Class<?> controller = parameter.getDeclaringClass();
+        if (controller.getAnnotation(UndecoratedApi.class) == null) {
+            Method handler = parameter.getMethod();
+            if (handler != null && handler.getAnnotation(UndecoratedApi.class) == null) {
+                return packages.stream().anyMatch(s -> controller.getPackageName().startsWith(s));
             }
         }
 
@@ -66,8 +59,11 @@ public class RestResultAdvice implements ResponseBodyAdvice<Object> {
             response.getHeaders().addAll(entity.getHeaders());
         }
 
-        // decoration api
+        if (!(rawBody instanceof DecorationResult)) {
+            return DecorationResult.success(rawBody, new HashMap<>());
+        }
 
+        ((DecorationResult<?>) rawBody).mergeExtra(new HashMap<>());
         return rawBody;
     }
 

@@ -33,4 +33,25 @@ public class WebProperties {
         private Boolean readUnknownEnumUsingDefaultValue = true;
     }
 
+    /**
+     * 接口装饰包装
+     */
+    @Data
+    public static class Decoration {
+        /**
+         * 是否开启接口装饰
+         */
+        private Boolean enabled = true;
+
+        /**
+         * 在成功时是否开启
+         */
+        private Boolean onSuccess = true;
+
+        /**
+         * 在失败时时候开启
+         */
+        private Boolean onFailure = true;
+    }
+
 }
