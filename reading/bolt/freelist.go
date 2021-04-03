@@ -6,6 +6,7 @@ import (
 	"unsafe"
 )
 
+// 空闲列表表示所有可分配的所有页面，同时还保存已释放但是可以使用的页面
 // freelist represents a list of all pages that are available for allocation.
 // It also tracks pages that have been freed but are still in use by open transactions.
 type freelist struct {
@@ -14,6 +15,7 @@ type freelist struct {
 	cache   map[pgid]bool   // fast lookup of all free and pending page ids.
 }
 
+// 创建一个空的已初始化的空闲页表
 // newFreelist returns an empty, initialized freelist.
 func newFreelist() *freelist {
 	return &freelist{
@@ -159,8 +161,10 @@ func (f *freelist) freed(pgid pgid) bool {
 	return f.cache[pgid]
 }
 
+// 从空闲页表页面读取到空闲页表中
 // read initializes the freelist from a freelist page.
 func (f *freelist) read(p *page) {
+	// 如果页面内容已经达到最大值（64k）则说明这个页面已经溢出，数据将存储在ptr所指向的内存中
 	// If the page.count is at the max uint16 value (64k) then it's considered
 	// an overflow and the size of the freelist is stored as the first element.
 	idx, count := 0, int(p.count)
@@ -169,18 +173,22 @@ func (f *freelist) read(p *page) {
 		count = int(((*[maxAllocSize]pgid)(unsafe.Pointer(&p.ptr)))[0])
 	}
 
+	// 如果数量为0，则表示没有空闲数据
 	// Copy the list of page ids from the freelist.
 	if count == 0 {
 		f.ids = nil
 	} else {
+		// 从ptr指向的内存中读取页面id列表数据，注意这里表示的是元素数量，不是内存地址
 		ids := ((*[maxAllocSize]pgid)(unsafe.Pointer(&p.ptr)))[idx:count]
 		f.ids = make([]pgid, len(ids))
 		copy(f.ids, ids)
 
+		// 保证ids是有序的
 		// Make sure they're sorted.
 		sort.Sort(pgids(f.ids))
 	}
 
+	// 重新索引页面缓存
 	// Rebuild the page cache.
 	f.reindex()
 }
@@ -238,12 +246,14 @@ func (f *freelist) reload(p *page) {
 	f.reindex()
 }
 
+// 重建空闲页面缓存
 // reindex rebuilds the free cache based on available and pending free lists.
 func (f *freelist) reindex() {
 	f.cache = make(map[pgid]bool, len(f.ids))
 	for _, id := range f.ids {
 		f.cache[id] = true
 	}
+	// 已经释放的可用页面
 	for _, pendingIDs := range f.pending {
 		for _, pendingID := range pendingIDs {
 			f.cache[pendingID] = true

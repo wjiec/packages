@@ -20,6 +20,7 @@ const maxMmapStep = 1 << 30 // 1GB
 // The data file format version.
 const version = 2
 
+// 表示该文件是一个bolt数据库
 // Represents a marker value to indicate that a file is a Bolt DB.
 const magic uint32 = 0xED0CDAED
 
@@ -67,6 +68,7 @@ type DB struct {
 	// bypasses a truncate() and fsync() syscall on remapping.
 	//
 	// https://github.com/boltdb/bolt/issues/284
+	// >> ext3/ext4 is not fully POSIX, to be safe there, need to fsync after file size changes
 	NoGrowSync bool
 
 	// If you want to read the entire database fast, you can set MmapFlag to
@@ -117,6 +119,8 @@ type DB struct {
 
 	rwlock   sync.Mutex   // Allows only one writer at a time.
 	metalock sync.Mutex   // Protects meta page access.
+
+	// 保护在重新映射时的访问操作
 	mmaplock sync.RWMutex // Protects mmap access during remapping.
 	statlock sync.RWMutex // Protects stats access.
 
@@ -144,12 +148,16 @@ func (db *DB) String() string {
 	return fmt.Sprintf("DB<%q>", db.path)
 }
 
+// 根据指定的路径打开或者创建一个数据库。
+// 如果文件不存在，将会自动创建。
+// 如果传入 nil 的参数，将会以默认参数打开数据库
 // Open creates and opens a database at the given path.
 // If the file does not exist then it will be created automatically.
 // Passing in nil options will cause Bolt to open the database with the default options.
 func Open(path string, mode os.FileMode, options *Options) (*DB, error) {
 	var db = &DB{opened: true}
 
+	// 如果没提供打开参数，则使用默认参数打开
 	// Set default options if no options are provided.
 	if options == nil {
 		options = DefaultOptions
@@ -157,25 +165,34 @@ func Open(path string, mode os.FileMode, options *Options) (*DB, error) {
 	db.NoGrowSync = options.NoGrowSync
 	db.MmapFlags = options.MmapFlags
 
+	// 设置之后的数据库操作默认值
 	// Set default values for later DB operations.
-	db.MaxBatchSize = DefaultMaxBatchSize
-	db.MaxBatchDelay = DefaultMaxBatchDelay
-	db.AllocSize = DefaultAllocSize
+	db.MaxBatchSize = DefaultMaxBatchSize // 默认批处理大小：1000
+	db.MaxBatchDelay = DefaultMaxBatchDelay // 默认的批处理延迟：10ms
+	db.AllocSize = DefaultAllocSize // 默认的申请内存大小：16M
 
+	// 打开文件模式，默认为读写
 	flag := os.O_RDWR
 	if options.ReadOnly {
+		// 如果属性里配置了只读，则以只读方式打开
 		flag = os.O_RDONLY
 		db.readOnly = true
 	}
 
+	// 打开文件并分隔元数据写入？
 	// Open data file and separate sync handler for metadata writes.
 	db.path = path
 	var err error
+	// 执行打开文件，如果文件不存在则会自动创建
 	if db.file, err = os.OpenFile(db.path, flag|os.O_CREATE, mode); err != nil {
+		// 打开失败则关闭数据库，并返回错误信息
 		_ = db.close()
 		return nil, err
 	}
 
+	// 当Bolt使用读写模式打开数据库文件时，另外的进程不能再次以读写模式打开该文件，否则将会
+	// 导致两个进程同时写原元数据页和空闲页。
+	// 如果数据库以读写模式打开，则会以排他方式锁定，否则将会以共享锁模式打开。
 	// Lock file so that other processes using Bolt in read-write mode cannot
 	// use the database  at the same time. This would cause corruption since
 	// the two processes would write meta pages and free pages separately.
@@ -183,6 +200,7 @@ func Open(path string, mode os.FileMode, options *Options) (*DB, error) {
 	// if !options.ReadOnly.
 	// The database file is locked using the shared lock (more than one process may
 	// hold a lock at the same time) otherwise (options.ReadOnly is set).
+	// 尝试进行文件锁定，根据是否只读决定是否以排他方式锁定，超过超时时间将返回错误
 	if err := flock(db, mode, !db.readOnly, options.Timeout); err != nil {
 		_ = db.close()
 		return nil, err
@@ -191,24 +209,34 @@ func Open(path string, mode os.FileMode, options *Options) (*DB, error) {
 	// Default values for test hooks
 	db.ops.writeAt = db.file.WriteAt
 
+	// 当数据库不存在时执行初始化工作
 	// Initialize the database if it doesn't exist.
 	if info, err := db.file.Stat(); err != nil {
+		// 尝试获取文件信息，失败则直接返回错误
 		return nil, err
 	} else if info.Size() == 0 {
+		// 如果文件是新创建的，则执行初始化元数据页
 		// Initialize new files with meta pages.
 		if err := db.init(); err != nil {
 			return nil, err
 		}
 	} else {
+		// 读取前4096字节数据（元数据）确定数据大小
 		// Read the first meta page to determine the page size.
 		var buf [0x1000]byte
 		if _, err := db.file.ReadAt(buf[:], 0); err == nil {
+			// 将数据直接映射成元数据结构体
 			m := db.pageInBuffer(buf[:], 0).meta()
+			// 检查魔数，版本，校验和是否相同，如果失败则使用系统的页面大小
 			if err := m.validate(); err != nil {
+				// 如果无法读取页面大小，我们可以假设这等同于系统的页面大小，因为这是初始化数据库
+				// 时选择的默认值
 				// If we can't read the page size, we can assume it's the same
 				// as the OS -- since that's how the page size was chosen in the
 				// first place.
 				//
+				// 如果第一个页面是无效的，并且这个系统使用了与创建数据库时不同的页面大小，那么运气
+				// 不佳，没办法访问数据库了
 				// If the first page is invalid and this OS uses a different
 				// page size than what the database was created with then we
 				// are out of luck and cannot access the database.
@@ -219,6 +247,7 @@ func Open(path string, mode os.FileMode, options *Options) (*DB, error) {
 		}
 	}
 
+	// 初始化页面池
 	// Initialize page pool.
 	db.pagePool = sync.Pool{
 		New: func() interface{} {
@@ -227,61 +256,79 @@ func Open(path string, mode os.FileMode, options *Options) (*DB, error) {
 	}
 
 	// Memory map the data file.
+	// 执行内存映射文件处理
 	if err := db.mmap(options.InitialMmapSize); err != nil {
+		// 如果映射文件失败则关闭数据库
 		_ = db.close()
 		return nil, err
 	}
 
 	// Read in the freelist.
+	// 创建空闲页面
 	db.freelist = newFreelist()
+	// 将数据从内存映射读入
 	db.freelist.read(db.page(db.meta().freelist))
 
+	// 标记数据库文件已打开，并执行返回
 	// Mark the database as opened and return.
 	return db, nil
 }
 
+// mmap打开一个基础的内存映射文件并初始化元数据引用
 // mmap opens the underlying memory-mapped file and initializes the meta references.
+// minsz是最小的新mmap操作大小
 // minsz is the minimum size that the new mmap can be.
 func (db *DB) mmap(minsz int) error {
 	db.mmaplock.Lock()
 	defer db.mmaplock.Unlock()
 
+	// 获取数据库文件的状态
 	info, err := db.file.Stat()
 	if err != nil {
+		// 如果无法获得状态则直接报错
 		return fmt.Errorf("mmap stat error: %s", err)
 	} else if int(info.Size()) < db.pageSize*2 {
+		// 如果文件的大小小于2个页面大小，则表示数据库文件损坏
 		return fmt.Errorf("file size too small")
 	}
 
+	// 保证映射大小不小于最小值
 	// Ensure the size is at least the minimum size.
 	var size = int(info.Size())
 	if size < minsz {
 		size = minsz
 	}
+
+	// 根据规则确定内存映射的大小（从32K到1GB为倍数递增，之后则为1GB递增，并且要是页面大小的整数倍）
 	size, err = db.mmapSize(size)
 	if err != nil {
 		return err
 	}
 
+	// 在解除映射前删除所有的内存映射
 	// Dereference all mmap references before unmapping.
 	if db.rwtx != nil {
 		db.rwtx.root.dereference()
 	}
 
+	// 解除已存在的所有内存映射
 	// Unmap existing data before continuing.
 	if err := db.munmap(); err != nil {
 		return err
 	}
 
+	// 创建内存映射，保存到db.data中，db.datasz表示映射大小
 	// Memory-map the data file as a byte slice.
 	if err := mmap(db, size); err != nil {
 		return err
 	}
 
+	// 保存2个元数据页的内存映射引用
 	// Save references to the meta pages.
 	db.meta0 = db.page(0).meta()
 	db.meta1 = db.page(1).meta()
 
+	// 验证两个元数据页面
 	// Validate the meta pages. We only return an error if both meta pages fail
 	// validation, since meta0 failing validation means that it wasn't saved
 	// properly -- but we can recover using meta1. And vice-versa.
@@ -294,6 +341,7 @@ func (db *DB) mmap(minsz int) error {
 	return nil
 }
 
+// 关闭数据文件映射
 // munmap unmaps the data file from memory.
 func (db *DB) munmap() error {
 	if err := munmap(db); err != nil {
@@ -302,12 +350,16 @@ func (db *DB) munmap() error {
 	return nil
 }
 
+// 根据当前数据的大小确定适当的大小，最小尺寸为32KB，每次翻倍直到1gb
+// 如果新的映射大小大于最大可允许的大小，则直接报错
 // mmapSize determines the appropriate size for the mmap given the current size
 // of the database. The minimum size is 32KB and doubles until it reaches 1GB.
 // Returns an error if the new mmap size is greater than the max allowed.
 func (db *DB) mmapSize(size int) (int, error) {
 	// Double the size from 32KB until 1GB.
+	// 默认为2^15 = 32768B = 32kb，直到2^30 = 1073741824B = 1GB
 	for i := uint(15); i <= 30; i++ {
+		// 如果这中间有一个值大于或等于需要的大小，则返回这个值
 		if size <= 1<<i {
 			return 1 << i, nil
 		}
@@ -315,22 +367,28 @@ func (db *DB) mmapSize(size int) (int, error) {
 
 	// Verify the requested size is not above the maximum allowed.
 	if size > maxMapSize {
+		// 如果需要的大小大于最大的内存映射大小，则报错
 		return 0, fmt.Errorf("mmap too large")
 	}
 
+	// 如果需要映射的大小大于1gb，则每次递增1gb
 	// If larger than 1GB then grow by 1GB at a time.
 	sz := int64(size)
+	// 不足1g的部分直接填充到1g
 	if remainder := sz % int64(maxMmapStep); remainder > 0 {
 		sz += int64(maxMmapStep) - remainder
 	}
 
+	// 确保内存映射大小是页面大小的整数倍（因为每次都是按MB递增，所以这个应该都是ok的）
 	// Ensure that the mmap size is a multiple of the page size.
 	// This should always be true since we're incrementing in MBs.
 	pageSize := int64(db.pageSize)
 	if (sz % pageSize) != 0 {
+		// 如果不是页面大小的整数倍，则增加大于该值的第一个整数倍位置
 		sz = ((sz / pageSize) + 1) * pageSize
 	}
 
+	// 最后再检查下是否大于最大的内存映射大小，如果超过就使用最大的内存映射值
 	// If we've exceeded the max size then only grow up to the max size.
 	if sz > maxMapSize {
 		sz = maxMapSize
@@ -341,16 +399,21 @@ func (db *DB) mmapSize(size int) (int, error) {
 
 // init creates a new database file and initializes its meta pages.
 func (db *DB) init() error {
+	// 获取系统的内存页面大小
 	// Set the page size to the OS page size.
 	db.pageSize = os.Getpagesize()
 
+	// 在一个缓冲区创建2个元数据页（4页内存）
 	// Create two meta pages on a buffer.
 	buf := make([]byte, db.pageSize*4)
-	for i := 0; i < 2; i++ {
+	for i := 0; i < 2; i++ { // 为什么有2个meta页面？
+		// 将缓存区内存当做 page 结构体使用
 		p := db.pageInBuffer(buf[:], pgid(i))
 		p.id = pgid(i)
+		// 页面类型为元数据类型
 		p.flags = metaPageFlag
 
+		// 初始化元数据
 		// Initialize the meta page.
 		m := p.meta()
 		m.magic = magic
@@ -363,22 +426,26 @@ func (db *DB) init() error {
 		m.checksum = m.sum64()
 	}
 
+	// 在第三个页面写入空闲页面
 	// Write an empty freelist at page 3.
 	p := db.pageInBuffer(buf[:], pgid(2))
 	p.id = pgid(2)
 	p.flags = freelistPageFlag
 	p.count = 0
 
+	// 在第四个页面写入叶子页面
 	// Write an empty leaf page at page 4.
 	p = db.pageInBuffer(buf[:], pgid(3))
 	p.id = pgid(3)
 	p.flags = leafPageFlag
 	p.count = 0
 
+	// 将缓存区字节写入0字节处
 	// Write the buffer to our data file.
 	if _, err := db.ops.writeAt(buf, 0); err != nil {
 		return err
 	}
+	// 将数据写入同步
 	if err := fdatasync(db); err != nil {
 		return err
 	}
@@ -401,33 +468,38 @@ func (db *DB) Close() error {
 	return db.close()
 }
 
+// 关闭数据库操作
 func (db *DB) close() error {
+	// 如果数据库处于未打开状态，直接返回
 	if !db.opened {
 		return nil
 	}
 
 	db.opened = false
-
 	db.freelist = nil
-
 	// Clear ops.
 	db.ops.writeAt = nil
 
 	// Close the mmap.
+	// 关闭文件数据内存映射
 	if err := db.munmap(); err != nil {
 		return err
 	}
 
+	// 关闭文件句柄
 	// Close file handles.
 	if db.file != nil {
+		// 如果文件不是只读需要解锁文件
 		// No need to unlock read-only file.
 		if !db.readOnly {
+			// 解除文件锁定
 			// Unlock the file.
 			if err := funlock(db); err != nil {
 				log.Printf("bolt.Close(): funlock error: %s", err)
 			}
 		}
 
+		// 关闭文件
 		// Close the file descriptor.
 		if err := db.file.Close(); err != nil {
 			return fmt.Errorf("db file close: %s", err)
@@ -794,6 +866,7 @@ func (db *DB) page(id pgid) *page {
 	return (*page)(unsafe.Pointer(&db.data[pos]))
 }
 
+// pageInBuffer 将一段内存（指定位置：页面id * 页面大小）当做page结构体来使用
 // pageInBuffer retrieves a page reference from a given byte array based on the current page size.
 func (db *DB) pageInBuffer(b []byte, id pgid) *page {
 	return (*page)(unsafe.Pointer(&b[id*pgid(db.pageSize)]))
@@ -979,6 +1052,7 @@ type meta struct {
 	checksum uint64
 }
 
+// 验证和检查元数据页面的魔数还有版本号，并检查校验和是否一致
 // validate checks the marker bytes and version of the meta page to ensure it matches this binary.
 func (m *meta) validate() error {
 	if m.magic != magic {
@@ -1014,9 +1088,11 @@ func (m *meta) write(p *page) {
 	m.copy(p.meta())
 }
 
+// 生成元数据的检验和
 // generates the checksum for the meta.
 func (m *meta) sum64() uint64 {
 	var h = fnv.New64a()
+	// 使用元数据 checksum 之前的所有字节计算检验值
 	_, _ = h.Write((*[unsafe.Offsetof(meta{}.checksum)]byte)(unsafe.Pointer(m))[:])
 	return h.Sum64()
 }

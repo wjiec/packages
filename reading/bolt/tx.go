@@ -10,6 +10,7 @@ import (
 	"unsafe"
 )
 
+// txid 表示内部的事务Id
 // txid represents the internal transaction identifier.
 type txid uint64
 

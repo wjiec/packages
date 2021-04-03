@@ -55,6 +55,7 @@ type Bucket struct {
 // header. In the case of inline buckets, the "root" will be 0.
 type bucket struct {
 	root     pgid   // page id of the bucket's root-level page
+	// 单调递增，递增性的BucketId
 	sequence uint64 // monotonically incrementing, used by NextSequence()
 }
 
