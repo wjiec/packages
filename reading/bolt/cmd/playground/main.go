@@ -1,26 +1,21 @@
 package main
 
 import (
-	"github.com/boltdb/bolt"
-	"os"
-	"time"
+	"fmt"
+	"unsafe"
 )
 
+type Node struct{
+	Id uint16
+	Count uint32
+}
+
 func main() {
-	db, err := bolt.Open("./bolt.db", os.FileMode(0777), &bolt.Options{ReadOnly:false, Timeout:time.Second})
-	if err != nil {
-		panic(err)
-	}
+	v := make([]byte, 6)
+	n := (*Node)(unsafe.Pointer(&v[0]))
 
-	go func() {
-		for {
-			_ = db.Update(func(tx *bolt.Tx) error {
-				time.Sleep(time.Second)
-				return nil
-			})
-		}
-	}()
+	n.Id = 1
+	n.Count = 0x0304
 
-	time.Sleep(time.Minute)
-	_ = db.Close()
+	fmt.Println(v)
 }
