@@ -36,15 +36,20 @@ func GetInstance() *Singleton { // alias for sync.Once
 }
 
 func main() {
+	start := sync.WaitGroup{}
+	start.Add(1)
+
 	wg := sync.WaitGroup{}
 	for i := 0; i < 1000; i++ {
 		wg.Add(1)
 
 		go func() {
+			start.Wait()
 			fmt.Println(unsafe.Pointer(GetInstance()))
 			wg.Done()
 		}()
 	}
 
+	start.Done()
 	wg.Wait()
 }
