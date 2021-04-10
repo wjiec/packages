@@ -1,6 +1,6 @@
 package main
 
-// static const char *s = "hello from cgo";
+// const char *s = "hello from cgo";
 import "C"
 import (
 	"fmt"
@@ -9,8 +9,14 @@ import (
 )
 
 func main() {
-	helper.PrintCString(C.s)
+	fmt.Println(C.GoString(C.s))
 
-	s := helper.CChar(*C.s)
-	fmt.Println(s.GoString())
+	// it's ok
+	fmt.Println((*helper.CChar)(C.s).GoString())
+
+	// not compatible
+	// cannot use *_Cvar_s (type *_Ctype_char) as type *helper._Ctype_char in argument to helper.PrintCString
+	//                           ^^^^^^^^^^^^          ^^^^^^^^^^^^^^^^^^^
+	helper.PrintCString(C.s)                  // comment me to compile
+	helper.PrintCString((*helper.CChar)(C.s)) // comment me to compile
 }
