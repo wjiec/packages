@@ -1,6 +1,6 @@
 package main
 
-// #include "module/hello.h"
+// #include "hello.h"
 import "C"
 
 func main() {

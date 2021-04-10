@@ -6,6 +6,20 @@ CGO编程 - 快速入门
 __没有释放使用`C.CString()`创建的C语言字符串会导致内存泄露__
 
 
+### 用GO重新实现C函数
+
+CGO不仅可以在Go语言中调用C函数，还可以将Go语言函数导出给C调用。
+```go
+package main
+
+// void sayHello(_GoString_ s);
+import "C"
+
+//export sayHello
+func sayHello(s string) {}
+```
+
+
 ### CGO编译注意事项
 
 __在使用块注释时，只能使用`/**/`，中间不能多加任何星号！__ 如下所示
@@ -51,4 +65,21 @@ them as a list of source files specifying a single package.
 ...
 ```
 
+__CGO似乎无法自动编译位于子目录中的c/c++源代码？__
+```text
+.
+├── hello
+│   ├── hello.cc
+│   └── hello.h
+└── main.go
 
+// main.go
+package main
+
+// #include "hello/hello.h"
+import "C"
+
+func main() {
+	C.sayHello(C.CString("cgo"))
+}
+```
