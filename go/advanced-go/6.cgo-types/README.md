@@ -86,15 +86,46 @@ import "C"
 ```c
 #pragma pack(1)
 struct _node_t {
-    uint8_t flags : 4;
-    uint8_t syn : 1;
-    uint8_t fin : 1;
-    // auto 2b padding
-}
+    char c;
+    int n;
+    double d;
+};
 ```
 
+C结构体中的位字段对应的成员无法在Go语言中访问，需要需要操作位字段成员，需要通过在C语言中定义辅助函数来完成。
+```cgo
+struct _node_t {
+    uint8_t flags : 6;
+    uint8_t fin : 1;
+    uint8_t syn : 1;
+};
+```
 
+Go也无法直接访问零长数组的元素（也无法通过`unsafe.OffsetOf()`来访问偏移量）。
+```cgo
+struct _node_t {
+    int hi[2];
+    int lo[];
+};
+```
 
+对于联合类型，可以通过`C.union_xxx`来访问C语言中定义的`union xxx`类型。但是Go语言并不支持C语言联合类型，它们会被转换为对应大小的字节数组。
+```cgo
+union byte_order {
+    int val;
+    union _inner_t {
+        uint8_t b0;
+        uint8_t b1;
+        uint8_t b2;
+        uint8_t b3;
+    } bs;
+};
+```
 
+对于枚举类型，可以通过`C.enum_xxx`来访问C语言中定义的`enum xxx`结构体类型。可以直接通过`C.YYY, C.ZZZ`直接访问定义的枚举值
+```cgo
+enum word_t {
+    XXX, YYY, ZZZ
+};
 
-
+```
