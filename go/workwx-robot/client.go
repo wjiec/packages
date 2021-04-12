@@ -2,10 +2,17 @@ package workrobot
 
 import (
 	"bytes"
+	"context"
+	"encoding/json"
+	"fmt"
+	"io/ioutil"
 	"net/http"
 	"net/url"
+	"sync"
 
 	"go.uber.org/multierr"
+
+	"github.com/pkg/errors"
 )
 
 const (
@@ -17,36 +24,107 @@ const (
 type Client struct {
 	hc *http.Client
 
-	key     string
 	webhook string
 }
 
-// Send send messages to the group in order
-func (c *Client) Send(messages ...Messager) (err error) {
+// Send send messages to the group in order, when error occurs
+// will be returns immediately and skip the rest of the messages
+func (c *Client) Send(messages ...Messager) error {
 	for _, msg := range messages {
-		if e := c.doSend(msg); e != nil {
-			err = multierr.Append(err, e)
+		if err := c.doSend(context.Background(), msg); err != nil {
+			return err
 		}
 	}
-	return
-}
-
-// doSend send single message to the group
-func (c *Client) doSend(msg Messager) error {
-	resp, err := c.hc.Post(c.webhook, "application/json", bytes.NewReader(msg.Message()))
-	if err != nil {
-		return err
-	}
-	defer func() { _ = resp.Body.Close() }()
 
 	return nil
 }
 
-// Option represents additional robot configuration
-type Option func(*Client) error
+// SendConcurrency send message to the group concurrency, and error will returns
+// according to fastFail, returns immediately when fastFail is true, aggregation
+// errors otherwise
+//
+// concurrency limit: 20/min, 2/sec
+// see https://work.weixin.qq.com/api/doc/90000/90136/91770#消息发送频率限制
+func (c *Client) SendConcurrency(fastFail bool, messages ...Messager) (err error) {
+	var wg sync.WaitGroup
+	var failed sync.Once
+	errs := make(chan error, len(messages))
+	ctx, cancel := context.WithCancel(context.Background())
+
+	for _, msg := range messages {
+		wg.Add(1)
+		go func(msg Messager) {
+			defer wg.Done()
+			if se := c.doSend(ctx, msg); se != nil {
+				if fastFail {
+					failed.Do(func() {
+						cancel()
+						err = se
+					})
+				} else if se != context.Canceled {
+					errs <- se
+				}
+			}
+		}(msg)
+	}
+
+	wg.Wait()
+	for {
+		select {
+		case e := <-errs:
+			err = multierr.Append(err, e)
+		default:
+			close(errs)
+			return
+		}
+	}
+}
+
+// wxSendReceipt represents an receipt from workWx
+type wxSendReceipt struct {
+	Code    int    `json:"errcode"`
+	Message string `json:"errmsg"`
+}
+
+// Error build error message and returns when error occurs
+func (r *wxSendReceipt) Error() string {
+	return fmt.Sprintf("%d: %s", r.Code, r.Message)
+}
+
+// doSend send single message to the group
+func (c *Client) doSend(ctx context.Context, msg Messager) error {
+	req, err := http.NewRequestWithContext(ctx, http.MethodPost, c.webhook, bytes.NewReader(msg.Message()))
+	if err != nil {
+		return errors.Wrap(err, "bad request")
+	}
+
+	resp, err := c.hc.Do(req)
+	if err != nil {
+		return errors.Wrap(err, "http request failed")
+	}
+	defer func() { _ = resp.Body.Close() }()
+
+	bs, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		return errors.Wrap(err, "unreadable http response")
+	}
+
+	var receipt wxSendReceipt
+	if err := json.Unmarshal(bs, &receipt); err != nil {
+		return errors.Wrap(err, "wrong http response data")
+	}
+
+	if receipt.Code != 0 {
+		return &receipt
+	}
+	return nil
+}
+
+// ClientOption represents additional robot configuration
+type ClientOption func(*Client) error
 
 // WithHttpClient override http client for robot request
-func WithHttpClient(hc *http.Client) Option {
+func WithHttpClient(hc *http.Client) ClientOption {
 	return func(client *Client) error {
 		client.hc = hc
 		return nil
@@ -54,7 +132,7 @@ func WithHttpClient(hc *http.Client) Option {
 }
 
 // WithWebhook override robot webhook address
-func WithWebhook(webhook string) Option {
+func WithWebhook(webhook string) ClientOption {
 	return func(client *Client) error {
 		api, err := url.Parse(webhook)
 		if err != nil {
@@ -66,9 +144,9 @@ func WithWebhook(webhook string) Option {
 	}
 }
 
-// New create a instance of robot
-func New(key string, options ...Option) (*Client, error) {
-	c := &Client{hc: http.DefaultClient, key: key}
+// NewClient create a instance of robot
+func NewClient(key string, options ...ClientOption) (*Client, error) {
+	c := &Client{hc: http.DefaultClient, webhook: Webhook(key)}
 	for _, opt := range options {
 		if err := opt(c); err != nil {
 			return nil, err

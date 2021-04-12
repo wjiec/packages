@@ -7,7 +7,7 @@ import (
 
 func TestWithHttpClient(t *testing.T) {
 	httpClient := &http.Client{}
-	c, _ := New(Webhook("test-case"), WithHttpClient(httpClient))
+	c, _ := NewClient(Webhook("test-case"), WithHttpClient(httpClient))
 
 	if c.hc != httpClient {
 		t.Errorf("unexpected http-client")
@@ -16,7 +16,7 @@ func TestWithHttpClient(t *testing.T) {
 
 func TestWithWebhook(t *testing.T) {
 	webhook := "https://work.example.com/send?key=test-case"
-	c, err := New("", WithWebhook(webhook))
+	c, err := NewClient("", WithWebhook(webhook))
 	if err != nil {
 		t.Fatal(err)
 	}
