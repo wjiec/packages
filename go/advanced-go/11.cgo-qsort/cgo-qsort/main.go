@@ -1,10 +1,11 @@
 package main
 
 import (
-	"advanced-go/cgo-qsort/qsortv1"
-	"advanced-go/cgo-qsort/qsortv2"
 	"fmt"
 	"unsafe"
+
+	"advanced-go/11.cgo-qsort/cgo-qsort/qsortv1"
+	"advanced-go/11.cgo-qsort/cgo-qsort/qsortv2"
 )
 
 /*
