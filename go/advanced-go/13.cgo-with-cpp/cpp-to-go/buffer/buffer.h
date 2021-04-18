@@ -17,7 +17,9 @@ class Buffer {
         const char *data();
 
     public:
-        std::ostream &operator<<(std::ostream &out);
+        friend std::ostream &operator<<(std::ostream &out, Buffer &buf);
 };
+
+std::ostream &operator<<(std::ostream &out, Buffer &ref);
 
 #endif // __BUFFER_INCLUDED__

@@ -40,6 +40,6 @@ extern const char *bufferData(CBuffer buf) {
 
 extern void printBuffer(CBuffer buf) {
     if (buf->internal != nullptr) {
-        std::cout << buf << std::endl;
+        std::cout << *(buf->internal) << std::endl;
     }
 }

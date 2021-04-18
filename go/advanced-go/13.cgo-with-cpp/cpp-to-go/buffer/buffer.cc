@@ -1,5 +1,6 @@
 #include <string>
 #include <iostream>
+#include <iomanip>
 
 #include "buffer.h"
 
@@ -27,13 +28,15 @@ const char *Buffer::data() {
     return buf->data();
 }
 
-std::ostream &Buffer::operator<<(std::ostream &out) {
-    if (buf != nullptr) {
-        for (auto i = 0; i < buf->size(); i++) {
-            out << uint8_t(buf->at(i));
+std::ostream &operator<<(std::ostream &out, Buffer &ref) {
+    if (ref.buf != nullptr) {
+        for (auto i = 0; i < ref.size(); i++) {
+            out << std::hex << std::setw(2) << std::setfill('0') << (int)(ref.buf->at(i));
 
-            if (i != 0 && i % 16 == 0) {
+            if (i != 0 && (i + 1) % 64 == 0) {
                 out << std::endl;
+            } else {
+                out << " ";
             }
         }
     }
