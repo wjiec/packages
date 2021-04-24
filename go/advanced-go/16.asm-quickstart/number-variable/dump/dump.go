@@ -1,4 +1,7 @@
 package dump
 
-var AsmId int
-var AsmSz = 0x12345678
+var Id int
+var Count = 0x0102030405060708
+
+var Name string
+var Nickname = "nickname value"
