@@ -74,3 +74,17 @@ DATA ·Name+0(SB)/8, $·Name+16(SB) // ptr
 DATA ·Name+8(SB)/8, $5 // length
 DATA ·Name+16(SB)/5, $"string"
 ```
+
+
+### 定义函数
+
+在汇编中定义函数，大致的实现（在函数调用时，Go语言函数完全通过栈传递调用参数和返回值）为：
+```text
+TEXT ·func(SB), $FRAME_SIZE-RETURN_SIZE
+    // ...
+    // CALL ...
+    // ...
+    RET
+```
+
+Go汇编同样遵循Go语言“少即是多”的哲学，只保留了最基本的特性：定义变量和全局函数。

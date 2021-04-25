@@ -4,9 +4,8 @@ import (
 	"fmt"
 	"unsafe"
 
-	"advanced-go/16.asm-quickstart/number-variable/asmod/str"
-
-	"advanced-go/16.asm-quickstart/number-variable/asmod/num"
+	"advanced-go/16.asm-quickstart/variable/asmod/num"
+	"advanced-go/16.asm-quickstart/variable/asmod/str"
 )
 
 func main() {
