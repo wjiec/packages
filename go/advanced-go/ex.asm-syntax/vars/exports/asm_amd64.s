@@ -40,7 +40,10 @@ DATA ·SliceValue+0(SB)/8, $·text<>(SB)
 DATA ·SliceValue+8(SB)/8, $8
 DATA ·SliceValue+16(SB)/8, $16
 
+#include "textflag.h"
+
 // internal
-GLOBL ·text<>(SB), 16, $16 // NOPTR
+//GLOBL ·text<>(SB), 16, $16 // NOPTR
+GLOBL ·text<>(SB), NOPTR, $16
 //DATA ·text<>(SB)/8, $"hello world long long" // overflow // asm: WriteString: bad string size: 8 < 21
 DATA ·text<>+0(SB)/8, $"hello"
