@@ -41,6 +41,6 @@ DATA ·SliceValue+8(SB)/8, $8
 DATA ·SliceValue+16(SB)/8, $16
 
 // internal
-GLOBL ·text<>(SB), NOPTR, $16
+GLOBL ·text<>(SB), 16, $16 // NOPTR
 //DATA ·text<>(SB)/8, $"hello world long long" // overflow // asm: WriteString: bad string size: 8 < 21
-DATA ·text<>(SB)/8, $"hello"
+DATA ·text<>+0(SB)/8, $"hello"
