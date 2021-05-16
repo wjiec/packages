@@ -1,0 +1,12 @@
+syntax = "proto3";
+
+package echo;
+option go_package = "advanced-go/23.go-protobuf/api/echo";
+
+service EchoService {
+  rpc Echo(Message) returns (Message);
+}
+
+message Message {
+  string value = 1;
+}
