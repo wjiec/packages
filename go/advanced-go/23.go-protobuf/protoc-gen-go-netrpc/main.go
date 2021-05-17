@@ -8,7 +8,6 @@ import (
 
 func main() {
 	protogen.Options{
-		ParamFunc: nil,
 		ImportRewriteFunc: func(importPath protogen.GoImportPath) protogen.GoImportPath {
 			return importPath
 		},

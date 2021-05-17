@@ -9,6 +9,7 @@ package echo
 import (
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
+	rpc "net/rpc"
 	reflect "reflect"
 	sync "sync"
 )
@@ -147,4 +148,30 @@ func file_echo_proto_init() {
 	file_echo_proto_depIdxs = nil
 }
 
-// @TODO netrpc code here...
+type EchoService interface {
+	Echo(Message, *Message) error
+}
+type EchoServiceClient struct {
+	c *rpc.Client
+}
+
+var _ *EchoServiceClient = (*EchoServiceClient)(nil)
+
+func (srv *EchoServiceClient) Echo(in Message, out *Message) error {
+	return srv.c.Call("EchoService.Echo", in, out)
+}
+
+func DialEchoService(network, address string) (*EchoServiceClient, error) {
+	c, err := rpc.Dial(network, address)
+	if err != nil {
+		return nil, err
+	}
+	return &EchoServiceClient{c: c}, nil
+}
+
+func RegisterEchoService(srv *rpc.Server, v EchoService) error {
+	if err := srv.RegisterName("EchoService", v); err != nil {
+		return err
+	}
+	return nil
+}
