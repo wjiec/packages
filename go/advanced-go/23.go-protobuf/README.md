@@ -11,8 +11,3 @@ __用Protobuf定义与语言无关的RPC服务接口才是它真正的价值所�
 ### 定制代码生成插件
 
 Protobuf的protoc编译器是通过插件机制实现对不同语言的支持。具体参考实例netrpc代码。
-
-
-### gRPC
-
-gRPC是谷歌基于Protobuf开发的跨语言的开源RPC框架。gRPC基于HTTP/2协议涉及，可以基于一个HTTP/2链接提供多个服务，对移动设备更加友好。

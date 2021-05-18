@@ -4,7 +4,7 @@ import (
 	"context"
 	"net"
 
-	pb "advanced-go/23.go-protobuf/api/echo"
+	pb "advanced-go/24.go-grpc/api/echo"
 	"google.golang.org/grpc"
 )
 

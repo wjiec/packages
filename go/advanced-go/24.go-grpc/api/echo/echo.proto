@@ -1,0 +1,12 @@
+syntax = "proto3";
+
+package echo;
+option go_package = "advanced-go/24.go-grpc/api/echo";
+
+service EchoService {
+  rpc Echo(Message) returns (Message);
+}
+
+message Message {
+  string value = 1;
+}
