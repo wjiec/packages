@@ -1,0 +1,14 @@
+syntax = "proto3";
+
+package pubsub;
+option go_package = "advanced-go/24.go-grpc/api/pubsub";
+
+service PubSubService {
+  rpc Publish(Topic) returns(Topic);
+  rpc Subscribe(Topic) returns(stream Topic);
+}
+
+message Topic {
+  string value = 1;
+}
+
