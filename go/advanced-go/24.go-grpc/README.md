@@ -58,3 +58,16 @@ gRPC中提供`grpc.UnaryInterceptor`和`grpc.StreamInterceptor`分别对普通�
 ### 和Web服务共存
 
 gRPC构建于HTTP/2协议之上，所以我们可以将grpc服务和普通的Web服务架设在同一个端口之上。gRPC服务已经支持实现了`g.ServeHTTP`方法。所以直接在`http.HandlerFunc`中根据是否是http2或者`content-type`是否等于`application/grpc`决定是走正常的http流程还是走`g.ServeHTTP`流程。
+
+
+### gRPC和Protobuf扩展
+
+目前开源社区以为围绕Protobuf和gRPC开发出众多扩展，形成了庞大的生态。
+
+1、在开源社区中，`github.com/mwitkow/go-proto-validators`已经基于Protobuf的扩展特性实现了功能较为强大的验证器功能。
+2、开源社区中的`grpc-gateway`项目实现了将gRPC服务转为REST服务的能力（gRPC服务一般用于集群内通信）。
+
+
+### nginx
+
+最新的nginx对grpc提供了深度支持，可以通过nginx将后端多个grpc服务聚合到一个nginx服务。同时也可以为同一个grpc服务注册多个后端做负责均衡的功能。
