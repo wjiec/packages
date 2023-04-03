@@ -12,3 +12,6 @@
 .ipynb_checkpoints
 .idea
 *.iml
+
+.DS_Store
+
