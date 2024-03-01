@@ -1,87 +1,164 @@
+use std::error::Error;
+use std::fmt::{Display, Formatter};
+
+use crate::ast::Node;
 use crate::lexer::Lexer;
+use crate::parser::ParseError::{InvalidExpression, UnknownOperator};
+use crate::token::Token;
 
-#[macro_export]
-macro_rules! eval {
-    ($a: ident $op: tt $b: ident) => {
-        {
-            eval(*$a).and_then(|a| {
-                eval(*$b).and_then(|b| Ok(a $op b))
-            })
+pub struct Parser<'a> {
+    lexer: Lexer<'a>,
+}
+
+impl<'a> Parser<'a> {
+    pub fn new(expr: &'a str) -> Self {
+        Self {
+            lexer: Lexer::new(expr),
         }
-    };
+    }
+
+    pub fn parse(&mut self) -> Result<Node, ParseError> {
+        self.expr_bp(0)
+    }
+
+    fn expr_bp(&mut self, min_bp: u8) -> Result<Node, ParseError> {
+        let mut lhs = match self.lexer.next() {
+            Some(Token::Number(f)) => Node::Number(f),
+            Some(token @ Token::Add) => {
+                let ((), r_bp) = token.prefix_binding_power().unwrap();
+
+                self.expr_bp(r_bp)?
+            }
+            Some(token @ Token::Subtract) => {
+                let ((), r_bp) = token.prefix_binding_power().unwrap();
+
+                Node::Negative(Box::new(self.expr_bp(r_bp)?))
+            }
+            Some(Token::LeftParen) => {
+                let lhs = self.expr_bp(0);
+                match self.lexer.next() {
+                    Some(next_token) => {
+                        if next_token != Token::RightParen {
+                            return Err(InvalidExpression);
+                        }
+                    }
+                    None => return Err(InvalidExpression),
+                }
+
+                lhs?
+            }
+            Some(Token::Unknown(c)) => return Err(UnknownOperator(c)),
+            _ => return Err(InvalidExpression),
+        };
+
+        loop {
+            let operator = match self.lexer.peek() {
+                Some(t @ Token::Add) => t,
+                Some(t @ Token::Subtract) => t,
+                Some(t @ Token::Multiply) => t,
+                Some(t @ Token::Divide) => t,
+                Some(t @ Token::Caret) => t,
+                _ => break,
+            };
+
+            if let Some((l_bp, r_bp)) = operator.infix_binding_power() {
+                if l_bp < min_bp {
+                    break;
+                }
+
+                self.lexer.next();
+                let rhs = self.expr_bp(r_bp)?;
+                lhs = match operator {
+                    Token::Add => Node::Add(Box::new(lhs), Box::new(rhs)),
+                    Token::Subtract => Node::Subtract(Box::new(lhs), Box::new(rhs)),
+                    Token::Multiply => Node::Multiply(Box::new(lhs), Box::new(rhs)),
+                    Token::Divide => Node::Divide(Box::new(lhs), Box::new(rhs)),
+                    Token::Caret => Node::Caret(Box::new(lhs), Box::new(rhs)),
+                    _ => return Err(InvalidExpression),
+                }
+            } else {
+                return Err(InvalidExpression);
+            }
+        }
+
+        Ok(lhs)
+    }
 }
 
-pub fn expr(input: &str) -> Result<f64, String> {
-    let mut lexer = Lexer::new(input);
-    expr_bp(&mut lexer, 0).and_then(|n| eval(n))
+#[derive(Debug)]
+pub enum ParseError {
+    InvalidExpression,
+    UnknownOperator(char),
 }
 
-fn expr_bp(lexer: &mut Lexer, min_bp: u8) -> Result<Node, String> {
-    let mut lhs = match lexer.next() {
-        Some(t) => Node::Number(0.),
-        None => Node::Number(0.),
-    };
-
-    Ok(lhs)
+impl<'a> Display for ParseError {
+    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+        match &self {
+            InvalidExpression => write!(f, "invalid expression"),
+            UnknownOperator(c) => write!(f, "unknown operator: {c}"),
+        }
+    }
 }
 
-pub enum Node {
-    Number(f64),
-    Add(Box<Node>, Box<Node>),
-    Minus(Box<Node>, Box<Node>),
-    Multiply(Box<Node>, Box<Node>),
-    Divide(Box<Node>, Box<Node>),
-    Negative(Box<Node>),
-}
+impl Error for ParseError {}
 
-pub fn eval(node: Node) -> Result<f64, String> {
-    match node {
-        Node::Number(f) => Ok(f),
-        Node::Add(a, b) => eval!(a + b),
-        Node::Minus(a, b) => eval!(a - b),
-        Node::Multiply(a, b) => eval!(a * b),
-        Node::Divide(a, b) => eval!(a / b),
-        Node::Negative(a) => eval(*a).and_then(|x| Ok(-x)),
+impl From<Box<dyn Error>> for ParseError {
+    fn from(_error: Box<dyn Error>) -> Self {
+        InvalidExpression
     }
 }
 
 #[cfg(test)]
 mod tests {
+    use crate::ast;
+
     use super::*;
 
     #[test]
     fn number() {
-        let n = Node::Number(1.0);
-        assert_eq!(eval(n), Ok(1.0))
-    }
+        let mut parser = Parser::new("1");
+        assert_eq!(ast::eval(parser.parse().unwrap()).unwrap(), 1.0);
 
-    #[test]
-    fn add() {
-        let n = Node::Add(Box::new(Node::Number(1.0)), Box::new(Node::Number(2.0)));
-        assert_eq!(eval(n), Ok(3.0))
-    }
-
-    #[test]
-    fn minus() {
-        let n = Node::Minus(Box::new(Node::Number(1.0)), Box::new(Node::Number(2.0)));
-        assert_eq!(eval(n), Ok(-1.0))
-    }
-
-    #[test]
-    fn multiply() {
-        let n = Node::Multiply(Box::new(Node::Number(1.0)), Box::new(Node::Number(2.0)));
-        assert_eq!(eval(n), Ok(2.0))
-    }
-
-    #[test]
-    fn divide() {
-        let n = Node::Divide(Box::new(Node::Number(1.0)), Box::new(Node::Number(2.0)));
-        assert_eq!(eval(n), Ok(0.5))
+        let mut parser = Parser::new("1.23");
+        assert_eq!(ast::eval(parser.parse().unwrap()).unwrap(), 1.23);
     }
 
     #[test]
     fn negative() {
-        let n = Node::Negative(Box::new(Node::Number(1.0)));
-        assert_eq!(eval(n), Ok(-1.0))
+        let mut parser = Parser::new("-123");
+        assert_eq!(ast::eval(parser.parse().unwrap()).unwrap(), -123.0);
+
+        let mut parser = Parser::new("-123.45");
+        assert_eq!(ast::eval(parser.parse().unwrap()).unwrap(), -123.45);
+    }
+
+    #[test]
+    fn add() {
+        let mut parser = Parser::new("1 + 1");
+        assert_eq!(ast::eval(parser.parse().unwrap()).unwrap(), 2.0)
+    }
+
+    #[test]
+    fn add_negative() {
+        let mut parser = Parser::new("-1 + -2");
+        assert_eq!(ast::eval(parser.parse().unwrap()).unwrap(), -3.0)
+    }
+
+    #[test]
+    fn grouping() {
+        let mut parser = Parser::new("(1 + 2) * (3 + 4 * 5)");
+        assert_eq!(ast::eval(parser.parse().unwrap()).unwrap(), 69.0)
+    }
+
+    #[test]
+    fn complex() {
+        let mut parser = Parser::new("-(1 ^ 2) * (3 + 4 * 5) - (-2 ^ 3)");
+        assert_eq!(ast::eval(parser.parse().unwrap()).unwrap(), -15.0)
+    }
+
+    #[test]
+    fn bad_grouping() {
+        let mut parser = Parser::new("(1 + 1");
+        assert!(parser.parse().is_err())
     }
 }
