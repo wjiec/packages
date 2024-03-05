@@ -36,17 +36,11 @@ impl<'a> Iterator for Lexer<'a> {
             return ans;
         }
 
-        loop {
-            match self.expr.peek() {
-                Some(c) => {
-                    if c.is_whitespace() {
-                        self.expr.next();
-                    } else {
-                        break;
-                    }
-                }
-                None => break,
+        while let Some(c) = self.expr.peek() {
+            if !c.is_whitespace() {
+                break
             }
+            self.expr.next();
         }
 
         match self.expr.next() {
