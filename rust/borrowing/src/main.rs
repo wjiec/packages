@@ -30,6 +30,15 @@ fn main() {
             let r3 = &s;
             println!("the value of r2 and r3 is '{r2}' '{r3}'");
         }
+
+        {
+            let mut a = vec![1, 2, 3];
+            let r: &mut i32 = &mut a[2]; // mutable borrow occurs here
+
+            // println!("the value of a is {:?}", a); // immutable borrow occurs here
+            *r += 1;
+            println!("the value of r is {}", r);
+        }
     }
 
     {
