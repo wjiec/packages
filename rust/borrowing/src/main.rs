@@ -48,6 +48,15 @@ fn main() {
         // s = String::from("changed string"); // cannot assign to `s` because it is borrowed
         println!("the value of r1 is {r1}");
     }
+
+    // moving data out of the reference is not ok
+    {
+        let s = String::from("hello world!");
+        let r = &s;
+
+        // let s1 = *s; // not ok
+        println!("the value of r is '{r}'");
+    }
 }
 
 // these ampersands(&) represents references, and allow
