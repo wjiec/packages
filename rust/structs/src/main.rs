@@ -6,6 +6,10 @@ struct User {
     login_count: u32,
 }
 
+// rust also supports structs that look like similar
+// to tuples, called tuple structs
+struct Color(u8, u8, u8);
+
 // unit-like structs without any fields
 //
 //  unit-like structs can be useful when you need to implement
