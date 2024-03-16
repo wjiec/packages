@@ -44,5 +44,14 @@ fn main() {
         Message::Write(String::from("hello world")).print();
         Message::ChangeColor(255, 0, 255).print();
     }
+
+    {
+        let some_number = Some(6);
+        let some_char = Some('A');
+        println!("the value of same_number and same_char is {some_number:?} and {some_char:?}");
+
+        let absent_number: Option<i32> = None;
+        println!("the value of absent_number is {absent_number:?}");
+    }
 }
 
