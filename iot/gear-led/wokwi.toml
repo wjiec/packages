@@ -1,0 +1,8 @@
+[wokwi]
+version = 1
+firmware = 'build/arduino/gear-led.ino.hex'
+elf = 'build/arduino/gear-led.ino.elf'
+
+[[chip]]
+name = 'tda61'
+binary = 'build/chip/tda61.chip.wasm'

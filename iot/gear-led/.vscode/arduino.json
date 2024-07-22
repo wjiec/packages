@@ -1,0 +1,5 @@
+{
+    "board": "arduino:avr:uno",
+    "sketch": "gear-led.ino",
+    "output": "./build/arduino"
+}

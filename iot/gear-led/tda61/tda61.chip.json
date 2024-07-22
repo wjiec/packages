@@ -1,0 +1,21 @@
+{
+  "version": 1,
+  "name": "tda61",
+  "author": "Jayson Wang",
+  "pins": [
+    "VCC",
+    "GND",
+    "RX",
+    "TX"
+  ],
+  "controls": [
+    {
+      "id": "rpm",
+      "label": "Engine RPM",
+      "type": "range",
+      "min": 0,
+      "max": 8000,
+      "step": 10
+    }
+  ]
+}
